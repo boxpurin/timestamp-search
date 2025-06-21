@@ -1,0 +1,17 @@
+[workspace]
+package.edition = "2024"
+package.publish = false
+package.license = "MIT"
+package.authors = ["boxpurin"]
+package.rust-version = "1.87.0"
+resolver = "2"
+
+members = ["infra/meilisearch", "applications/server/presentations/api", "applications/video_fetch", "domains","shared/errors", "shared/types"]
+
+
+[workspace.dependencies]
+meilisearch = { path = "infra/meilisearch" }
+types = { path = "shared/types" }
+errors = { path = "shared/errors" }
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
