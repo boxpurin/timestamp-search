@@ -8,6 +8,6 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-meilisearch-sdk = { version = "0.28.0", features = ["async"] }
+meilisearch-sdk = { version = "^0.28.0" }
 types.workspace = true
 errors.workspace = true
