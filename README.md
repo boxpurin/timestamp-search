@@ -4,8 +4,7 @@
 Webサイトとして表示するフロントエンド側。TypeScript、React
 
 ### applications/server
-・RESTful API Server
-・axum
+・RESTful API Server 
 
 #### presentation
 - RESTfulAPIのroute設定
@@ -20,15 +19,16 @@ Webサイトとして表示するフロントエンド側。TypeScript、React
     - timestamp 自サービス内部のtimestamp情報へのアクセスに関連するリポジトリ CRUD
 
 #### infra
-- meilisearch
-- youtube_api
+- meilisearch meilisearch操作関連
+- youtube_api YouTube Data API v3 アクセス用
 
 ### shared
-主にプロジェクト全体で想定されている
-#### errros
-エラーハンドリング用の型クラス
+プロジェクト全体で想定されている
+細かいツールでも参照するかもしれない型
+#### errors
+エラーハンドリング用の型
 #### types
-特定の型クラスのマクロ
+主に値オブジェクト用のマクロ
 
 ## LICENSE
 MIT
