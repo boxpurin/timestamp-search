@@ -1,4 +1,4 @@
-use google_youtube::v3::video::Video as YouTubeVideo;
+use google_youtube3::api::Video as YouTubeVideo;
 use serde::{Deserialize, Serialize};
 use crate::value_objects::video_id::VideoId;
 use crate::value_objects::video_title::VideoTitle;
@@ -9,7 +9,7 @@ use crate::entities::channel::ChannelEntity;
 pub struct VideoEntity {
     pub id: VideoId,
     pub title: VideoTitle,
-    pub descriotipn:VideoDescription,
+    pub description:VideoDescription,
     pub channel: ChannelEntity,
 }
 
