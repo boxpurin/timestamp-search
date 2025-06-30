@@ -10,6 +10,7 @@ members = ["infra/meilisearch", "applications/server/presentations/api", "applic
 
 
 [workspace.dependencies]
+domains = { path = "domains" }
 meilisearch = { path = "infra/meilisearch" }
 types = { path = "shared/types" }
 errors = { path = "shared/errors" }
