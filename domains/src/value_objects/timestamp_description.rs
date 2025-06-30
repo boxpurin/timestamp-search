@@ -1,3 +1,3 @@
 use types::impl_string_value;
 
-impl_string_value!(TimestampDescription);
+impl_string_value!(TimeStampDescription);

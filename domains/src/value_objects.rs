@@ -7,3 +7,4 @@ pub mod timestamp_id;
 pub mod video_description;
 pub mod video_id;
 pub mod video_title;
+mod thumbnail_url;

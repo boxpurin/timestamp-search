@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::value_objects::channel_id::ChannelId;
 use crate::value_objects::channel_name::ChannelName;
-use google_youtube::api::Channel as YouTubeChannel;
+use google_youtube3::api::Channel as YouTubeChannel;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChannelEntity {

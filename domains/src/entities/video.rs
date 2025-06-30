@@ -14,7 +14,7 @@ pub struct VideoEntity {
 }
 
 impl TryFrom<YouTubeVideo> for VideoEntity {
-    type Error = String;
+    type Error = &'static str;
 
     fn try_from(value: YouTubeVideo) -> Result<Self, Self::Error> {
         let id = value.id.ok_or("Video ID is missing")?;
@@ -31,7 +31,7 @@ impl TryFrom<YouTubeVideo> for VideoEntity {
         Ok(VideoEntity {
             id: VideoId::from(id),
             title: VideoTitle::from(title),
-            descriotipn: VideoDescription::from(description),
+            description: VideoDescription::from(description),
             channel,
         })
     }
