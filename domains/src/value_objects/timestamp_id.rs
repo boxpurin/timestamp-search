@@ -1,10 +1,8 @@
-use std::io::Read;
 use types::impl_string_value;
 use crate::value_objects::timestamp::TimeStamp;
 use crate::entities::video::VideoEntity;
 use sha2::Sha224;
 use sha2::Digest;
-use hex_literal::hex;
 
 impl_string_value!(TimestampId);
 
