@@ -1,1 +1,1 @@
-mod string_value;
+pub mod string_value;
