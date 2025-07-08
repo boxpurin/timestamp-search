@@ -1,11 +1,7 @@
-
 #[macro_export]
-macro_rules! impl_public_string_value {
+#[doc(hidden)]
+macro_rules!  impl_string_value_traits {
     ($name:ident) => {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $name(pub String);
-
         impl $name {
             pub fn new(value: String) -> Self {
                 $name(value)
@@ -49,12 +45,6 @@ macro_rules! impl_public_string_value {
             }
         }
 
-        impl std::cmp::PartialEq<$name> for &str {
-            fn eq(&self, other: &TestStringValue) -> bool {
-                self == &other.0
-            }
-        }
-
         impl std::cmp::PartialEq<String> for $name {
             fn eq(&self, other: &String) -> bool {
                 self.0 == *other
@@ -66,6 +56,7 @@ macro_rules! impl_public_string_value {
                 self.0 == *other
             }
         }
+
 
         impl std::str::FromStr for $name {
             type Err = std::string::ParseError;
@@ -80,6 +71,29 @@ macro_rules! impl_public_string_value {
                 write!(f, "{}", self.0)
             }
         }
+    };
+}
+
+
+#[macro_export]
+macro_rules! impl_public_string_value {
+    ($name:ident) => {
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash)]
+        #[serde(rename_all = "camelCase")]
+        pub struct $name(pub String);
+
+        $crate::impl_string_value_traits!($name);
+    };
+
+    ($name:ident, $validate: meta) => {
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash, garde::Validate)]
+        #[serde(rename_all = "camelCase")]
+        pub struct $name(
+            #[$validate]
+            pub String
+        );
+
+        $crate::impl_string_value_traits!($name);
     };
 }
 
@@ -90,85 +104,28 @@ macro_rules! impl_string_value {
         #[serde(rename_all = "camelCase")]
         pub struct $name(String);
 
-        impl $name {
-            pub fn new(value: String) -> Self {
-                $name(value)
-            }
+        $crate::impl_string_value_traits!($name);
+    };
 
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
+    ($name:ident, $validate: meta) => {
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash, garde::Validate)]
+        #[serde(rename_all = "camelCase")]
+        pub struct $name(
+            #[$validate]
+            String
+        );
 
-        impl From<$name> for String {
-            fn from(value: $name) -> String {
-                value.0
-            }
-        }
-
-        impl From<String> for $name {
-            /// Creates a new instance of `$name` from a `String`.
-            fn from(value: String) -> Self {
-                Self(value)
-            }
-        }
-
-        impl AsRef<str> for $name {
-            fn as_ref(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl std::ops::Deref for $name {
-            type Target = str;
-
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
-        }
-
-        impl std::cmp::PartialEq<$name> for String {
-            fn eq(&self, other: &$name) -> bool {
-                self == &other.0
-            }
-        }
-
-        impl std::cmp::PartialEq<String> for $name {
-            fn eq(&self, other: &String) -> bool {
-                self.0 == *other
-            }
-        }
-
-        impl std::cmp::PartialEq<&str> for $name {
-            fn eq(&self, other: &&str) -> bool {
-                self.0 == *other
-            }
-        }
-
-
-        impl std::str::FromStr for $name {
-            type Err = std::string::ParseError;
-
-            fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-                Ok($name(s.to_string()))
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{}", self.0)
-            }
-        }
+        $crate::impl_string_value_traits!($name);
     };
 }
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use garde::validate::Validate;
 
     impl_public_string_value!(TestStringValue);
     impl_string_value!(TestPrivateStringValue);
+    impl_public_string_value!(TestValiDatedValue, garde(length(max = 10)));
 
     #[test]
     fn test_string_value() {
@@ -211,7 +168,6 @@ mod tests {
 
     #[test]
     fn test_private_string_value() {
-
         // From<String> implementation
         let value: TestPrivateStringValue = "Hello, World!".to_string().into();
 
@@ -247,5 +203,18 @@ mod tests {
         // AsRef implementation
         let as_ref_value: &str = value.as_ref();
         assert_eq!(as_ref_value, "Hello, World!");
+    }
+
+    #[test]
+    fn test_validated_string_value() {
+        // Validated value
+        let valid_value = TestValiDatedValue::new("Valid".to_string());
+        assert_eq!(valid_value.as_str(), "Valid");
+        assert!(valid_value.validate().is_ok());
+
+        // Invalid value
+        let invalid_value = TestValiDatedValue::new("Too long value".to_string());
+        assert_eq!(invalid_value.as_str(), "Too long value");
+        assert!(invalid_value.validate().is_err());
     }
 }
