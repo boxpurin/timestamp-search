@@ -1,6 +1,6 @@
 #[macro_export]
 #[doc(hidden)]
-macro_rules!  impl_string_value_traits {
+macro_rules! impl_string_value_traits {
     ($name:ident) => {
         impl $name {
             pub fn new(value: String) -> Self {
@@ -26,6 +26,7 @@ macro_rules!  impl_string_value_traits {
         }
 
         impl AsRef<str> for $name {
+            /// Returns a reference to the inner string.
             fn as_ref(&self) -> &str {
                 &self.0
             }
@@ -57,7 +58,6 @@ macro_rules!  impl_string_value_traits {
             }
         }
 
-
         impl std::str::FromStr for $name {
             type Err = std::string::ParseError;
 
@@ -71,27 +71,90 @@ macro_rules!  impl_string_value_traits {
                 write!(f, "{}", self.0)
             }
         }
+
+        impl std::hash::Hash for $name {
+            fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+                self.0.hash(state);
+            }
+        }
+
+        // for garde validation rules
+        $crate::impl_string_value_validate_traits!($name);
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
+macro_rules! impl_string_value_validate_traits {
+    ($name:ident) => {
+        impl garde::rules::length::HasSimpleLength for $name {
+            fn length(&self) -> usize {
+                self.0.len()
+            }
+        }
+
+        impl garde::rules::length::HasBytes for $name {
+            fn num_bytes(&self) -> usize {
+                self.0.as_bytes().len()
+            }
+        }
+
+        impl garde::rules::length::HasChars for $name {
+            fn num_chars(&self) -> usize {
+                self.0.chars().count()
+            }
+        }
+
+        impl garde::rules::length::HasUtf16CodeUnits for $name {
+            fn num_code_units(&self) -> usize {
+                self.0.encode_utf16().count()
+            }
+        }
+
+        impl garde::rules::ascii::Ascii for $name {
+            fn validate_ascii(&self) -> bool {
+                self.0.is_ascii()
+            }
+        }
+
+        impl garde::rules::alphanumeric::Alphanumeric for $name {
+            fn validate_alphanumeric(&self) -> bool {
+                self.0.chars().all(|c| c.is_alphanumeric())
+            }
+        }
+
+        impl garde::rules::suffix::Suffix for $name {
+            fn validate_suffix(&self, suffix: &str) -> bool {
+                self.0.ends_with(suffix)
+            }
+        }
+
+        impl garde::rules::prefix::Prefix for $name {
+            fn validate_prefix(&self, prefix: &str) -> bool {
+                self.0.starts_with(prefix)
+            }
+        }
+
+        impl garde::rules::contains::Contains for $name {
+            fn validate_contains(&self, substring: &str) -> bool {
+                self.0.contains(substring)
+            }
+        }
+
+        impl garde::rules::pattern::Pattern for $name {
+            fn validate_pattern<M: garde::rules::pattern::Matcher>(&self, matcher: &M) -> bool {
+                matcher.is_match(&self.0)
+            }
+        }
+    };
+}
 
 #[macro_export]
 macro_rules! impl_public_string_value {
     ($name:ident) => {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash)]
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[serde(rename_all = "camelCase")]
         pub struct $name(pub String);
-
-        $crate::impl_string_value_traits!($name);
-    };
-
-    ($name:ident, $validate: meta) => {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash, garde::Validate)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $name(
-            #[$validate]
-            pub String
-        );
 
         $crate::impl_string_value_traits!($name);
     };
@@ -106,26 +169,14 @@ macro_rules! impl_string_value {
 
         $crate::impl_string_value_traits!($name);
     };
-
-    ($name:ident, $validate: meta) => {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Hash, garde::Validate)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $name(
-            #[$validate]
-            String
-        );
-
-        $crate::impl_string_value_traits!($name);
-    };
 }
 
 #[cfg(test)]
 mod tests {
-    use garde::validate::Validate;
+    use super::*;
 
     impl_public_string_value!(TestStringValue);
     impl_string_value!(TestPrivateStringValue);
-    impl_public_string_value!(TestValiDatedValue, garde(length(max = 10)));
 
     #[test]
     fn test_string_value() {
@@ -203,18 +254,5 @@ mod tests {
         // AsRef implementation
         let as_ref_value: &str = value.as_ref();
         assert_eq!(as_ref_value, "Hello, World!");
-    }
-
-    #[test]
-    fn test_validated_string_value() {
-        // Validated value
-        let valid_value = TestValiDatedValue::new("Valid".to_string());
-        assert_eq!(valid_value.as_str(), "Valid");
-        assert!(valid_value.validate().is_ok());
-
-        // Invalid value
-        let invalid_value = TestValiDatedValue::new("Too long value".to_string());
-        assert_eq!(invalid_value.as_str(), "Too long value");
-        assert!(invalid_value.validate().is_err());
     }
 }
