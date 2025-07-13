@@ -1,6 +1,6 @@
+use crate::value_objects::timestamp_description::TimeStampDescription;
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
-use crate::value_objects::timestamp_description::TimeStampDescription;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TimeStamp {
@@ -10,7 +10,10 @@ pub struct TimeStamp {
 
 impl TimeStamp {
     pub fn new(seconds: i64, description: TimeStampDescription) -> Self {
-        TimeStamp { seconds, description }
+        TimeStamp {
+            seconds,
+            description,
+        }
     }
 
     pub fn to_datetime(&self) -> DateTime<Utc> {

@@ -1,3 +1,3 @@
 pub mod channel;
+pub mod thumbnail;
 pub mod video;
-pub mod video_timestamp;

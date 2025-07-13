@@ -87,63 +87,57 @@ macro_rules! impl_string_value_traits {
 #[doc(hidden)]
 macro_rules! impl_string_value_validate_traits {
     ($name:ident) => {
-        impl garde::rules::length::HasSimpleLength for $name {
+        impl $crate::rules::length::HasSimpleLength for $name {
             fn length(&self) -> usize {
                 self.0.len()
             }
         }
 
-        impl garde::rules::length::HasBytes for $name {
+        impl $crate::rules::length::HasBytes for $name {
             fn num_bytes(&self) -> usize {
                 self.0.as_bytes().len()
             }
         }
 
-        impl garde::rules::length::HasChars for $name {
+        impl $crate::rules::length::HasChars for $name {
             fn num_chars(&self) -> usize {
                 self.0.chars().count()
             }
         }
 
-        impl garde::rules::length::HasUtf16CodeUnits for $name {
+        impl $crate::rules::length::HasUtf16CodeUnits for $name {
             fn num_code_units(&self) -> usize {
                 self.0.encode_utf16().count()
             }
         }
 
-        impl garde::rules::ascii::Ascii for $name {
+        impl $crate::rules::ascii::Ascii for $name {
             fn validate_ascii(&self) -> bool {
                 self.0.is_ascii()
             }
         }
 
-        impl garde::rules::alphanumeric::Alphanumeric for $name {
+        impl $crate::rules::alphanumeric::Alphanumeric for $name {
             fn validate_alphanumeric(&self) -> bool {
                 self.0.chars().all(|c| c.is_alphanumeric())
             }
         }
 
-        impl garde::rules::suffix::Suffix for $name {
+        impl $crate::rules::suffix::Suffix for $name {
             fn validate_suffix(&self, suffix: &str) -> bool {
                 self.0.ends_with(suffix)
             }
         }
 
-        impl garde::rules::prefix::Prefix for $name {
+        impl $crate::rules::prefix::Prefix for $name {
             fn validate_prefix(&self, prefix: &str) -> bool {
                 self.0.starts_with(prefix)
             }
         }
 
-        impl garde::rules::contains::Contains for $name {
+        impl $crate::rules::contains::Contains for $name {
             fn validate_contains(&self, substring: &str) -> bool {
                 self.0.contains(substring)
-            }
-        }
-
-        impl garde::rules::pattern::Pattern for $name {
-            fn validate_pattern<M: garde::rules::pattern::Matcher>(&self, matcher: &M) -> bool {
-                matcher.is_match(&self.0)
             }
         }
     };
@@ -173,8 +167,6 @@ macro_rules! impl_string_value {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     impl_public_string_value!(TestStringValue);
     impl_string_value!(TestPrivateStringValue);
 

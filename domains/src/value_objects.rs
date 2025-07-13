@@ -1,10 +1,10 @@
 pub mod channel_id;
 pub mod channel_name;
 pub mod thumbnail;
+pub mod thumbnail_url;
 pub mod timestamp;
 pub mod timestamp_description;
 pub mod timestamp_id;
 pub mod video_description;
 pub mod video_id;
 pub mod video_title;
-mod thumbnail_url;
