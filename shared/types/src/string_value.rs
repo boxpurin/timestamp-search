@@ -111,33 +111,9 @@ macro_rules! impl_string_value_validate_traits {
             }
         }
 
-        impl $crate::rules::ascii::Ascii for $name {
-            fn validate_ascii(&self) -> bool {
-                self.0.is_ascii()
-            }
-        }
-
-        impl $crate::rules::alphanumeric::Alphanumeric for $name {
-            fn validate_alphanumeric(&self) -> bool {
-                self.0.chars().all(|c| c.is_alphanumeric())
-            }
-        }
-
-        impl $crate::rules::suffix::Suffix for $name {
-            fn validate_suffix(&self, suffix: &str) -> bool {
-                self.0.ends_with(suffix)
-            }
-        }
-
-        impl $crate::rules::prefix::Prefix for $name {
-            fn validate_prefix(&self, prefix: &str) -> bool {
-                self.0.starts_with(prefix)
-            }
-        }
-
-        impl $crate::rules::contains::Contains for $name {
-            fn validate_contains(&self, substring: &str) -> bool {
-                self.0.contains(substring)
+        impl $crate::rules::AsStr for $name {
+            fn as_str(&self) -> &str {
+                self.as_str()
             }
         }
     };
