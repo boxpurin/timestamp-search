@@ -29,6 +29,3 @@ Webサイトとして表示するフロントエンド側。TypeScript、React
 エラーハンドリング用の型
 #### types
 主に値オブジェクト用のマクロ
-
-## LICENSE
-MIT
