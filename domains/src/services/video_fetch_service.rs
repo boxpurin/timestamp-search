@@ -1,7 +1,5 @@
-use crate::entities::video::VideoEntity;
 use crate::repositories::external_video_repository::ExternalVideoRepository;
 use crate::repositories::internal_video_repository::InternalVideoRepository;
-use crate::repositories::internal_video_search_repository::InternalVideoSearchRepository;
 use crate::value_objects::channel_id::ChannelId;
 
 pub struct VideoFetchService<

@@ -112,7 +112,7 @@ impl YoutubeVideoRepository {
             .doit()
             .await
             .map_err(|e| e.to_string())?;
-        let (response, channels) = result;
+        let (_response, channels) = result;
         if let Some(channels) = channels.items {
             if channels.is_empty() {
                 return Err("Channel not found".to_string());
@@ -163,7 +163,9 @@ impl YoutubeVideoRepository {
             let item = PlayListItemToVideoEntityConverter(item);
             match item.try_into() {
                 Ok(video) => videos.push(video),
-                Err(e) => {}
+                Err(_e) => {
+                    return Err("Failed to convert playlist item to video entity".to_string());
+                }
             };
         }
         // Implement the logic to fetch videos from YouTube API
