@@ -1,8 +1,8 @@
 use crate::entities::video::VideoEntity;
 use crate::value_objects::video_id::VideoId;
-use async_trait::async_trait;
 
-#[async_trait]
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
 pub trait InternalVideoRepository {
     async fn add_video_entity(&self, video_entity: &VideoEntity) -> Result<(), String>;
 

@@ -2,9 +2,9 @@
 // 想定される外部サービス: YouTube
 use crate::entities::video::VideoEntity;
 use crate::value_objects::channel_id::ChannelId;
-use async_trait::async_trait;
 
-#[async_trait]
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
 pub trait ExternalVideoRepository {
     /// チャンネルIDからビデオ情報を取得する
     ///

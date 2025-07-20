@@ -6,9 +6,27 @@ use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
 
-pub struct YoutubeVideoRepository {
-    hub: YouTube<HttpsConnector<HttpConnector>>,
+
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
+pub trait YouTubeApi {
+    async fn fetch_channel_uploads_from_api(
+        &self,
+        channel_id: &ChannelId,
+    ) -> Result<String, String>;
+
+    async fn fetch_playlist_videos_from_api(
+        &self,
+        playlist_id: &str,
+        max_results: u32,
+        page_token: &Option<String>,
+    ) -> Result<(Vec<VideoEntity>, Option<String>), String>;
 }
+
+pub struct YoutubeVideoRepository {
+    api_client: Box<dyn YouTubeApi + Send + Sync>,
+}
+
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
     let youtube_client_secret_path = std::env::var("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH")
@@ -41,8 +59,8 @@ pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
         );
 
     let hub = YouTube::new(client, auth);
-
-    YoutubeVideoRepository::new(hub)
+    let api_impl = YouTubeApiImpl{ hub };
+    YoutubeVideoRepository::new(Box::new(api_impl))
 }
 
 #[async_trait::async_trait]
@@ -58,14 +76,16 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         &self,
         channel_id: &ChannelId,
     ) -> Result<Vec<VideoEntity>, String> {
-        let uploads = self.fetch_channel_uploads_from_api(channel_id).await?;
+        let uploads = self.api_client.fetch_channel_uploads_from_api(channel_id).await?;
         let mut videos = Vec::new();
         let (mut v, mut p) = self
+            .api_client
             .fetch_playlist_videos_from_api(&uploads, 50, &None)
             .await?;
         videos.extend(v);
         while p.is_some() {
             (v, p) = self
+                .api_client
                 .fetch_playlist_videos_from_api(&uploads, 50, &p)
                 .await?;
             videos.extend(v);
@@ -76,7 +96,6 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
 
     /// YouTube APIを使用して、指定されたチャンネルIDの最新のビデオを取得します。
     ///
-    /// # Arguments
     /// * `channel_id` - チャンネルID
     /// * `count` - 取得するビデオの数
     ///
@@ -87,8 +106,12 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         channel_id: &ChannelId,
         max_results: u32,
     ) -> Result<Vec<VideoEntity>, String> {
-        let uploads = self.fetch_channel_uploads_from_api(channel_id).await?;
+        let uploads = self
+            .api_client
+            .fetch_channel_uploads_from_api(channel_id)
+            .await?;
         let (v, _) = self
+            .api_client
             .fetch_playlist_videos_from_api(&uploads, max_results, &None)
             .await?;
         Ok(v)
@@ -96,10 +119,17 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
 }
 
 impl YoutubeVideoRepository {
-    pub fn new(hub: YouTube<HttpsConnector<HttpConnector>>) -> Self {
-        YoutubeVideoRepository { hub }
+    pub fn new(api_client : Box<dyn YouTubeApi + Sync + Send>) -> Self {
+        YoutubeVideoRepository { api_client }
     }
+}
 
+struct YouTubeApiImpl {
+    hub: YouTube<HttpsConnector<HttpConnector>>,
+}
+
+#[async_trait::async_trait]
+impl YouTubeApi for YouTubeApiImpl {
     async fn fetch_channel_uploads_from_api(
         &self,
         channel_id: &ChannelId,
@@ -173,5 +203,78 @@ impl YoutubeVideoRepository {
     }
 }
 
+
 #[cfg(test)]
-mod tests {}
+mod unit_tests {
+    use super::*;
+    use domains::value_objects::video_id::VideoId;
+    use super::MockYouTubeApi;
+    use mockall::predicate::eq;
+
+    #[tokio::test]
+    #[rstest::rstest]
+    #[case(vec![])]
+    async fn test_fetch_all_videos_by_channel_id(#[case] expected:  Vec<VideoEntity>) {
+        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
+        let len = expected.len();
+        let mut mock_api = MockYouTubeApi::new();
+        mock_api
+            .expect_fetch_channel_uploads_from_api()
+            .with(eq(channel_id.clone()))
+            .returning(|_| Ok("PLBCF2DAC6FFB574DE".to_string()));
+
+        mock_api
+            .expect_fetch_playlist_videos_from_api()
+            .with(eq("PLBCF2DAC6FFB574DE"), eq(50), eq(&None))
+            .returning(move |_, _, _| Ok((expected.clone(), None)));
+
+        let repository = YoutubeVideoRepository::new(Box::new(mock_api));
+        let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
+        assert!(result.is_ok());
+        let v = result.unwrap();
+        assert_eq!(v.len() , len);
+    }
+
+    #[tokio::test]
+    async fn test_fetch_recent_video_by_channel_id() {
+        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
+        let mut mock_api = MockYouTubeApi::new();
+        mock_api
+            .expect_fetch_channel_uploads_from_api()
+            .with(eq(channel_id.clone()))
+            .returning(|_| Ok("PLBCF2DAC6FFB574DE".to_string()));
+
+        mock_api
+            .expect_fetch_playlist_videos_from_api()
+            .with(eq("PLBCF2DAC6FFB574DE"), eq(10), eq(&None))
+            .returning(|_, _, _| Ok((vec![], None)));
+
+        let repository = YoutubeVideoRepository::new(Box::new(mock_api));
+        let result = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
+    }
+}
+
+#[cfg(test)]
+mod integral_tests {
+    use super::*;
+    use domains::value_objects::channel_id::ChannelId;
+
+    #[tokio::test]
+    async fn test_youtube_video_repository() {
+        let repository = create_youtube_video_repository().await;
+        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
+
+        // Test fetching all videos by channel ID
+        let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
+        assert!(result.is_ok());
+        assert!(!result.unwrap().is_empty());
+
+        // Test fetching recent video by channel ID
+        let recent_videos = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
+        assert!(recent_videos.is_ok());
+        let videos = recent_videos.unwrap();
+        assert!(!videos.is_empty());
+    }
+}

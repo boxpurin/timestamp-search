@@ -16,3 +16,5 @@ sha2.workspace = true
 serde.workspace = true
 async-trait.workspace = true
 garde.workspace = true
+mockall.workspace = true
+tokio.workspace = true
