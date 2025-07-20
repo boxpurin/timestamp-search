@@ -5,3 +5,4 @@
 Cargo.lock
 .venv
 .node_modules
+.env
