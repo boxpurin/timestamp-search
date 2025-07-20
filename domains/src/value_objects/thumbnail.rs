@@ -1,5 +1,5 @@
 use crate::value_objects::thumbnail_url::ThumbnailUrl;
-use garde::{Validate};
+use garde::Validate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Validate)]
