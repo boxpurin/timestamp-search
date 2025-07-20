@@ -116,6 +116,22 @@ macro_rules! impl_string_value_validate_traits {
                 self.as_str()
             }
         }
+
+        impl std::borrow::Borrow<str> for $name {
+            fn borrow(&self) -> &str {
+                self.as_str()
+            }
+        }
+
+        impl std::borrow::Borrow<String> for $name {
+            fn borrow(&self) -> &String {
+                &self.0
+            }
+        }
+
+
+
+
     };
 }
 
