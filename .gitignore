@@ -1,4 +1,5 @@
 /target
+/infra/youtube/local
 .idea/**/workspace.xml
 .idea/**/statistics.xml
 .idea/**/tasks.xml

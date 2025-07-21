@@ -1,5 +1,6 @@
 docker
 target
+infra/youtube/local
 Cargo.lock
 .gitignore
 Makefile.toml
