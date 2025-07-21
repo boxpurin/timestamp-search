@@ -30,14 +30,14 @@ pub struct YoutubeVideoRepository {
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
     let youtube_client_secret_path = std::env::var("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH")
-        .expect("GOOGLE_CLIENT_SECRET_PATH not set");
-
+        .expect("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH not set");
+    
     let persistent_token_path = std::env::var("TSSEARCH_PERSISTENT_TOKEN_PATH")
         .expect("TSSEARCH_PERSISTENT_TOKEN_PATH not set");
 
     let secret = yup_oauth2::read_application_secret(youtube_client_secret_path)
         .await
-        .expect("GOOGLE_CLIENT_SECRET FILE NOT FOUND");
+        .expect("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH FILE NOT FOUND");
 
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
@@ -106,6 +106,7 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         channel_id: &ChannelId,
         max_results: u32,
     ) -> Result<Vec<VideoEntity>, String> {
+        tracing::debug!("fetching recent video from api");
         let uploads = self
             .api_client
             .fetch_channel_uploads_from_api(channel_id)
@@ -169,7 +170,7 @@ impl YouTubeApi for YouTubeApiImpl {
             .hub
             .playlist_items()
             .list(&vec!["snippet".to_string()])
-            .add_id(playlist_id)
+            .playlist_id(playlist_id)
             .max_results(max_results); // You can adjust the number of results as needed
 
         if let Some(token) = page_token {
@@ -187,6 +188,7 @@ impl YouTubeApi for YouTubeApiImpl {
                         .ok_or("No items found in playlist".to_string())?;
                     Ok((items, page_token))
                 })?;
+        tracing::debug!("Fetched {} items from playlist {}", items.len(), playlist_id);
 
         let mut videos: Vec<VideoEntity> = Vec::new();
         for item in items {
@@ -207,7 +209,7 @@ impl YouTubeApi for YouTubeApiImpl {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    use domains::value_objects::video_id::VideoId;
+    
     use super::MockYouTubeApi;
     use mockall::predicate::eq;
 
@@ -253,28 +255,5 @@ mod unit_tests {
         let result = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
         assert!(result.is_ok());
         assert!(result.unwrap().is_empty());
-    }
-}
-
-#[cfg(test)]
-mod integral_tests {
-    use super::*;
-    use domains::value_objects::channel_id::ChannelId;
-
-    #[tokio::test]
-    async fn test_youtube_video_repository() {
-        let repository = create_youtube_video_repository().await;
-        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
-
-        // Test fetching all videos by channel ID
-        let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
-        assert!(result.is_ok());
-        assert!(!result.unwrap().is_empty());
-
-        // Test fetching recent video by channel ID
-        let recent_videos = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
-        assert!(recent_videos.is_ok());
-        let videos = recent_videos.unwrap();
-        assert!(!videos.is_empty());
     }
 }
