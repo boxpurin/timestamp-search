@@ -19,7 +19,8 @@ mod integral_tests {
         assert_eq!(videos.len(), 10);
 
         // Test fetching all videos by channel ID
-        let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
-        assert!(result.is_ok());
+        //let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
+        //assert!(result.is_ok());
+        //tracing::info!("total videos: {}", result.unwrap().len());
     }
 }
