@@ -1,2 +1,2 @@
-mod timestamp;
-mod video;
+pub mod timestamp;
+pub mod video;

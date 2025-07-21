@@ -1,10 +1,11 @@
-use crate::adapter::video::PlayListItemToVideoEntityConverter;
+use crate::adapter::video::VideoEntityConverter;
 use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
 use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
+use crate::config::YOUTUBE_CLIENT;
 
 
 #[cfg_attr(test, mockall::automock)]
@@ -29,13 +30,7 @@ pub struct YoutubeVideoRepository {
 
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
-    let youtube_client_secret_path = std::env::var("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH")
-        .expect("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH not set");
-    
-    let persistent_token_path = std::env::var("TSSEARCH_PERSISTENT_TOKEN_PATH")
-        .expect("TSSEARCH_PERSISTENT_TOKEN_PATH not set");
-
-    let secret = yup_oauth2::read_application_secret(youtube_client_secret_path)
+    let secret = yup_oauth2::read_application_secret(&YOUTUBE_CLIENT.google_client_secret_path)
         .await
         .expect("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH FILE NOT FOUND");
 
@@ -43,7 +38,7 @@ pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
         secret,
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
     )
-    .persist_tokens_to_disk(persistent_token_path)
+    .persist_tokens_to_disk(&YOUTUBE_CLIENT.persistent_token_path)
     .build()
     .await
     .expect("InstalledFlowAuthenticator: builder");
@@ -129,6 +124,38 @@ struct YouTubeApiImpl {
     hub: YouTube<HttpsConnector<HttpConnector>>,
 }
 
+impl YouTubeApiImpl {
+    async fn convert_playlist_item_to_video(
+        &self,
+        item: google_youtube3::api::PlaylistItem,
+    ) -> Result<google_youtube3::api::Video, String> {
+        let id = item
+            .snippet
+            .as_ref()
+            .and_then(|s| s.resource_id.as_ref())
+            .and_then(|r| r.video_id.as_ref())
+            .ok_or("Video ID not found in playlist item")?;
+        let v = self
+            .hub
+            .videos()
+            .list(&vec!["snippet".to_string(), "contentDetails".to_string(), "liveStreamingDetails".to_string()])
+            .add_id(id)
+            .doit()
+            .await;
+
+        match v {
+            Ok((_, videos)) => {
+                if let Some(video) = videos.items.and_then(|items| items.into_iter().next()) {
+                    Ok(video)
+                } else {
+                    Err("No video found for the given ID".to_string())
+                }
+            }
+            Err(e) => Err(e.to_string()),
+        }
+    }
+}
+
 #[async_trait::async_trait]
 impl YouTubeApi for YouTubeApiImpl {
     async fn fetch_channel_uploads_from_api(
@@ -190,10 +217,27 @@ impl YouTubeApi for YouTubeApiImpl {
                 })?;
         tracing::debug!("Fetched {} items from playlist {}", items.len(), playlist_id);
 
+        let items = items
+            .into_iter()
+            .filter(|item| {
+                if let Some(snippet) = item.snippet.as_ref()
+                {
+                    snippet.resource_id.as_ref().map_or(
+                        false,
+                        |r| r.kind.as_ref()
+                            .map_or("", |k| k) == "youtube#video".to_owned()
+                    )
+                } else {
+                    false
+                }
+            })
+            .collect::<Vec<_>>();
         let mut videos: Vec<VideoEntity> = Vec::new();
         for item in items {
-            let item = PlayListItemToVideoEntityConverter(item);
-            match item.try_into() {
+            // Convert PlayListItem to YouTubeVideo
+            let v = self.convert_playlist_item_to_video(item).await?;
+            let v = VideoEntityConverter(v);
+            match v.try_into() {
                 Ok(video) => videos.push(video),
                 Err(_e) => {
                     return Err("Failed to convert playlist item to video entity".to_string());
@@ -209,13 +253,37 @@ impl YouTubeApi for YouTubeApiImpl {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    
+
+    use domains::entities::video::VideoEntity;
+    use domains::value_objects::video_id::VideoId;
+    use domains::value_objects::video_title::VideoTitle;
+    use domains::value_objects::video_description::VideoDescription;
+
+    use domains::entities::channel::ChannelEntity;
+    use domains::value_objects::channel_id::ChannelId;
+    use domains::value_objects::channel_name::ChannelName;
+
     use super::MockYouTubeApi;
     use mockall::predicate::eq;
 
     #[tokio::test]
     #[rstest::rstest]
     #[case(vec![])]
+    #[case(vec![
+        VideoEntity::new(
+            VideoId::new("video1".to_string()),
+            VideoTitle::new("Video 1".to_string()),
+            VideoDescription::new("Description 1".to_string()),
+            ChannelEntity::new(
+                ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned()),
+                ChannelName::new("Channel 1".to_string())
+            ),
+            None,
+            chrono::Utc::now(),
+            None,
+        )
+    ]
+    )]
     async fn test_fetch_all_videos_by_channel_id(#[case] expected:  Vec<VideoEntity>) {
         let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
         let len = expected.len();
