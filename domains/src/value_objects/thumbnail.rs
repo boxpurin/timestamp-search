@@ -5,9 +5,27 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Validate)]
 pub struct Thumbnail {
     #[garde(url)]
-    pub url: ThumbnailUrl,
+    url: ThumbnailUrl,
     #[garde(skip)]
-    pub width: u32,
+    width: u32,
     #[garde(skip)]
-    pub height: u32,
+    height: u32,
+}
+
+impl Thumbnail {
+    pub fn new(url: ThumbnailUrl, width: u32, height: u32) -> Self {
+        Self { url, width, height }
+    }
+
+    pub fn url(&self) -> &ThumbnailUrl {
+        &self.url
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
 }

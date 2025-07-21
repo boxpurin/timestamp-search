@@ -273,6 +273,7 @@ mod unit_tests {
         VideoEntity::new(
             VideoId::new("video1".to_string()),
             VideoTitle::new("Video 1".to_string()),
+            Vec::new(),
             VideoDescription::new("Description 1".to_string()),
             ChannelEntity::new(
                 ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned()),

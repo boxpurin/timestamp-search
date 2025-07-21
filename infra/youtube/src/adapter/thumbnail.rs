@@ -44,6 +44,6 @@ impl TryInto<ThumbnailDomain> for ThumbnailToThumbnailConverter {
         let width = inner.width.ok_or("Thumbnail width is missing")?;
         let height = inner.height.ok_or("Thumbnail height is missing")?;
 
-        Ok(ThumbnailDomain { url, width, height })
+        Ok(ThumbnailDomain::new(url, width, height))
     }
 }

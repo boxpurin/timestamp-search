@@ -5,11 +5,13 @@ use crate::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use crate::value_objects::thumbnail::Thumbnail;
+use crate::value_objects::video_tag::VideoTag;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VideoEntity {
     pub id: VideoId,
     pub title: VideoTitle,
+    pub tags: Vec<VideoTag>,
     pub description: VideoDescription,
     pub channel: ChannelEntity,
     pub thumbnail: Option<Thumbnail>,
@@ -21,6 +23,7 @@ impl VideoEntity {
     pub fn new(
         id: VideoId,
         title: VideoTitle,
+        tags: Vec<VideoTag>,
         description: VideoDescription,
         channel: ChannelEntity,
         thumbnail: Option<Thumbnail>,
@@ -30,6 +33,7 @@ impl VideoEntity {
         Self {
             id,
             title,
+            tags,
             description,
             channel,
             thumbnail,

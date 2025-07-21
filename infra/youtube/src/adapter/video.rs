@@ -5,8 +5,9 @@ use domains::value_objects::channel_name::ChannelName;
 use domains::value_objects::video_description::VideoDescription;
 use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_title::VideoTitle;
-use google_youtube3::api::{PlaylistItem, Video};
+use google_youtube3::api::Video;
 use domains::value_objects::thumbnail::Thumbnail;
+use domains::value_objects::video_tag::VideoTag;
 use crate::adapter::thumbnail::ThumbnailsToThumbnailConverter;
 
 /// Converter from YouTube Video to VideoEntity
@@ -26,6 +27,10 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         let t : Option<Thumbnail> = ThumbnailsToThumbnailConverter(thumbnails)
             .try_into().ok();
 
+        let tags = snippet.tags.unwrap_or_default().iter()
+            .map(|tag| VideoTag::new(tag.to_string()))
+            .collect::<Vec<VideoTag>>();
+
         let channel_id = snippet.channel_id.ok_or("Channel ID is missing")?;
         let channel_name = snippet.channel_title.ok_or("Channel name is missing")?;
 
@@ -37,6 +42,7 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         Ok(VideoEntity::new(
             VideoId::from(id),
             VideoTitle::from(title),
+            tags,
             VideoDescription::from(description),
             ChannelEntity::new(
                 ChannelId::from(channel_id),
