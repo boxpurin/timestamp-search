@@ -1,11 +1,11 @@
 use crate::entities::channel::ChannelEntity;
+use crate::value_objects::thumbnail::Thumbnail;
 use crate::value_objects::video_description::VideoDescription;
 use crate::value_objects::video_id::VideoId;
-use crate::value_objects::video_title::VideoTitle;
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use crate::value_objects::thumbnail::Thumbnail;
 use crate::value_objects::video_tag::VideoTag;
+use crate::value_objects::video_title::VideoTitle;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VideoEntity {
