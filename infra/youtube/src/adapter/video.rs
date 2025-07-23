@@ -1,14 +1,14 @@
+use crate::adapter::thumbnail::ThumbnailsToThumbnailConverter;
 use domains::entities::channel::ChannelEntity;
 use domains::entities::video::VideoEntity;
 use domains::value_objects::channel_id::ChannelId;
 use domains::value_objects::channel_name::ChannelName;
+use domains::value_objects::thumbnail::Thumbnail;
 use domains::value_objects::video_description::VideoDescription;
 use domains::value_objects::video_id::VideoId;
+use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use google_youtube3::api::Video;
-use domains::value_objects::thumbnail::Thumbnail;
-use domains::value_objects::video_tag::VideoTag;
-use crate::adapter::thumbnail::ThumbnailsToThumbnailConverter;
 
 /// Converter from YouTube Video to VideoEntity
 pub struct VideoEntityConverter(pub Video);
@@ -24,30 +24,31 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         let description = snippet.description.ok_or("Video description is missing")?;
 
         let thumbnails = snippet.thumbnails.ok_or("Thumbnails is missing")?;
-        let t : Option<Thumbnail> = ThumbnailsToThumbnailConverter(thumbnails)
-            .try_into().ok();
+        let t: Option<Thumbnail> = ThumbnailsToThumbnailConverter(thumbnails).try_into().ok();
 
-        let tags = snippet.tags.unwrap_or_default().iter()
+        let tags = snippet
+            .tags
+            .unwrap_or_default()
+            .iter()
             .map(|tag| VideoTag::new(tag.to_string()))
             .collect::<Vec<VideoTag>>();
 
         let channel_id = snippet.channel_id.ok_or("Channel ID is missing")?;
         let channel_name = snippet.channel_title.ok_or("Channel name is missing")?;
 
-        let published_at =  snippet.published_at.ok_or("Published date is missing")?;
+        let published_at = snippet.published_at.ok_or("Published date is missing")?;
 
-        let  ls = inner.live_streaming_details.ok_or("Live streaming details are missing")?;
-        let a= ls.actual_start_time;
+        let ls = inner
+            .live_streaming_details
+            .ok_or("Live streaming details are missing")?;
+        let a = ls.actual_start_time;
 
         Ok(VideoEntity::new(
             VideoId::from(id),
             VideoTitle::from(title),
             tags,
             VideoDescription::from(description),
-            ChannelEntity::new(
-                ChannelId::from(channel_id),
-                ChannelName::from(channel_name),
-            ),
+            ChannelEntity::new(ChannelId::from(channel_id), ChannelName::from(channel_name)),
             t,
             published_at,
             a,
