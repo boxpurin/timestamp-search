@@ -7,5 +7,8 @@ pub struct YouTubeClient {
     pub persistent_token_path: String,
 }
 
-pub static YOUTUBE_CLIENT: Lazy<YouTubeClient> =
-    Lazy::new(|| envy::prefixed("TSSEARCH_").from_env::<YouTubeClient>().unwrap());
+pub static YOUTUBE_CLIENT: Lazy<YouTubeClient> = Lazy::new(|| {
+    envy::prefixed("TSSEARCH_")
+        .from_env::<YouTubeClient>()
+        .unwrap()
+});
