@@ -6,7 +6,16 @@ package.authors = ["boxpurin"]
 package.rust-version = "1.87.0"
 resolver = "3"
 
-members = ["infra/meilisearch", "applications/server/presentations/api", "applications/video_fetch", "domains","shared/errors", "shared/types", "applications/server/entirypoint", "infra/youtube"]
+members = [
+    "infra/meilisearch",
+    "applications/server/presentations/api",
+    "applications/video_fetch",
+    "domains",
+    "shared/errors",
+    "shared/types",
+    "applications/server/entirypoint",
+    "infra/youtube"
+]
 
 [workspace.dependencies]
 domains = { path = "domains" }
@@ -25,6 +34,7 @@ tracing-test = "0.2.5"
 thiserror = { version = "2.0.12" }
 chrono = { version = "0.4", features = ["serde"] }
 axum = { version = "0.8.4", features=["json", "macros"]  }
+meilisearch-sdk = "0.29.1"
 hyper = "1.6.0"
 garde = { version = "0.22.0", features = ["derive", "url", "regex"] }
 anyhow = "1.0.98"
