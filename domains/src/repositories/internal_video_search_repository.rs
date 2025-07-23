@@ -1,4 +1,5 @@
 use crate::entities::video::VideoEntity;
+use errors::AppResult;
 
 pub struct SearchQuery {
     pub query: String,
@@ -8,5 +9,5 @@ pub struct SearchQuery {
 #[async_trait::async_trait]
 pub trait InternalVideoSearchRepository {
     async fn search_videos_by_query(&self, query: &SearchQuery)
-    -> Result<Vec<VideoEntity>, String>;
+    -> AppResult<Vec<VideoEntity>>;
 }

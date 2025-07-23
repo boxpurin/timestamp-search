@@ -1,6 +1,7 @@
 use crate::repositories::external_video_repository::ExternalVideoRepository;
 use crate::repositories::internal_video_repository::InternalVideoRepository;
 use crate::value_objects::channel_id::ChannelId;
+use errors::AppResult;
 
 pub struct VideoFetchService<E: ExternalVideoRepository, I: InternalVideoRepository> {
     external_video_repository: E,
@@ -19,12 +20,11 @@ impl<E: ExternalVideoRepository, I: InternalVideoRepository> VideoFetchService<E
         &self,
         channel_id: &ChannelId,
         count: u32,
-    ) -> Result<(), String> {
+    ) -> AppResult<()> {
         let v = self
             .external_video_repository
             .fetch_recent_video_by_channel_id(channel_id, count)
-            .await
-            .map_err(|e| e.to_string())?;
+            .await?;
 
         for video in &v {
             if !self
@@ -44,12 +44,11 @@ impl<E: ExternalVideoRepository, I: InternalVideoRepository> VideoFetchService<E
     pub async fn fetch_all_videos_by_channel_id(
         &self,
         channel_id: &ChannelId,
-    ) -> Result<(), String> {
+    ) -> AppResult<()> {
         let v = self
             .external_video_repository
             .fetch_all_videos_by_channel_id(channel_id)
-            .await
-            .map_err(|e| e.to_string())?;
+            .await?;
 
         for video in &v {
             if !self

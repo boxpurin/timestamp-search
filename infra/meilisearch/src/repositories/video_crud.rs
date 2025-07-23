@@ -3,9 +3,9 @@ use domains::repositories::internal_video_repository::InternalVideoRepository;
 use domains::value_objects::video_id::VideoId;
 
 use meilisearch_sdk::client::Client;
-use meilisearch_sdk::errors::{Error as MeilisearchError, ErrorCode, ErrorType};
-use meilisearch_sdk::macro_helper::async_trait;
+use meilisearch_sdk::errors::Error as MeilisearchError;
 use serde::Serialize;
+use errors::{AppResult, AppError};
 
 pub struct MeiliSearchVideoCrudRepository<T: MeiliSearchApi + Send + Sync> {
     client: T,
@@ -27,7 +27,7 @@ impl ApiClient {
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait MeiliSearchApi {
-    async fn add_entity<T: Serialize + Send + Sync>(
+    async fn add_entity<T: Serialize + Send + Sync + 'static>(
         &self,
         index_name: &str,
         entity: &T,
@@ -38,27 +38,30 @@ pub trait MeiliSearchApi {
 impl<T: MeiliSearchApi + Send + Sync> InternalVideoRepository
     for MeiliSearchVideoCrudRepository<T>
 {
-    async fn add_video_entity(&self, video_entity: &VideoEntity) -> Result<(), String> {
+    async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
         // Implementation for adding a video entity to MeiliSearch
+        self.client.add_entity("video_index", video_entity)
+            .await
+            .map_err(AppError::from)?;
         Ok(())
     }
 
-    async fn add_video_entities(&self, video_entities: &[VideoEntity]) -> Result<(), String> {
+    async fn add_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
         // Implementation for adding multiple video entities to MeiliSearch
         Ok(())
     }
 
-    async fn update_video_entity(&self, video_entity: &VideoEntity) -> Result<(), String> {
+    async fn update_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
         // Implementation for updating a video entity in MeiliSearch
         Ok(())
     }
 
-    async fn update_video_entities(&self, video_entities: &[VideoEntity]) -> Result<(), String> {
+    async fn update_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
         // Implementation for updating multiple video entities in MeiliSearch
         Ok(())
     }
 
-    async fn find_video_entity_by_id(&self, video_id: &VideoId) -> Result<bool, String> {
+    async fn find_video_entity_by_id(&self, video_id: &VideoId) -> AppResult<bool> {
         // Implementation for finding a video entity by ID in MeiliSearch
         Ok(true)
     }
@@ -66,22 +69,22 @@ impl<T: MeiliSearchApi + Send + Sync> InternalVideoRepository
     async fn get_video_entity_by_id(
         &self,
         video_id: &VideoId,
-    ) -> Result<Option<domains::entities::video::VideoEntity>, String> {
+    ) -> AppResult<Option<VideoEntity>> {
         // Implementation for getting a video entity by ID from MeiliSearch
         Ok(None)
     }
 
-    async fn get_all_video_entities(&self) -> Result<Vec<VideoEntity>, String> {
+    async fn get_all_video_entities(&self) -> AppResult<Vec<VideoEntity>> {
         // Implementation for getting all video entities from MeiliSearch
         Ok(vec![])
     }
 
-    async fn delete_video_entity_by_id(&self, video_id: &VideoId) -> Result<(), String> {
+    async fn delete_video_entity_by_id(&self, video_id: &VideoId) -> AppResult<()> {
         // Implementation for deleting a video entity by ID from MeiliSearch
         Ok(())
     }
 
-    async fn delete_all_video_entities(&self) -> Result<(), String> {
+    async fn delete_all_video_entities(&self) -> AppResult<()> {
         // Implementation for deleting all video entities from MeiliSearch
         Ok(())
     }

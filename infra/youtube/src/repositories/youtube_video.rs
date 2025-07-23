@@ -3,6 +3,7 @@ use crate::config::YOUTUBE_CLIENT;
 use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
+use errors::{AppResult, AppError};
 use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
@@ -13,14 +14,14 @@ pub trait YouTubeApi {
     async fn fetch_channel_uploads_from_api(
         &self,
         channel_id: &ChannelId,
-    ) -> Result<String, String>;
+    ) -> AppResult<String>;
 
     async fn fetch_playlist_videos_from_api(
         &self,
         playlist_id: &str,
         max_results: u32,
         page_token: &Option<String>,
-    ) -> Result<(Vec<VideoEntity>, Option<String>), String>;
+    ) -> AppResult<(Vec<VideoEntity>, Option<String>)>;
 }
 
 pub struct YoutubeVideoRepository {
@@ -68,7 +69,7 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
     async fn fetch_all_videos_by_channel_id(
         &self,
         channel_id: &ChannelId,
-    ) -> Result<Vec<VideoEntity>, String> {
+    ) -> AppResult<Vec<VideoEntity>> {
         let uploads = self
             .api_client
             .fetch_channel_uploads_from_api(channel_id)
@@ -77,13 +78,20 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         let (mut v, mut p) = self
             .api_client
             .fetch_playlist_videos_from_api(&uploads, 50, &None)
-            .await?;
+            .await.map_err(|e| {
+                tracing::error!("Failed to fetch playlist videos: {}", e);
+                AppError::from(e)
+            })?;
+
         videos.extend(v);
         while p.is_some() {
             (v, p) = self
                 .api_client
                 .fetch_playlist_videos_from_api(&uploads, 50, &p)
-                .await?;
+                .await.map_err(|e| {
+                    tracing::error!("Failed to fetch playlist videos: {}", e);
+                    AppError::from(e)
+                })?;
             videos.extend(v);
         }
 
@@ -101,16 +109,24 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         &self,
         channel_id: &ChannelId,
         max_results: u32,
-    ) -> Result<Vec<VideoEntity>, String> {
+    ) -> AppResult<Vec<VideoEntity>> {
         tracing::debug!("fetching recent video from api");
         let uploads = self
             .api_client
             .fetch_channel_uploads_from_api(channel_id)
-            .await?;
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to fetch channel uploads: {}", e);
+                AppError::from(e)
+            })?;
         let (v, _) = self
             .api_client
             .fetch_playlist_videos_from_api(&uploads, max_results, &None)
-            .await?;
+            .await
+            .map_err(|e|{
+                tracing::error!("Failed to fetch playlist videos: {}", e);
+                AppError::from(e)
+            })?;
         Ok(v)
     }
 }
@@ -129,14 +145,13 @@ impl YouTubeApiImpl {
     async fn convert_playlist_item_to_video(
         &self,
         item: google_youtube3::api::PlaylistItem,
-    ) -> Result<google_youtube3::api::Video, String> {
+    ) -> AppResult<google_youtube3::api::Video> {
         let id = item
             .snippet
             .as_ref()
             .and_then(|s| s.resource_id.as_ref())
-            .and_then(|r| r.video_id.as_ref())
-            .ok_or("Video ID not found in playlist item")?;
-        let v = self
+            .and_then(|r| r.video_id.as_ref()).unwrap();
+        let (_, v) = self
             .hub
             .videos()
             .list(&vec![
@@ -146,18 +161,12 @@ impl YouTubeApiImpl {
             ])
             .add_id(id)
             .doit()
-            .await;
-
-        match v {
-            Ok((_, videos)) => {
-                if let Some(video) = videos.items.and_then(|items| items.into_iter().next()) {
-                    Ok(video)
-                } else {
-                    Err("No video found for the given ID".to_string())
-                }
-            }
-            Err(e) => Err(e.to_string()),
-        }
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to fetch video details: {}", e);
+                AppError::from(e)
+            })?;
+        Ok(v.items.unwrap().into_iter().next().unwrap())
     }
 }
 
@@ -166,7 +175,7 @@ impl YouTubeApi for YouTubeApiImpl {
     async fn fetch_channel_uploads_from_api(
         &self,
         channel_id: &ChannelId,
-    ) -> Result<String, String> {
+    ) -> AppResult<String> {
         let result = self
             .hub
             .channels()
@@ -174,21 +183,25 @@ impl YouTubeApi for YouTubeApiImpl {
             .add_id(channel_id)
             .doit()
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| AppError::from(e))?;
         let (_response, channels) = result;
         if let Some(channels) = channels.items {
             if channels.is_empty() {
-                return Err("Channel not found".to_string());
+                return Err(AppError::InvalidInput("channel is not found".to_string()));
             }
             let channel = channels.into_iter().next().unwrap();
-            let content_details = channel.content_details.ok_or("Content details not found")?;
+            let content_details = channel
+                .content_details
+                .ok_or(AppError::InvalidInput("content_details".to_string()))?;
             let related_playlists = content_details
                 .related_playlists
-                .ok_or("Related playlists not found")?;
-            let uploads = related_playlists.uploads.ok_or("Uploads not found")?;
+                .ok_or(AppError::InvalidInput("related_playlists".to_string()))?;
+            let uploads = related_playlists
+                .uploads
+                .ok_or(AppError::InvalidInput("Uploads not found".to_string()))?;
             Ok(uploads)
         } else {
-            Err("Channel not found".to_string())
+            Err(AppError::InvalidInput("channel is not found".to_string()))
         }
     }
 
@@ -197,7 +210,7 @@ impl YouTubeApi for YouTubeApiImpl {
         playlist_id: &str,
         max_results: u32,
         page_token: &Option<String>,
-    ) -> Result<(Vec<VideoEntity>, Option<String>), String> {
+    ) -> AppResult<(Vec<VideoEntity>, Option<String>)> {
         let mut req = self
             .hub
             .playlist_items()
@@ -212,12 +225,15 @@ impl YouTubeApi for YouTubeApiImpl {
         let (items, page_token) =
             req.doit()
                 .await
-                .map_err(|e| e.to_string())
-                .and_then(|(_, items)| {
+                .map_err(|e| {
+                    AppError::from(e)
+                }).and_then(|(_, items)| {
                     let page_token = items.next_page_token;
                     let items = items
                         .items
-                        .ok_or("No items found in playlist".to_string())?;
+                        .ok_or(AppError::InvalidInput(
+                            "No items found in playlist".to_string()
+                        ))?;
                     Ok((items, page_token))
                 })?;
         tracing::debug!(
@@ -245,8 +261,8 @@ impl YouTubeApi for YouTubeApiImpl {
             let v = VideoEntityConverter(v);
             match v.try_into() {
                 Ok(video) => videos.push(video),
-                Err(_e) => {
-                    return Err("Failed to convert playlist item to video entity".to_string());
+                Err(e) => {
+                    return Err(e);
                 }
             };
         }

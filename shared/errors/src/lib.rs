@@ -4,10 +4,9 @@ use axum::{
 };
 use meilisearch_sdk::errors::Error::{Meilisearch, MeilisearchCommunication};
 use meilisearch_sdk::errors::{
-    Error as MeiliSearchError, ErrorCode as MeiliSearchErrorCode, ErrorType as MeiliSearchErrorType,
+    Error as MeiliSearchError, ErrorType as MeiliSearchErrorType,
 };
 use google_youtube3::Error as Youtube3Error;
-
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
@@ -36,9 +35,57 @@ pub enum AppError {
     ServiceUnavailable(String),
 }
 
-impl Into<AppError> for MeiliSearchError {
-    fn into(self) -> AppError {
-        match self {
+impl From<Youtube3Error> for AppError {
+    fn from(e: Youtube3Error) -> Self {
+        match e {
+            Youtube3Error::HttpError(e) => {
+                AppError::InternalServerError(format!("HTTP error in YouTube API: {}", e))
+            },
+            Youtube3Error::UploadSizeLimitExceeded(i, e) => {
+                AppError::InvalidInput(format!(
+                    "Upload size limit exceeded: {} bytes. Error: {}",
+                    i, e
+                ))
+            },
+            Youtube3Error::BadRequest(v) => {
+                AppError::InvalidInput(format!(
+                    "Bad request to YouTube API: {:?}", v
+                ))
+            },
+            Youtube3Error::MissingAPIKey => {
+                AppError::Unauthorized("YouTube API key is missing".to_string())
+            },
+            Youtube3Error::MissingToken(_) => {
+                AppError::Unauthorized("YouTube API token is missing.".to_string())
+            },
+            Youtube3Error::Cancelled => {
+                AppError::ServiceUnavailable("YouTube API request was cancelled".to_string())
+            },
+            Youtube3Error::FieldClash(s) => {
+                AppError::InvalidInput(format!("Field clash in YouTube API response: {}", s))
+            },
+            Youtube3Error::JsonDecodeError(s, e) => {
+                AppError::InvalidInput(format!(
+                    "JSON decode error in YouTube API response: {}. Error: {}",
+                    s, e
+                ))
+            },
+            Youtube3Error::Failure(r) => {
+                AppError::InternalServerError(format!(
+                    "Failure in YouTube API response: {:?}",
+                    r
+                ))
+            },
+            Youtube3Error::Io(e) => {
+                AppError::InternalServerError(format!("IO error in YouTube API: {}", e))
+            },
+        }
+    }
+}
+
+impl From<MeiliSearchError> for AppError {
+    fn from(e: MeiliSearchError) -> AppError {
+        match e {
             Meilisearch(e) => match e.error_type {
                 MeiliSearchErrorType::InvalidRequest => AppError::InvalidInput(e.error_message),
                 MeiliSearchErrorType::Auth => AppError::Unauthorized(e.error_message),
@@ -108,7 +155,12 @@ impl Into<AppError> for MeiliSearchError {
             MeiliSearchError::InvalidUuid4Version => {
                 AppError::InvalidInput("Invalid UUID4 version".to_string())
             },
-            _ => AppError::InternalServerError(self.to_string()),
+            _ => {
+                AppError::InternalServerError(format!(
+                    "An unknown error occurred in Meilisearch: {}",
+                    e
+                ))
+            },
         }
     }
 }

@@ -9,21 +9,31 @@ use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use google_youtube3::api::Video;
+use errors::AppError::{self, DomainParseError};
 
 /// Converter from YouTube Video to VideoEntity
 pub struct VideoEntityConverter(pub Video);
 
 impl TryInto<VideoEntity> for VideoEntityConverter {
-    type Error = String;
+    type Error = AppError;
 
     fn try_into(self) -> Result<VideoEntity, Self::Error> {
         let inner = self.0;
-        let snippet = inner.snippet.ok_or("Video snippet is missing")?;
-        let id = inner.id.ok_or("Video ID is missing")?;
-        let title = snippet.title.ok_or("Video title is missing")?;
-        let description = snippet.description.ok_or("Video description is missing")?;
-
-        let thumbnails = snippet.thumbnails.ok_or("Thumbnails is missing")?;
+        let snippet = inner.snippet.ok_or(
+            DomainParseError("Video snippet is missing".to_string())
+        )?;
+        let id = inner.id.ok_or(
+            DomainParseError("Video id is missing".to_string())
+        )?;
+        let title = snippet.title.ok_or(
+            DomainParseError("Video title is missing".to_string())
+        )?;
+        let description = snippet.description.ok_or(
+            DomainParseError("Video description is missing".to_string())
+        )?;
+        let thumbnails = snippet.thumbnails.ok_or(
+            DomainParseError("Thumbnails is missing".to_string())
+        )?;
         let t: Option<Thumbnail> = ThumbnailsToThumbnailConverter(thumbnails).try_into().ok();
 
         let tags = snippet
@@ -33,14 +43,22 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             .map(|tag| VideoTag::new(tag.to_string()))
             .collect::<Vec<VideoTag>>();
 
-        let channel_id = snippet.channel_id.ok_or("Channel ID is missing")?;
-        let channel_name = snippet.channel_title.ok_or("Channel name is missing")?;
+        let channel_id = snippet.channel_id.ok_or(
+            DomainParseError("Channel ID is missing".to_string())
+        )?;
+        let channel_name = snippet.channel_title.ok_or(
+            DomainParseError("Channel name is missing".to_string())
+        )?;
 
-        let published_at = snippet.published_at.ok_or("Published date is missing")?;
+        let published_at = snippet.published_at.ok_or(
+            DomainParseError("Published date is missing".to_string())
+        )?;
 
         let ls = inner
             .live_streaming_details
-            .ok_or("Live streaming details are missing")?;
+            .ok_or(
+                DomainParseError("Live streaming details are missing".to_string())
+            )?;
         let a = ls.actual_start_time;
 
         Ok(VideoEntity::new(

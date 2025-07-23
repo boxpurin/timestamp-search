@@ -2,6 +2,7 @@
 // 想定される外部サービス: YouTube
 use crate::entities::video::VideoEntity;
 use crate::value_objects::channel_id::ChannelId;
+use errors::AppResult;
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
@@ -16,7 +17,7 @@ pub trait ExternalVideoRepository {
     async fn fetch_all_videos_by_channel_id(
         &self,
         channel_id: &ChannelId,
-    ) -> Result<Vec<VideoEntity>, String>;
+    ) -> AppResult<Vec<VideoEntity>>;
 
     /// チャンネルIDから直近のビデオ情報を取得する
     /// # Arguments
@@ -28,5 +29,5 @@ pub trait ExternalVideoRepository {
         &self,
         channel_id: &ChannelId,
         count: u32,
-    ) -> Result<Vec<VideoEntity>, String>;
+    ) -> AppResult<Vec<VideoEntity>>;
 }
