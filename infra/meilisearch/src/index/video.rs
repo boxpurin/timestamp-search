@@ -1,13 +1,13 @@
 use chrono::{DateTime, Utc};
+use domains::entities::video::VideoEntity;
+use domains::value_objects::channel_id::ChannelId;
+use domains::value_objects::channel_name::ChannelName;
 use domains::value_objects::thumbnail_url::ThumbnailUrl;
 use domains::value_objects::video_description::VideoDescription;
 use domains::value_objects::video_id::VideoId;
+use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
-use domains::entities::video::VideoEntity;
-use domains::value_objects::video_tag::VideoTag;
-use domains::value_objects::channel_id::ChannelId;
-use domains::value_objects::channel_name::ChannelName;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoIndex {
@@ -65,5 +65,21 @@ impl VideoIndex {
 impl From<VideoEntity> for VideoIndex {
     fn from(video: VideoEntity) -> Self {
         VideoIndex::from_entity(video)
+    }
+}
+
+impl Into<VideoEntity> for VideoIndex {
+    fn into(self) -> VideoEntity {
+        VideoEntity::new(
+            self.video_id,
+            self.video_title,
+            self.video_tags,
+            self.video_description,
+            domains::entities::channel::ChannelEntity::new(self.channel_id, self.channel_name),
+            self.thumbnail_url
+                .map(|url| domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240)),
+            self.published_at,
+            self.actual_start_time,
+        )
     }
 }

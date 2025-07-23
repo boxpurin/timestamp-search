@@ -1,1 +1,2 @@
-mod index;
+pub mod index;
+pub mod repositories;
