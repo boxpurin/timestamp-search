@@ -1,12 +1,11 @@
 use crate::adapter::video::VideoEntityConverter;
+use crate::config::YOUTUBE_CLIENT;
 use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
 use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
-use crate::config::YOUTUBE_CLIENT;
-
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
@@ -27,7 +26,6 @@ pub trait YouTubeApi {
 pub struct YoutubeVideoRepository {
     api_client: Box<dyn YouTubeApi + Send + Sync>,
 }
-
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
     let secret = yup_oauth2::read_application_secret(&YOUTUBE_CLIENT.google_client_secret_path)
@@ -54,7 +52,7 @@ pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
         );
 
     let hub = YouTube::new(client, auth);
-    let api_impl = YouTubeApiImpl{ hub };
+    let api_impl = YouTubeApiImpl { hub };
     YoutubeVideoRepository::new(Box::new(api_impl))
 }
 
@@ -71,7 +69,10 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         &self,
         channel_id: &ChannelId,
     ) -> Result<Vec<VideoEntity>, String> {
-        let uploads = self.api_client.fetch_channel_uploads_from_api(channel_id).await?;
+        let uploads = self
+            .api_client
+            .fetch_channel_uploads_from_api(channel_id)
+            .await?;
         let mut videos = Vec::new();
         let (mut v, mut p) = self
             .api_client
@@ -115,7 +116,7 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
 }
 
 impl YoutubeVideoRepository {
-    pub fn new(api_client : Box<dyn YouTubeApi + Sync + Send>) -> Self {
+    pub fn new(api_client: Box<dyn YouTubeApi + Sync + Send>) -> Self {
         YoutubeVideoRepository { api_client }
     }
 }
@@ -138,7 +139,11 @@ impl YouTubeApiImpl {
         let v = self
             .hub
             .videos()
-            .list(&vec!["snippet".to_string(), "contentDetails".to_string(), "liveStreamingDetails".to_string()])
+            .list(&vec![
+                "snippet".to_string(),
+                "contentDetails".to_string(),
+                "liveStreamingDetails".to_string(),
+            ])
             .add_id(id)
             .doit()
             .await;
@@ -215,18 +220,19 @@ impl YouTubeApi for YouTubeApiImpl {
                         .ok_or("No items found in playlist".to_string())?;
                     Ok((items, page_token))
                 })?;
-        tracing::debug!("Fetched {} items from playlist {}", items.len(), playlist_id);
+        tracing::debug!(
+            "Fetched {} items from playlist {}",
+            items.len(),
+            playlist_id
+        );
 
         let items = items
             .into_iter()
             .filter(|item| {
-                if let Some(snippet) = item.snippet.as_ref()
-                {
-                    snippet.resource_id.as_ref().map_or(
-                        false,
-                        |r| r.kind.as_ref()
-                            .map_or("", |k| k) == "youtube#video".to_owned()
-                    )
+                if let Some(snippet) = item.snippet.as_ref() {
+                    snippet.resource_id.as_ref().map_or(false, |r| {
+                        r.kind.as_ref().map_or("", |k| k) == "youtube#video".to_owned()
+                    })
                 } else {
                     false
                 }
@@ -249,15 +255,14 @@ impl YouTubeApi for YouTubeApiImpl {
     }
 }
 
-
 #[cfg(test)]
 mod unit_tests {
     use super::*;
 
     use domains::entities::video::VideoEntity;
+    use domains::value_objects::video_description::VideoDescription;
     use domains::value_objects::video_id::VideoId;
     use domains::value_objects::video_title::VideoTitle;
-    use domains::value_objects::video_description::VideoDescription;
 
     use domains::entities::channel::ChannelEntity;
     use domains::value_objects::channel_id::ChannelId;
@@ -285,7 +290,7 @@ mod unit_tests {
         )
     ]
     )]
-    async fn test_fetch_all_videos_by_channel_id(#[case] expected:  Vec<VideoEntity>) {
+    async fn test_fetch_all_videos_by_channel_id(#[case] expected: Vec<VideoEntity>) {
         let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
         let len = expected.len();
         let mut mock_api = MockYouTubeApi::new();
@@ -303,7 +308,7 @@ mod unit_tests {
         let result = repository.fetch_all_videos_by_channel_id(&channel_id).await;
         assert!(result.is_ok());
         let v = result.unwrap();
-        assert_eq!(v.len() , len);
+        assert_eq!(v.len(), len);
     }
 
     #[tokio::test]
@@ -321,7 +326,9 @@ mod unit_tests {
             .returning(|_, _, _| Ok((vec![], None)));
 
         let repository = YoutubeVideoRepository::new(Box::new(mock_api));
-        let result = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
+        let result = repository
+            .fetch_recent_video_by_channel_id(&channel_id, 10)
+            .await;
         assert!(result.is_ok());
         assert!(result.unwrap().is_empty());
     }
