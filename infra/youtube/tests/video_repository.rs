@@ -1,9 +1,8 @@
-
 #[cfg(test)]
 mod integral_tests {
-    use youtube::repositories::youtube_video::create_youtube_video_repository;
     use domains::repositories::external_video_repository::ExternalVideoRepository;
     use domains::value_objects::channel_id::ChannelId;
+    use youtube::repositories::youtube_video::create_youtube_video_repository;
 
     #[tokio::test]
     #[tracing_test::traced_test]
@@ -12,7 +11,9 @@ mod integral_tests {
         let channel_id = ChannelId::new("UCf2I8ZGg0uS4FfFTdypJ5Xg".to_owned());
 
         // Test fetching recent video by channel ID
-        let recent_videos = repository.fetch_recent_video_by_channel_id(&channel_id, 10).await;
+        let recent_videos = repository
+            .fetch_recent_video_by_channel_id(&channel_id, 10)
+            .await;
         assert!(recent_videos.is_ok());
 
         let videos = recent_videos.unwrap();
