@@ -7,4 +7,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
+axum.workspace = true
 thiserror.workspace = true
+meilisearch-sdk.workspace = true
+google-youtube3.workspace = true
