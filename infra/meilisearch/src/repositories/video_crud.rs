@@ -32,6 +32,56 @@ pub trait MeiliSearchApi {
         index_name: &str,
         entity: &T,
     ) -> Result<(), MeilisearchError>;
+
+    async fn add_entities<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        entities: &[T],
+    ) -> Result<(), MeilisearchError>;
+
+    async fn update_entity<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        entity: &T,
+    ) -> Result<(), MeilisearchError>;
+
+    async fn update_entities<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        entities: &[T],
+    ) -> Result<(), MeilisearchError>;
+
+    async fn find_entity_by_id<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<bool, MeilisearchError>;
+
+    async fn find_entities_by_id<T: Serialize + Send + Sync + 'static>
+        (&self, index_name: &str, ids: &[String])
+        -> Result<Vec<T>, MeilisearchError>;
+
+    async fn get_entity_by_id<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<Option<T>, MeilisearchError>;
+
+    async fn get_all_entities<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+    ) -> Result<Vec<T>, MeilisearchError>;
+
+    async fn delete_entity_by_id<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<(), MeilisearchError>;
+
+    async fn delete_all_entities<T: Serialize + Send + Sync + 'static>(
+        &self,
+        index_name: &str,
+    ) -> Result<(), MeilisearchError>;
 }
 
 #[async_trait::async_trait]
@@ -92,7 +142,7 @@ impl<T: MeiliSearchApi + Send + Sync> InternalVideoRepository
 
 #[async_trait::async_trait]
 impl MeiliSearchApi for ApiClient {
-    async fn add_entity<T: Serialize + Send + Sync>(
+    async fn add_entity<T: Serialize + Send + Sync + 'static>(
         &self,
         index_name: &str,
         entity: &T,
@@ -105,5 +155,47 @@ impl MeiliSearchApi for ApiClient {
             .await?;
 
         Ok(())
+    }
+
+    async fn add_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
+        let i = self.client.get_index(index_name).await?;
+        let _ = i
+            .add_documents(entities, Some("id"))
+            .await?
+            .wait_for_completion(&self.client, None, None)
+            .await?;
+        Ok(())
+    }
+
+    async fn update_entity<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
+        todo!()
+    }
+
+    async fn update_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
+        todo!()
+    }
+
+    async fn find_entity_by_id<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, id: &str) -> Result<bool, MeilisearchError> {
+        todo!()
+    }
+
+    async fn find_entities_by_id<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, ids: &[String]) -> Result<Vec<T>, MeilisearchError> {
+        todo!()
+    }
+
+    async fn get_entity_by_id<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, id: &str) -> Result<Option<T>, MeilisearchError> {
+        todo!()
+    }
+
+    async fn get_all_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str) -> Result<Vec<T>, MeilisearchError> {
+        todo!()
+    }
+
+    async fn delete_entity_by_id<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, id: &str) -> Result<(), MeilisearchError> {
+        todo!()
+    }
+
+    async fn delete_all_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str) -> Result<(), MeilisearchError> {
+        todo!()
     }
 }

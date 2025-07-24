@@ -155,6 +155,10 @@ impl From<MeiliSearchError> for AppError {
             MeiliSearchError::InvalidUuid4Version => {
                 AppError::InvalidInput("Invalid UUID4 version".to_string())
             },
+            MeiliSearchError::Other(e) =>
+                // This is a catch-all for any other Meilisearch errors that don't fit the above categories
+                // It should be used carefully, as it may mask specific issues.
+                AppError::InternalServerError(format!("An unknown error occurred in Meilisearch: {}", e)),
             _ => {
                 AppError::InternalServerError(format!(
                     "An unknown error occurred in Meilisearch: {}",

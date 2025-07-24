@@ -8,6 +8,7 @@ use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
+use crate::index::Index;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoIndex {
@@ -81,5 +82,11 @@ impl Into<VideoEntity> for VideoIndex {
             self.published_at,
             self.actual_start_time,
         )
+    }
+}
+
+impl Index for VideoIndex {
+    fn pid(&self) -> Option<&str> {
+        Some("video_id")
     }
 }
