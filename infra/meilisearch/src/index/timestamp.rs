@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use chrono::{ DateTime, Utc };
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;
+use domains::value_objects::timestamp::TimeStamp;
 use errors::{AppError, AppResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,14 +60,15 @@ impl VideoTimeStampDetails {
     }
 }
 
-impl From<VideoEntity> for VideoTimeStampDetails {
-    fn from(video: VideoEntity) -> Self {
-        VideoTimeStampDetails {
-            video_title: video.title,
-            tags: video.tags,
-            published_at: video.published_at,
-            actual_start_time: video.actual_start_time,
-        }
+impl Into<VideoTimestampEntity> for TimeStampIndex {
+    fn into(self) -> VideoTimestampEntity {
+        VideoTimestampEntity::new(
+            self.video_id,
+            TimeStamp ::new(
+                self.start_time,
+                self.description
+            )
+        )
     }
 }
 
