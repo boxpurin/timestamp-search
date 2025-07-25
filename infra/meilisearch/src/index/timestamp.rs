@@ -10,6 +10,12 @@ use domains::entities::video::VideoEntity;
 use domains::value_objects::timestamp::TimeStamp;
 use errors::{AppError, AppResult};
 
+// 想定されている型変換は
+// VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
+// 逆に取得する時は TimeStampIndex から VideoTimestampEntity への変換
+// VideoEntity へ変換する場合は TimeStampIndex ではなく VideoId等を使って VideoIndex を MeiliSearch から取得する
+// このインデックスを最小化する場合、VideoIndex TimeStampIndex へそれぞれ通信を行う方法でも良いが、通信削減のため今回はこの形にしている。
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimeStampIndex {
     pub pid: TimestampId,
@@ -35,7 +41,49 @@ impl TimeStampIndex {
             video_details,
         }
     }
+
+    pub fn from_entity(
+        video: VideoEntity,
+        timestamp: TimeStamp,
+    ) -> Self {
+        TimeStampIndex::new(
+            TimestampId::from_timestamp(&video, &timestamp),
+            video.id.clone(),
+            timestamp.description,
+            timestamp.seconds,
+            Some(VideoTimeStampDetails::from_entity(video)),
+        )
+    }
+
+    pub fn take_video_details(self) -> AppResult<VideoTimeStampDetails> {
+        self.video_details
+            .ok_or(AppError::DomainParseError("VideoTimeStampDetails is missing".to_string()))
+    }
+
+    pub fn into_entity(self) -> VideoTimestampEntity {
+        VideoTimestampEntity::new(
+            self.video_id,
+            TimeStamp::new(self.start_time, self.description),
+        )
+    }
+
+    pub fn into_timestamp(self) -> TimeStamp {
+        TimeStamp::new(self.start_time, self.description)
+    }
 }
+
+impl Into<VideoTimestampEntity> for TimeStampIndex {
+    fn into(self) -> VideoTimestampEntity {
+        VideoTimestampEntity::new(
+            self.video_id,
+            TimeStamp ::new(
+                self.start_time,
+                self.description
+            )
+        )
+    }
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoTimeStampDetails {
@@ -58,25 +106,13 @@ impl VideoTimeStampDetails {
             actual_start_time,
         }
     }
-}
 
-impl Into<VideoTimestampEntity> for TimeStampIndex {
-    fn into(self) -> VideoTimestampEntity {
-        VideoTimestampEntity::new(
-            self.video_id,
-            TimeStamp ::new(
-                self.start_time,
-                self.description
-            )
+    pub fn from_entity(video: VideoEntity) -> Self {
+        VideoTimeStampDetails::new(
+            video.title,
+            video.tags,
+            video.published_at,
+            video.actual_start_time,
         )
-    }
-}
-
-impl TryFrom<TimeStampIndex> for VideoTimeStampDetails {
-    type Error = AppError;
-    fn try_from(index: TimeStampIndex) -> AppResult<Self> {
-        index
-            .video_details
-            .ok_or(AppError::DomainParseError("VideoTimeStampDetails is missing".to_string()))
     }
 }
