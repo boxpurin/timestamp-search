@@ -87,6 +87,14 @@ impl Into<VideoEntity> for VideoIndex {
 
 impl Index for VideoIndex {
     fn pid(&self) -> Option<&str> {
+        Some(self.video_id.as_str())
+    }
+
+    fn pid_field() -> Option<&'static str> {
         Some("video_id")
+    }
+
+    fn name() -> &'static str {
+        "video_index"
     }
 }

@@ -9,6 +9,7 @@ use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;
 use domains::value_objects::timestamp::TimeStamp;
 use errors::{AppError, AppResult};
+use crate::index::Index;
 
 // 想定されている型変換は
 // VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
@@ -81,6 +82,20 @@ impl Into<VideoTimestampEntity> for TimeStampIndex {
                 self.description
             )
         )
+    }
+}
+
+impl Index for TimeStampIndex {
+    fn pid(&self) -> Option<&str> {
+        Some(self.pid.as_str())
+    }
+
+    fn pid_field() -> Option<&'static str> {
+        Some("pid")
+    }
+
+    fn name() -> &'static str {
+        "timestamp_index"
     }
 }
 

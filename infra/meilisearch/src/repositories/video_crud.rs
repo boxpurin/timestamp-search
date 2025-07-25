@@ -4,10 +4,12 @@ use domains::value_objects::video_id::VideoId;
 
 use meilisearch_sdk::client::Client;
 use meilisearch_sdk::errors::Error as MeilisearchError;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use errors::{AppResult, AppError};
+use crate::index::Index;
+use crate::index::video::VideoIndex;
 
-pub struct MeiliSearchVideoCrudRepository<T: MeiliSearchApi + Send + Sync> {
+pub struct MeiliSearchVideoCrudRepository<T: MeiliSearchApi<VideoIndex> + Send + Sync> {
     client: T,
 }
 
@@ -26,7 +28,7 @@ impl ApiClient {
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
-pub trait MeiliSearchApi {
+pub trait MeiliSearchApi<I: Serialize + Index + Send + Sync + 'static> {
     async fn add_entity<T: Serialize + Send + Sync + 'static>(
         &self,
         index_name: &str,
@@ -51,7 +53,7 @@ pub trait MeiliSearchApi {
         entities: &[T],
     ) -> Result<(), MeilisearchError>;
 
-    async fn find_entity_by_id<T: Serialize + Send + Sync + 'static>(
+    async fn find_entity_by_id<T: Serialize + Send + Sync +  'static>(
         &self,
         index_name: &str,
         id: &str,
@@ -85,7 +87,7 @@ pub trait MeiliSearchApi {
 }
 
 #[async_trait::async_trait]
-impl<T: MeiliSearchApi + Send + Sync> InternalVideoRepository
+impl<T: MeiliSearchApi<VideoIndex> + Send + Sync> InternalVideoRepository
     for MeiliSearchVideoCrudRepository<T>
 {
     async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
@@ -141,7 +143,7 @@ impl<T: MeiliSearchApi + Send + Sync> InternalVideoRepository
 }
 
 #[async_trait::async_trait]
-impl MeiliSearchApi for ApiClient {
+impl<I: Index + Serialize  + Sync + Send + 'static > MeiliSearchApi<I> for ApiClient {
     async fn add_entity<T: Serialize + Send + Sync + 'static>(
         &self,
         index_name: &str,
@@ -160,19 +162,34 @@ impl MeiliSearchApi for ApiClient {
     async fn add_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
-            .add_documents(entities, Some("id"))
+            .add_documents(entities, I::pid_field())
             .await?
             .wait_for_completion(&self.client, None, None)
             .await?;
+
         Ok(())
     }
 
     async fn update_entity<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
-        todo!()
+        let i = self.client.get_index(index_name).await?;
+        let _ = i
+            .add_or_update(&[entity], I::pid_field())
+            .await?
+            .wait_for_completion(&self.client, None, None)
+            .await?;
+
+        Ok(())
     }
 
     async fn update_entities<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
-        todo!()
+        let i = self.client.get_index(index_name).await?;
+        let _ = i
+            .add_or_update(&entities, I::pid_field())
+            .await?
+            .wait_for_completion(&self.client, None, None)
+            .await?;
+
+        Ok(())
     }
 
     async fn find_entity_by_id<T: Serialize + Send + Sync + 'static>(&self, index_name: &str, id: &str) -> Result<bool, MeilisearchError> {
