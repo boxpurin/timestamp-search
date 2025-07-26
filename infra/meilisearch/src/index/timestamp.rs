@@ -15,8 +15,6 @@ use crate::index::Index;
 // VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
 // 逆に取得する時は TimeStampIndex から VideoTimestampEntity への変換
 // VideoEntity へ変換する場合は TimeStampIndex ではなく VideoId等を使って VideoIndex を MeiliSearch から取得する
-// このインデックスを最小化する場合、VideoIndex TimeStampIndex へそれぞれ通信を行う方法でも良いが、通信削減のため今回はこの形にしている。
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimeStampIndex {
     pub pid: TimestampId,
