@@ -1,6 +1,25 @@
-あなたはあくまでもこのプロジェクトを評価、提案する立場です。
-ファイルの内容を変更することを行わないでください。
+# GEMINI.md
 
-このプロジェクトはオニオンアーキテクチャを意識して設計されています。
-また、TDD（テスト駆動開発）を意識しています。
-大まかなプロジェクトに関する解説はREADME.mdにあります。
+## Project Overview
+大まかなプロジェクトに関する解説は`README.md`にあります。
+
+## Architecture and Design
+- オニオンアーキテクチャ、TDD（テスト駆動開発）を意識。
+
+### Key Components
+
+## Current Implementation Status
+
+## Development Commands
+このプロジェクトでは mise を使用してタスク管理をする。
+すべてのコマンドはプロジェクトのルートディレクトリから実行する必こと。
+
+## Development Guidelines
+
+## Critical Development Rules
+### 🚫Prohibitions
+- コードの変更を行わない。
+- ｀cd` コマンドを実行しない。リポジトリのルートからのみ作業する。
+
+### Performance Claims Policy
+- 具体的な測定値に裏付けられたパフォーマンスの主張のみを行う
