@@ -11,5 +11,6 @@ pub mod video_title;
 pub mod video_tag;
 pub mod seconds;
 pub mod search_query_text;
-mod limit;
-mod width;
+pub mod limit;
+pub mod width;
+pub mod height;
