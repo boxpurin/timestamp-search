@@ -9,6 +9,7 @@ use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
 use crate::index::Index;
+use errors::{AppResult, AppError};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoIndex {
