@@ -3,10 +3,6 @@
 macro_rules! impl_string_value_traits {
     ($name:ident) => {
         impl $name {
-            pub fn new(value: String) -> Self {
-                $name(value)
-            }
-
             pub fn as_str(&self) -> &str {
                 &self.0
             }
@@ -158,9 +154,21 @@ macro_rules! impl_string_value {
 }
 
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     impl_public_string_value!(TestStringValue);
+    impl TestStringValue{
+        pub fn new(value: String) -> Self {
+            Self(value)
+        }
+    }
+
     impl_string_value!(TestPrivateStringValue);
+
+    impl TestPrivateStringValue{
+        pub fn new(value: String) -> Self {
+            Self(value)
+        }
+    }
 
     #[test]
     fn test_string_value() {

@@ -39,7 +39,7 @@ impl TryInto<ThumbnailDomain> for ThumbnailToThumbnailConverter {
         let inner = self.0;
         let url = inner
             .url
-            .map(ThumbnailUrl::new)
+            .map(|s| ThumbnailUrl::new(&s))
             .ok_or("Thumbnail URL is missing")?;
         let width = inner.width.ok_or("Thumbnail width is missing")?;
         let height = inner.height.ok_or("Thumbnail height is missing")?;

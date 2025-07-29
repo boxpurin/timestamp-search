@@ -8,6 +8,7 @@ use chrono::{ DateTime, Utc };
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;
 use domains::value_objects::timestamp::TimeStamp;
+use domains::value_objects::seconds::Seconds;
 use errors::{AppError, AppResult};
 use crate::index::Index;
 
@@ -20,23 +21,23 @@ pub struct TimeStampIndex {
     pub pid: TimestampId,
     pub video_id: VideoId,
     pub description: TimeStampDescription,
-    pub start_time: u64, // 秒単位
+    pub start_time: Seconds, // 秒単位
     pub video_details: Option<VideoTimeStampDetails>,
 }
 
 impl TimeStampIndex {
-    pub fn new(
+    pub fn new<S: Into<Seconds>>(
         pid: TimestampId,
         video_id: VideoId,
         description: TimeStampDescription,
-        start_time: u64,
+        start_time: S,
         video_details: Option<VideoTimeStampDetails>,
     ) -> Self {
         TimeStampIndex {
             pid,
             video_id,
             description,
-            start_time,
+            start_time: start_time.into(),
             video_details,
         }
     }

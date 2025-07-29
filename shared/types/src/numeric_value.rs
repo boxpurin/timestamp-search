@@ -118,10 +118,6 @@ macro_rules! impl_numeric_value {
         pub struct $name(pub $type);
 
         impl $name {
-            pub fn new(value: $type) -> Self {
-                Self(value)
-            }
-
             pub fn value(&self) -> $type {
                 self.0
             }
@@ -132,8 +128,13 @@ macro_rules! impl_numeric_value {
 }
 
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     impl_numeric_value!(NumericValue, i32);
+    impl NumericValue {
+        pub fn new(value: i32) -> Self {
+            Self(value)
+        }
+    }
 
     #[test]
     fn test_numeric_value() {

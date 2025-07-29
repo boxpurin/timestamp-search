@@ -8,7 +8,7 @@ mod integral_tests {
     #[tracing_test::traced_test]
     async fn test_youtube_video_repository() {
         let repository = create_youtube_video_repository().await;
-        let channel_id = ChannelId::new("UCf2I8ZGg0uS4FfFTdypJ5Xg".to_owned());
+        let channel_id = ChannelId::new("UCf2I8ZGg0uS4FfFTdypJ5Xg");
 
         // Test fetching recent video by channel ID
         let recent_videos = repository

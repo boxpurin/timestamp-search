@@ -292,13 +292,13 @@ mod unit_tests {
     #[case(vec![])]
     #[case(vec![
         VideoEntity::new(
-            VideoId::new("video1".to_string()),
-            VideoTitle::new("Video 1".to_string()),
+            VideoId::new("video1"),
+            VideoTitle::new("Video 1"),
             Vec::new(),
-            VideoDescription::new("Description 1".to_string()),
+            VideoDescription::new("Description 1"),
             ChannelEntity::new(
-                ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned()),
-                ChannelName::new("Channel 1".to_string())
+                ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw"),
+                ChannelName::new("Channel 1")
             ),
             None,
             chrono::Utc::now(),
@@ -307,7 +307,7 @@ mod unit_tests {
     ]
     )]
     async fn test_fetch_all_videos_by_channel_id(#[case] expected: Vec<VideoEntity>) {
-        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
+        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw");
         let len = expected.len();
         let mut mock_api = MockYouTubeApi::new();
         mock_api
@@ -329,7 +329,7 @@ mod unit_tests {
 
     #[tokio::test]
     async fn test_fetch_recent_video_by_channel_id() {
-        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw".to_owned());
+        let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw");
         let mut mock_api = MockYouTubeApi::new();
         mock_api
             .expect_fetch_channel_uploads_from_api()
