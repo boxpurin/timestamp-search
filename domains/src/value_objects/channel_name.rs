@@ -17,7 +17,22 @@ impl ChannelName  {
         if name.is_empty() {
             return Err(AppError::InvalidInput("Channel name cannot be empty".to_string()));
         }
-        
+
         Ok(ChannelName(name.to_string()))
+    }
+}
+
+
+#[cfg(test)]
+mod unit_tests {
+    use super::*;
+
+    #[test]
+    fn test_channel_name() {
+        let valid_name = ChannelName::new("ValidChannel");
+        assert!(valid_name.is_ok());
+
+        let invalid_name = ChannelName::new("");
+        assert!(invalid_name.is_err());
     }
 }

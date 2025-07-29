@@ -1,9 +1,11 @@
-use types::impl_string_value;
-
-impl_string_value!(VideoTitle);
+use errors::{AppError, AppResult};
+types::impl_string_value!(VideoTitle);
 
 impl VideoTitle {
-    pub fn new(title: &str) -> Self {
-        VideoTitle(title.to_string())
+    pub fn new(title: &str) -> AppResult<Self> {
+        if title.is_empty() {
+            return Err(AppError::InvalidInput("Title cannot be empty".to_string()));
+        }
+        Ok(VideoTitle(title.to_string()))
     }
 }

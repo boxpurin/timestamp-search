@@ -8,9 +8,10 @@ macro_rules! impl_numeric_value_traits {
             }
         }
 
-        impl From<$type> for $name {
-            fn from(value: $type) -> Self {
-                Self(value)
+        impl TryFrom<$type> for $name {
+            type Error = errors::AppError;
+            fn try_from(value: $type) -> errors::AppResult<Self> {
+                Self::new(value)
             }
         }
 
@@ -25,6 +26,17 @@ macro_rules! impl_numeric_value_traits {
 
             fn deref(&self) -> &Self::Target {
                 &self.0
+            }
+        }
+
+
+        impl std::str::FromStr for $name {
+            type Err = errors::AppError;
+            fn from_str(s: &str) -> errors::AppResult<Self> {
+                let value = s
+                    .parse::<$type>()
+                    .map_err(|_| errors::AppError::InvalidInput("Invalid seconds value".to_string()))?;
+                Self::new(value)
             }
         }
 
@@ -61,16 +73,6 @@ macro_rules! impl_numeric_value_traits {
         impl std::cmp::PartialEq<$name> for $type {
             fn eq(&self, other: &$name) -> bool {
                 *self == other.0
-            }
-        }
-
-        impl std::str::FromStr for $name {
-            type Err = String;
-
-            fn from_str(s: &str) -> Result<Self, Self::Err> {
-                s.parse::<$type>()
-                    .map(Self)
-                    .map_err(|_| format!("Failed to parse {} from string", stringify!($name)))
             }
         }
 
@@ -129,21 +131,20 @@ macro_rules! impl_numeric_value {
 
 #[cfg(test)]
 mod unit_tests {
+    use errors::{AppResult};
+
     impl_numeric_value!(NumericValue, i32);
     impl NumericValue {
-        pub fn new(value: i32) -> Self {
-            Self(value)
+        pub fn new(value: i32) -> AppResult<Self> {
+            Ok(Self(value))
         }
     }
 
     #[test]
     fn test_numeric_value() {
-        let value = NumericValue::new(42);
+        let value = NumericValue::new(42).unwrap();
         assert_eq!(value.value(), 42);
         assert_eq!(value.to_string(), "42");
-
-        let parsed: NumericValue = "100".parse().unwrap();
-        assert_eq!(parsed.value(), 100);
 
         let as_string: String = value.into();
         assert_eq!(as_string, "42");

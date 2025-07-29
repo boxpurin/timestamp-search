@@ -26,14 +26,11 @@ mod unit_tests {
     use super::*;
 
     #[test]
-    fn test_channel_id_new_valid() {
+    fn test_channel_id() {
         let channel_id = ChannelId::new("12345");
         assert!(channel_id.is_ok());
         assert_eq!(channel_id.unwrap().0, "12345");
-    }
 
-    #[test]
-    fn test_channel_id_new_empty() {
         let channel_id = ChannelId::new("");
         assert!(channel_id.is_err());
     }

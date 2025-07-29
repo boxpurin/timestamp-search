@@ -47,7 +47,7 @@ impl TimeStampIndex {
         timestamp: TimeStamp,
     ) -> Self {
         TimeStampIndex::new(
-            TimestampId::from_timestamp(&video, &timestamp),
+            TimestampId::from_video_entity(&video, &timestamp),
             video.id.clone(),
             timestamp.description,
             timestamp.seconds,
