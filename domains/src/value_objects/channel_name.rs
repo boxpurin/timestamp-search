@@ -1,16 +1,23 @@
-use types::impl_string_value;
-impl_string_value!(ChannelName);
+use errors::{AppResult, AppError};
+types::impl_string_value!(ChannelName);
 
 impl ChannelName  {
     /// Creates a new `ChannelName` from a string slice.
-    pub fn new(name: &str) -> Self {
-        ChannelName(name.to_string())
+    /// # Arguments
+    /// * `name` - A string slice that holds the name of the channel.
+    /// # Example
+    /// ```
+    /// use domains::value_objects::ChannelName;
+    /// let channel_name = ChannelName::new("MyChannel");
+    /// assert!(channel_name.is_ok());
+    /// let invalid_channel_name = ChannelName::new("");
+    /// assert!(invalid_channel_name.is_err());
+    /// ```
+    pub fn new(name: &str) -> AppResult<Self> {
+        if name.is_empty() {
+            return Err(AppError::InvalidInput("Channel name cannot be empty".to_string()));
+        }
+        
+        Ok(ChannelName(name.to_string()))
     }
-
-    pub fn is_valid(&self) -> bool {
-        // A valid channel name must be between 1 and 100 characters long
-        let len = self.0.chars().count();
-        len > 0 && len <= 100
-    }
-
 }
