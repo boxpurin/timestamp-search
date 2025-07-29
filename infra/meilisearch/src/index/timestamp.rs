@@ -47,7 +47,7 @@ impl TimeStampIndex {
         timestamp: TimeStamp,
     ) -> Self {
         TimeStampIndex::new(
-            TimestampId::from_video_entity(&video, &timestamp),
+            TimestampId::new(&video.id, &timestamp).unwrap(),
             video.id.clone(),
             timestamp.description,
             timestamp.seconds,
@@ -63,12 +63,12 @@ impl TimeStampIndex {
     pub fn into_entity(self) -> VideoTimestampEntity {
         VideoTimestampEntity::new(
             self.video_id,
-            TimeStamp::new(self.start_time, self.description),
+            TimeStamp::new(self.start_time, self.description).unwrap(),
         )
     }
 
     pub fn into_timestamp(self) -> TimeStamp {
-        TimeStamp::new(self.start_time, self.description)
+        TimeStamp::new(self.start_time, self.description).unwrap()
     }
 }
 
@@ -79,7 +79,7 @@ impl Into<VideoTimestampEntity> for TimeStampIndex {
             TimeStamp ::new(
                 self.start_time,
                 self.description
-            )
+            ).unwrap()
         )
     }
 }

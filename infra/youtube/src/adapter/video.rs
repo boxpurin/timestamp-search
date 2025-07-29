@@ -40,7 +40,7 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             .tags
             .unwrap_or_default()
             .iter()
-            .map(|tag| VideoTag::new(tag))
+            .map(|tag| VideoTag::new(tag).unwrap())
             .collect::<Vec<VideoTag>>();
 
         let channel_id = snippet.channel_id.ok_or(

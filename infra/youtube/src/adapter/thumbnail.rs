@@ -40,10 +40,11 @@ impl TryInto<ThumbnailDomain> for ThumbnailToThumbnailConverter {
         let url = inner
             .url
             .map(|s| ThumbnailUrl::new(&s))
-            .ok_or("Thumbnail URL is missing")?;
+            .ok_or("Thumbnail URL is missing")?
+            .map_err(|e| e.to_string())?;
         let width = inner.width.ok_or("Thumbnail width is missing")?;
         let height = inner.height.ok_or("Thumbnail height is missing")?;
 
-        Ok(ThumbnailDomain::new(url, width, height))
+        Ok(ThumbnailDomain::new(url, width, height).unwrap())
     }
 }

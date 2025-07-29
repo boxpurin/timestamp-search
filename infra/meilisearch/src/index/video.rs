@@ -78,7 +78,7 @@ impl Into<VideoEntity> for VideoIndex {
             self.video_description,
             domains::entities::channel::ChannelEntity::new(self.channel_id, self.channel_name),
             self.thumbnail_url
-                .map(|url| domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240)),
+                .map(|url| domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240).unwrap()),
             self.published_at,
             self.actual_start_time,
         )
