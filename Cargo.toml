@@ -44,4 +44,5 @@ google-youtube3 = { version = "6.0.0" }
 mockall = { version = "0.13.1" }
 mockito = { version = "1.7.0" }
 rstest = { version = "0.25.0" }
+clap = { version = "4.5.42", features = ["derive"] }
 envy = "0.4.2"

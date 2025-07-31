@@ -8,3 +8,7 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+tokio.workspace = true
+domains.workspace = true
+errors.workspace = true
+clap.workspace = true
