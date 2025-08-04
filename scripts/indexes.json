@@ -1,7 +1,7 @@
 [
     {
         "index_name": "videos",
-        "pid": "video_id",
+        "pid": "videoId",
         "setting_file": "video_index_settings.json"
     },
     {
