@@ -3,7 +3,13 @@
 .idea/**/workspace.xml
 .idea/**/statistics.xml
 .idea/**/tasks.xml
-Cargo.lock
+.idea
+.vscode
 .venv
 .node_modules
 .env
+.env.dev
+Cargo.lock
+uv.lock
+pnpm-lock.yaml
+__pycache__

@@ -1,0 +1,57 @@
+{
+  "displayedAttributes": [
+    "*"
+  ],
+  "searchableAttributes": [
+    "videoId",
+    "description",
+    "videoDetails.actualStartTime"
+  ],
+  "filterableAttributes": [
+    "videoId",
+    "videoDetails.videoTags",
+    "videoDetails.publishedAt",
+    "videoDetails.actualStartTime"
+  ],
+  "sortableAttributes": [
+    "videoId",
+    "videoDetails.publishedAt",
+    "videoDetails.actualStartTime"
+  ],
+  "rankingRules":
+  [
+    "words",
+    "typo",
+    "proximity",
+    "attribute",
+    "sort",
+    "exactness"
+  ],
+  "stopWords": [],
+  "nonSeparatorTokens": [],
+  "separatorTokens": [],
+  "dictionary": [],
+  "synonyms": {},
+  "distinctAttribute": null,
+  "typoTolerance": {
+    "enabled": false,
+    "minWordSizeForTypos": {
+      "oneTypo": 5,
+      "twoTypos": 9
+    },
+    "disableOnWords": [],
+    "disableOnAttributes": [],
+    "disableOnNumbers": true
+  },
+  "faceting": {
+    "maxValuesPerFacet": 100
+  },
+  "pagination": {
+    "maxTotalHits": 1000
+  },
+  "proximityPrecision": "byWord",
+  "facetSearch": true,
+  "prefixSearch": "indexingTime",
+  "searchCutoffMs": 15000,
+  "embedders": {}
+}

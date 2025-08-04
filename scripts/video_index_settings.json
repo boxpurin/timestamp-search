@@ -1,0 +1,58 @@
+{
+  "displayedAttributes": [
+    "*"
+  ],
+  "searchableAttributes": [
+    "videoId",
+    "channelId",
+    "videoTitle",
+    "publishedAt",
+    "actualStartTime"
+  ],
+  "filterableAttributes": [
+    "channelId",
+    "videoTags",
+    "publishedAt",
+    "actualStartTime"
+  ],
+  "sortableAttributes": [
+    "publishedAt",
+    "actualStartTime"
+  ],
+  "rankingRules":
+  [
+    "words",
+    "typo",
+    "proximity",
+    "attribute",
+    "sort",
+    "exactness"
+  ],
+  "stopWords": [],
+  "nonSeparatorTokens": [],
+  "separatorTokens": [],
+  "dictionary": [],
+  "synonyms": {},
+  "distinctAttribute": null,
+  "typoTolerance": {
+    "enabled": false,
+    "minWordSizeForTypos": {
+      "oneTypo": 5,
+      "twoTypos": 9
+    },
+    "disableOnWords": [],
+    "disableOnAttributes": [],
+    "disableOnNumbers": true
+  },
+  "faceting": {
+    "maxValuesPerFacet": 100
+  },
+  "pagination": {
+    "maxTotalHits": 1000
+  },
+  "proximityPrecision": "byWord",
+  "facetSearch": true,
+  "prefixSearch": "indexingTime",
+  "searchCutoffMs": 10000,
+  "embedders": {}
+}
