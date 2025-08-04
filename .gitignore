@@ -4,6 +4,7 @@
 .idea/**/statistics.xml
 .idea/**/tasks.xml
 .idea
+.local
 .vscode
 .venv
 .node_modules
