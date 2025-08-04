@@ -1,4 +1,4 @@
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 types::impl_string_value!(ThumbnailUrl);
 
 impl ThumbnailUrl {

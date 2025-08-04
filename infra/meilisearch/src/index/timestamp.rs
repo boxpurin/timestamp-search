@@ -1,17 +1,17 @@
-use domains::value_objects::timestamp_id::TimestampId;
-use domains::value_objects::timestamp_description::TimeStampDescription;
-use domains::value_objects::video_id::VideoId;
-use domains::value_objects::video_title::VideoTitle;
-use domains::value_objects::video_tag::VideoTag;
-use serde::{Deserialize, Serialize};
-use chrono::{ DateTime, Utc };
-use domains::entities::video_timestamp::VideoTimestampEntity;
-use domains::entities::video::VideoEntity;
-use domains::value_objects::timestamp::TimeStamp;
-use domains::value_objects::seconds::Seconds;
-use errors::{AppError, AppResult};
-use crate::index::Index;
 use crate::config::CONFIG;
+use crate::index::Index;
+use chrono::{DateTime, Utc};
+use domains::entities::video::VideoEntity;
+use domains::entities::video_timestamp::VideoTimestampEntity;
+use domains::value_objects::seconds::Seconds;
+use domains::value_objects::timestamp::TimeStamp;
+use domains::value_objects::timestamp_description::TimeStampDescription;
+use domains::value_objects::timestamp_id::TimestampId;
+use domains::value_objects::video_id::VideoId;
+use domains::value_objects::video_tag::VideoTag;
+use domains::value_objects::video_title::VideoTitle;
+use errors::{AppError, AppResult};
+use serde::{Deserialize, Serialize};
 
 // 想定されている型変換は
 // VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
@@ -44,10 +44,7 @@ impl TimeStampIndex {
         }
     }
 
-    pub fn from_entity(
-        video: VideoEntity,
-        timestamp: TimeStamp,
-    ) -> Self {
+    pub fn from_entity(video: VideoEntity, timestamp: TimeStamp) -> Self {
         TimeStampIndex::new(
             TimestampId::new(&video.id, &timestamp).unwrap(),
             video.id.clone(),
@@ -58,8 +55,9 @@ impl TimeStampIndex {
     }
 
     pub fn take_video_details(self) -> AppResult<VideoTimeStampDetails> {
-        self.video_details
-            .ok_or(AppError::DomainParseError("VideoTimeStampDetails is missing".to_string()))
+        self.video_details.ok_or(AppError::DomainParseError(
+            "VideoTimeStampDetails is missing".to_string(),
+        ))
     }
 
     pub fn into_entity(self) -> VideoTimestampEntity {
@@ -78,10 +76,7 @@ impl Into<VideoTimestampEntity> for TimeStampIndex {
     fn into(self) -> VideoTimestampEntity {
         VideoTimestampEntity::new(
             self.video_id,
-            TimeStamp ::new(
-                self.start_time,
-                self.description
-            ).unwrap()
+            TimeStamp::new(self.start_time, self.description).unwrap(),
         )
     }
 }
@@ -99,7 +94,6 @@ impl Index for TimeStampIndex {
         &CONFIG.timestamp_index_name
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoTimeStampDetails {

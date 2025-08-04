@@ -124,10 +124,6 @@ macro_rules! impl_string_value_validate_traits {
                 &self.0
             }
         }
-
-
-
-
     };
 }
 
@@ -156,7 +152,7 @@ macro_rules! impl_string_value {
 #[cfg(test)]
 mod unit_tests {
     impl_public_string_value!(TestStringValue);
-    impl TestStringValue{
+    impl TestStringValue {
         pub fn new(value: String) -> Self {
             Self(value)
         }
@@ -164,7 +160,7 @@ mod unit_tests {
 
     impl_string_value!(TestPrivateStringValue);
 
-    impl TestPrivateStringValue{
+    impl TestPrivateStringValue {
         pub fn new(value: String) -> Self {
             Self(value)
         }

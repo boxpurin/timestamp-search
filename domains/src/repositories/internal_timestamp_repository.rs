@@ -1,6 +1,6 @@
 use crate::entities::video_timestamp::VideoTimestampEntity;
-use crate::value_objects::video_id::VideoId;
 use crate::value_objects::timestamp_id::TimestampId;
+use crate::value_objects::video_id::VideoId;
 use errors::AppResult;
 
 /// # InternalVideoRepository
@@ -15,11 +15,17 @@ use errors::AppResult;
 pub trait InternalVideoTimeStampRepository {
     async fn add_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()>;
 
-    async fn add_video_timestamp_entities(&self, entities: &[VideoTimestampEntity]) -> AppResult<()>;
+    async fn add_video_timestamp_entities(
+        &self,
+        entities: &[VideoTimestampEntity],
+    ) -> AppResult<()>;
 
     async fn update_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()>;
 
-    async fn update_video_timestamp_entities(&self, entities: &[VideoTimestampEntity]) -> AppResult<()>;
+    async fn update_video_timestamp_entities(
+        &self,
+        entities: &[VideoTimestampEntity],
+    ) -> AppResult<()>;
 
     async fn find_video_timestamp_entity_by_id(&self, video_id: &TimestampId) -> AppResult<bool>;
 

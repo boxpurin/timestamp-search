@@ -1,7 +1,7 @@
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 types::impl_string_value!(ChannelName);
 
-impl ChannelName  {
+impl ChannelName {
     /// Creates a new `ChannelName` from a string slice.
     /// # Arguments
     /// * `name` - A string slice that holds the name of the channel.
@@ -15,13 +15,14 @@ impl ChannelName  {
     /// ```
     pub fn new(name: &str) -> AppResult<Self> {
         if name.is_empty() {
-            return Err(AppError::InvalidInput("Channel name cannot be empty".to_string()));
+            return Err(AppError::InvalidInput(
+                "Channel name cannot be empty".to_string(),
+            ));
         }
 
         Ok(ChannelName(name.to_string()))
     }
 }
-
 
 #[cfg(test)]
 mod unit_tests {

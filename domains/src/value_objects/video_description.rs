@@ -2,7 +2,7 @@ use errors::{AppError, AppResult};
 
 types::impl_string_value!(VideoDescription);
 impl VideoDescription {
-    pub fn new (description: &str) -> AppResult<Self> {
+    pub fn new(description: &str) -> AppResult<Self> {
         Ok(VideoDescription(description.to_string()))
     }
 }

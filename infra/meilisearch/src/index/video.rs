@@ -1,3 +1,5 @@
+use crate::config::CONFIG;
+use crate::index::Index;
 use chrono::{DateTime, Utc};
 use domains::entities::video::VideoEntity;
 use domains::value_objects::channel_id::ChannelId;
@@ -8,8 +10,6 @@ use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
-use crate::index::Index;
-use crate::config::CONFIG;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -79,8 +79,9 @@ impl Into<VideoEntity> for VideoIndex {
             self.video_tags,
             self.video_description,
             domains::entities::channel::ChannelEntity::new(self.channel_id, self.channel_name),
-            self.thumbnail_url
-                .map(|url| domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240).unwrap()),
+            self.thumbnail_url.map(|url| {
+                domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240).unwrap()
+            }),
             self.published_at,
             self.actual_start_time,
         )

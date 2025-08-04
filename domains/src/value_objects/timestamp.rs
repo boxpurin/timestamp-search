@@ -1,7 +1,7 @@
-use crate::value_objects::timestamp_description::TimeStampDescription;
-use serde::{Deserialize, Serialize};
-use errors::{AppResult, AppError};
 use crate::value_objects::seconds::Seconds;
+use crate::value_objects::timestamp_description::TimeStampDescription;
+use errors::{AppError, AppResult};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TimeStamp {
@@ -10,7 +10,10 @@ pub struct TimeStamp {
 }
 
 impl TimeStamp {
-    pub fn new<S: TryInto<Seconds>>(seconds: S, description: TimeStampDescription) -> AppResult<Self> {
+    pub fn new<S: TryInto<Seconds>>(
+        seconds: S,
+        description: TimeStampDescription,
+    ) -> AppResult<Self> {
         Ok(TimeStamp {
             seconds: seconds
                 .try_into()

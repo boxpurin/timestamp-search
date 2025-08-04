@@ -2,11 +2,9 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use meilisearch_sdk::errors::Error::{Meilisearch, MeilisearchCommunication};
-use meilisearch_sdk::errors::{
-    Error as MeiliSearchError, ErrorType as MeiliSearchErrorType,
-};
 use google_youtube3::Error as Youtube3Error;
+use meilisearch_sdk::errors::Error::{Meilisearch, MeilisearchCommunication};
+use meilisearch_sdk::errors::{Error as MeiliSearchError, ErrorType as MeiliSearchErrorType};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
@@ -40,45 +38,36 @@ impl From<Youtube3Error> for AppError {
         match e {
             Youtube3Error::HttpError(e) => {
                 AppError::InternalServerError(format!("HTTP error in YouTube API: {}", e))
-            },
-            Youtube3Error::UploadSizeLimitExceeded(i, e) => {
-                AppError::InvalidInput(format!(
-                    "Upload size limit exceeded: {} bytes. Error: {}",
-                    i, e
-                ))
-            },
+            }
+            Youtube3Error::UploadSizeLimitExceeded(i, e) => AppError::InvalidInput(format!(
+                "Upload size limit exceeded: {} bytes. Error: {}",
+                i, e
+            )),
             Youtube3Error::BadRequest(v) => {
-                AppError::InvalidInput(format!(
-                    "Bad request to YouTube API: {:?}", v
-                ))
-            },
+                AppError::InvalidInput(format!("Bad request to YouTube API: {:?}", v))
+            }
             Youtube3Error::MissingAPIKey => {
                 AppError::Unauthorized("YouTube API key is missing".to_string())
-            },
+            }
             Youtube3Error::MissingToken(_) => {
                 AppError::Unauthorized("YouTube API token is missing.".to_string())
-            },
+            }
             Youtube3Error::Cancelled => {
                 AppError::ServiceUnavailable("YouTube API request was cancelled".to_string())
-            },
+            }
             Youtube3Error::FieldClash(s) => {
                 AppError::InvalidInput(format!("Field clash in YouTube API response: {}", s))
-            },
-            Youtube3Error::JsonDecodeError(s, e) => {
-                AppError::InvalidInput(format!(
-                    "JSON decode error in YouTube API response: {}. Error: {}",
-                    s, e
-                ))
-            },
+            }
+            Youtube3Error::JsonDecodeError(s, e) => AppError::InvalidInput(format!(
+                "JSON decode error in YouTube API response: {}. Error: {}",
+                s, e
+            )),
             Youtube3Error::Failure(r) => {
-                AppError::InternalServerError(format!(
-                    "Failure in YouTube API response: {:?}",
-                    r
-                ))
-            },
+                AppError::InternalServerError(format!("Failure in YouTube API response: {:?}", r))
+            }
             Youtube3Error::Io(e) => {
                 AppError::InternalServerError(format!("IO error in YouTube API: {}", e))
-            },
+            }
         }
     }
 }
@@ -122,49 +111,49 @@ impl From<MeiliSearchError> for AppError {
                     "Internal server error. error type : MeilisearchCommunication".to_string(),
                 )),
             },
-            MeiliSearchError::ParseError(e) => {
-                AppError::InvalidInput(e.to_string())
-            },
+            MeiliSearchError::ParseError(e) => AppError::InvalidInput(e.to_string()),
             MeiliSearchError::Timeout => {
                 AppError::ServiceUnavailable("Meilisearch request timed out".to_string())
-            },
+            }
             MeiliSearchError::InvalidRequest => {
                 AppError::InvalidInput("Invalid request to Meilisearch".to_string())
-            },
+            }
             MeiliSearchError::CantUseWithoutApiKey(s) => {
                 AppError::Unauthorized(format!("Meilisearch API key required: {}", s))
-            },
+            }
             MeiliSearchError::TenantTokensInvalidApiKey => {
                 AppError::Unauthorized("Invalid Meilisearch API key".to_string())
-            },
+            }
             MeiliSearchError::TenantTokensExpiredSignature => {
                 AppError::Unauthorized("Meilisearch API key signature expired".to_string())
-            },
+            }
             MeiliSearchError::InvalidTenantToken(e) => {
                 AppError::Unauthorized(format!("Invalid Meilisearch tenant token: {}", e))
-            },
+            }
             MeiliSearchError::HttpError(e) => {
                 AppError::InternalServerError(format!("HTTP error in Meilisearch: {}", e))
-            },
-            MeiliSearchError::Yaup(e) => {
-                AppError::InvalidInput(format!("The library formatting the query parameters encountered an error.: {}", e))
-            },
-            MeiliSearchError::Uuid(e) => {
-                AppError::InvalidInput(format!("Invalid UUID4: {}", e))
-            },
+            }
+            MeiliSearchError::Yaup(e) => AppError::InvalidInput(format!(
+                "The library formatting the query parameters encountered an error.: {}",
+                e
+            )),
+            MeiliSearchError::Uuid(e) => AppError::InvalidInput(format!("Invalid UUID4: {}", e)),
             MeiliSearchError::InvalidUuid4Version => {
                 AppError::InvalidInput("Invalid UUID4 version".to_string())
-            },
+            }
             MeiliSearchError::Other(e) =>
-                // This is a catch-all for any other Meilisearch errors that don't fit the above categories
-                // It should be used carefully, as it may mask specific issues.
-                AppError::InternalServerError(format!("An unknown error occurred in Meilisearch: {}", e)),
-            _ => {
+            // This is a catch-all for any other Meilisearch errors that don't fit the above categories
+            // It should be used carefully, as it may mask specific issues.
+            {
                 AppError::InternalServerError(format!(
                     "An unknown error occurred in Meilisearch: {}",
                     e
                 ))
-            },
+            }
+            _ => AppError::InternalServerError(format!(
+                "An unknown error occurred in Meilisearch: {}",
+                e
+            )),
         }
     }
 }

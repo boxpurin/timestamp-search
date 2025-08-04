@@ -1,13 +1,17 @@
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 types::impl_numeric_value!(Limit, usize);
 impl Limit {
     pub fn new(limit: usize) -> AppResult<Self> {
         if limit == 0 {
-            return Err(AppError::InvalidInput("Limit must be greater than zero".to_string()));
+            return Err(AppError::InvalidInput(
+                "Limit must be greater than zero".to_string(),
+            ));
         }
 
         if limit > 1000 {
-            return Err(AppError::InvalidInput("Limit must not exceed 1000".to_string()));
+            return Err(AppError::InvalidInput(
+                "Limit must not exceed 1000".to_string(),
+            ));
         }
 
         Ok(Limit(limit))

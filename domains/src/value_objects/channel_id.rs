@@ -1,4 +1,4 @@
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 types::impl_string_value!(ChannelId);
 
 impl ChannelId {
@@ -15,7 +15,9 @@ impl ChannelId {
     /// ```
     pub fn new(id: &str) -> AppResult<Self> {
         if id.is_empty() {
-            return Err(AppError::InvalidInput("Channel ID cannot be empty".to_string()));
+            return Err(AppError::InvalidInput(
+                "Channel ID cannot be empty".to_string(),
+            ));
         }
         Ok(ChannelId(id.to_string()))
     }

@@ -1,10 +1,10 @@
-use meilisearch_sdk::client::Client;
-use meilisearch_sdk::errors::{ErrorCode, Error as MeilisearchError};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
+use crate::config::CONFIG;
 use crate::index::Index;
 use crate::repositories::MeiliSearchCrudApi;
-use crate::config::CONFIG;
+use meilisearch_sdk::client::Client;
+use meilisearch_sdk::errors::{Error as MeilisearchError, ErrorCode};
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 pub struct ApiClient {
     pub client: Client,
@@ -12,7 +12,10 @@ pub struct ApiClient {
 
 impl ApiClient {
     pub fn new() -> Self {
-        tracing::info!("Create Connection to MeiliSearch at {}", CONFIG.connection_addr);
+        tracing::info!(
+            "Create Connection to MeiliSearch at {}",
+            CONFIG.connection_addr
+        );
 
         let client = Client::new(&CONFIG.connection_addr, Some(&CONFIG.master_key))
             .expect("Error creating meilisearch client");
@@ -21,15 +24,13 @@ impl ApiClient {
     }
 }
 
-
 #[async_trait::async_trait]
-impl<I: Index + Serialize + Sync + Send + 'static,
-    T: Serialize + DeserializeOwned + Send + Sync + 'static> MeiliSearchCrudApi<I, T> for ApiClient {
-    async fn add_entity(
-        &self,
-        index_name: &str,
-        entity: &T,
-    ) -> Result<(), MeilisearchError> {
+impl<
+    I: Index + Serialize + Sync + Send + 'static,
+    T: Serialize + DeserializeOwned + Send + Sync + 'static,
+> MeiliSearchCrudApi<I, T> for ApiClient
+{
+    async fn add_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
             .add_documents(&[entity], I::pid_field())
@@ -62,7 +63,11 @@ impl<I: Index + Serialize + Sync + Send + 'static,
         Ok(())
     }
 
-    async fn update_entities(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
+    async fn update_entities(
+        &self,
+        index_name: &str,
+        entities: &[T],
+    ) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
             .add_or_update(&entities, I::pid_field())
@@ -73,7 +78,11 @@ impl<I: Index + Serialize + Sync + Send + 'static,
         Ok(())
     }
 
-    async fn find_entity_by_id(&self, index_name: &str, id: &str) -> Result<bool, MeilisearchError> {
+    async fn find_entity_by_id(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<bool, MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let result = i.get_document::<T>(id).await;
 
@@ -86,11 +95,15 @@ impl<I: Index + Serialize + Sync + Send + 'static,
                     }
                 }
                 Err(e)
-            },
+            }
         }
     }
 
-    async fn get_entity_by_id(&self, index_name: &str, id: &str) -> Result<Option<T>, MeilisearchError> {
+    async fn get_entity_by_id(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<Option<T>, MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let result = i.get_document::<T>(id).await;
 
@@ -103,7 +116,7 @@ impl<I: Index + Serialize + Sync + Send + 'static,
                     }
                 }
                 Err(e)
-            },
+            }
         }
     }
 
@@ -117,7 +130,11 @@ impl<I: Index + Serialize + Sync + Send + 'static,
         }
     }
 
-    async fn delete_entity_by_id(&self, index_name: &str, id: &str) -> Result<(), MeilisearchError> {
+    async fn delete_entity_by_id(
+        &self,
+        index_name: &str,
+        id: &str,
+    ) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i.delete_document(id).await?;
         Ok(())

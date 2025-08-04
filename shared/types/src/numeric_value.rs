@@ -29,13 +29,12 @@ macro_rules! impl_numeric_value_traits {
             }
         }
 
-
         impl std::str::FromStr for $name {
             type Err = errors::AppError;
             fn from_str(s: &str) -> errors::AppResult<Self> {
-                let value = s
-                    .parse::<$type>()
-                    .map_err(|_| errors::AppError::InvalidInput("Invalid seconds value".to_string()))?;
+                let value = s.parse::<$type>().map_err(|_| {
+                    errors::AppError::InvalidInput("Invalid seconds value".to_string())
+                })?;
                 Self::new(value)
             }
         }
@@ -131,7 +130,7 @@ macro_rules! impl_numeric_value {
 
 #[cfg(test)]
 mod unit_tests {
-    use errors::{AppResult};
+    use errors::AppResult;
 
     impl_numeric_value!(NumericValue, i32);
     impl NumericValue {

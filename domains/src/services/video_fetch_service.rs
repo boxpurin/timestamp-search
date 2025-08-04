@@ -41,10 +41,7 @@ impl<E: ExternalVideoRepository, I: InternalVideoRepository> VideoFetchService<E
         Ok(())
     }
 
-    pub async fn fetch_all_videos_by_channel_id(
-        &self,
-        channel_id: &ChannelId,
-    ) -> AppResult<()> {
+    pub async fn fetch_all_videos_by_channel_id(&self, channel_id: &ChannelId) -> AppResult<()> {
         let v = self
             .external_video_repository
             .fetch_all_videos_by_channel_id(channel_id)

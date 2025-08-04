@@ -3,7 +3,7 @@ use crate::config::YOUTUBE_CLIENT;
 use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
@@ -11,10 +11,7 @@ use hyper_util::client::legacy::connect::HttpConnector;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait YouTubeApi {
-    async fn fetch_channel_uploads_from_api(
-        &self,
-        channel_id: &ChannelId,
-    ) -> AppResult<String>;
+    async fn fetch_channel_uploads_from_api(&self, channel_id: &ChannelId) -> AppResult<String>;
 
     async fn fetch_playlist_videos_from_api(
         &self,
@@ -78,7 +75,8 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
         let (mut v, mut p) = self
             .api_client
             .fetch_playlist_videos_from_api(&uploads, 50, &None)
-            .await.map_err(|e| {
+            .await
+            .map_err(|e| {
                 tracing::error!("Failed to fetch playlist videos: {}", e);
                 AppError::from(e)
             })?;
@@ -88,7 +86,8 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
             (v, p) = self
                 .api_client
                 .fetch_playlist_videos_from_api(&uploads, 50, &p)
-                .await.map_err(|e| {
+                .await
+                .map_err(|e| {
                     tracing::error!("Failed to fetch playlist videos: {}", e);
                     AppError::from(e)
                 })?;
@@ -123,7 +122,7 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
             .api_client
             .fetch_playlist_videos_from_api(&uploads, max_results, &None)
             .await
-            .map_err(|e|{
+            .map_err(|e| {
                 tracing::error!("Failed to fetch playlist videos: {}", e);
                 AppError::from(e)
             })?;
@@ -150,7 +149,8 @@ impl YouTubeApiImpl {
             .snippet
             .as_ref()
             .and_then(|s| s.resource_id.as_ref())
-            .and_then(|r| r.video_id.as_ref()).unwrap();
+            .and_then(|r| r.video_id.as_ref())
+            .unwrap();
         let (_, v) = self
             .hub
             .videos()
@@ -172,10 +172,7 @@ impl YouTubeApiImpl {
 
 #[async_trait::async_trait]
 impl YouTubeApi for YouTubeApiImpl {
-    async fn fetch_channel_uploads_from_api(
-        &self,
-        channel_id: &ChannelId,
-    ) -> AppResult<String> {
+    async fn fetch_channel_uploads_from_api(&self, channel_id: &ChannelId) -> AppResult<String> {
         let result = self
             .hub
             .channels()
@@ -225,15 +222,12 @@ impl YouTubeApi for YouTubeApiImpl {
         let (items, page_token) =
             req.doit()
                 .await
-                .map_err(|e| {
-                    AppError::from(e)
-                }).and_then(|(_, items)| {
+                .map_err(|e| AppError::from(e))
+                .and_then(|(_, items)| {
                     let page_token = items.next_page_token;
-                    let items = items
-                        .items
-                        .ok_or(AppError::InvalidInput(
-                            "No items found in playlist".to_string()
-                        ))?;
+                    let items = items.items.ok_or(AppError::InvalidInput(
+                        "No items found in playlist".to_string(),
+                    ))?;
                     Ok((items, page_token))
                 })?;
         tracing::debug!(

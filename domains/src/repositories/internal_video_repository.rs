@@ -15,10 +15,7 @@ pub trait InternalVideoRepository {
 
     async fn find_video_entity_by_id(&self, video_id: &VideoId) -> AppResult<bool>;
 
-    async fn get_video_entity_by_id(
-        &self,
-        video_id: &VideoId,
-    ) -> AppResult<Option<VideoEntity>>;
+    async fn get_video_entity_by_id(&self, video_id: &VideoId) -> AppResult<Option<VideoEntity>>;
 
     async fn get_all_video_entities(&self) -> AppResult<Vec<VideoEntity>>;
 
