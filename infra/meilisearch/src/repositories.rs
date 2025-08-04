@@ -2,12 +2,12 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use meilisearch_sdk::errors::{Error as MeilisearchError};
 use crate::index::Index;
-
 pub mod video_crud;
+pub mod timestamp_crud;
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
-pub trait MeiliSearchApi<
+pub trait MeiliSearchCrudApi<
     I: Serialize + Index + Send + Sync + 'static, 
     T: Serialize + DeserializeOwned + Send + Sync + 'static> {
     async fn add_entity(

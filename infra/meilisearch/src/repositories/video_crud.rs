@@ -2,34 +2,25 @@ use domains::entities::video::VideoEntity;
 use domains::repositories::internal_video_repository::InternalVideoRepository;
 use domains::value_objects::video_id::VideoId;
 
-use meilisearch_sdk::client::Client;
-use meilisearch_sdk::errors::{Error as MeilisearchError, ErrorCode};
-use serde::Serialize;
-use serde::de::DeserializeOwned;
 use errors::{AppResult, AppError};
 use crate::index::Index;
 use crate::index::video::VideoIndex;
-use crate::repositories::MeiliSearchApi;
+use crate::repositories::MeiliSearchCrudApi;
+use crate::client::ApiClient;
 
-pub struct MeiliSearchVideoCrudRepository<T: MeiliSearchApi<VideoIndex, VideoEntity> + Send + Sync> {
+pub struct MeiliSearchVideoCrudRepository<T: MeiliSearchCrudApi<VideoIndex, VideoEntity> + Send + Sync> {
     client: T,
 }
 
-pub struct ApiClient {
-    pub client: Client,
-}
-
-impl ApiClient {
-    fn new() -> Self {
-        let client = Client::new("http://localhost:7700", Some("masterKey"))
-            .expect("Error creating meilisearch client");
-
-        ApiClient { client }
+pub fn create_video_crud_repository() -> MeiliSearchVideoCrudRepository<ApiClient> {
+    MeiliSearchVideoCrudRepository {
+        client: ApiClient::new(),
     }
 }
 
+
 #[async_trait::async_trait]
-impl<T: MeiliSearchApi<VideoIndex, VideoEntity> + Send + Sync> InternalVideoRepository
+impl<T: MeiliSearchCrudApi<VideoIndex, VideoEntity> + Send + Sync> InternalVideoRepository
     for MeiliSearchVideoCrudRepository<T>
 {
     async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
@@ -103,114 +94,6 @@ impl<T: MeiliSearchApi<VideoIndex, VideoEntity> + Send + Sync> InternalVideoRepo
         self.client.delete_all_entities(VideoIndex::name())
             .await
             .map_err(AppError::from)?;
-        Ok(())
-    }
-}
-
-#[async_trait::async_trait]
-impl<I: Index + Serialize + Sync + Send + 'static,
-    T: Serialize + DeserializeOwned + Send + Sync + 'static> MeiliSearchApi<I, T> for ApiClient {
-    async fn add_entity(
-        &self,
-        index_name: &str,
-        entity: &T,
-    ) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i
-            .add_documents(&[entity], I::pid_field())
-            .await?
-            .wait_for_completion(&self.client, None, None)
-            .await?;
-
-        Ok(())
-    }
-
-    async fn add_entities(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i
-            .add_documents(entities, I::pid_field())
-            .await?
-            .wait_for_completion(&self.client, None, None)
-            .await?;
-
-        Ok(())
-    }
-
-    async fn update_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i
-            .add_or_update(&[entity], I::pid_field())
-            .await?
-            .wait_for_completion(&self.client, None, None)
-            .await?;
-
-        Ok(())
-    }
-
-    async fn update_entities(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i
-            .add_or_update(&entities, I::pid_field())
-            .await?
-            .wait_for_completion(&self.client, None, None)
-            .await?;
-
-        Ok(())
-    }
-
-    async fn find_entity_by_id(&self, index_name: &str, id: &str) -> Result<bool, MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let result = i.get_document::<T>(id).await;
-
-        match result {
-            Ok(_) => Ok(true),
-            Err(e) => {
-                if let MeilisearchError::Meilisearch(e) = &e {
-                    if e.error_code == ErrorCode::DocumentNotFound {
-                        return Ok(false);
-                    }
-                }
-                Err(e)
-            },
-        }
-    }
-
-    async fn get_entity_by_id(&self, index_name: &str, id: &str) -> Result<Option<T>, MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let result = i.get_document::<T>(id).await;
-
-        match result {
-            Ok(document) => Ok(Some(document)),
-            Err(e) => {
-                if let MeilisearchError::Meilisearch(e) = &e {
-                    if e.error_code == ErrorCode::DocumentNotFound {
-                        return Ok(None);
-                    }
-                }
-                Err(e)
-            },
-        }
-    }
-
-    async fn get_all_entities(&self, index_name: &str) -> Result<Vec<T>, MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let result = i.get_documents::<T>().await;
-
-        match result {
-            Ok(documents) => Ok(documents.results),
-            Err(e) => Err(e),
-        }
-    }
-
-    async fn delete_entity_by_id(&self, index_name: &str, id: &str) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i.delete_document(id).await?;
-        Ok(())
-    }
-
-    async fn delete_all_entities(&self, index_name: &str) -> Result<(), MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let _ = i.delete_all_documents().await?;
         Ok(())
     }
 }

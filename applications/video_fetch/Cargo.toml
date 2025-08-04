@@ -10,5 +10,7 @@ rust-version.workspace = true
 [dependencies]
 tokio.workspace = true
 domains.workspace = true
+youtube.workspace = true
+meilisearch.workspace = true
 errors.workspace = true
 clap.workspace = true

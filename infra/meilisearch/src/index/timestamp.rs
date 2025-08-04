@@ -11,12 +11,14 @@ use domains::value_objects::timestamp::TimeStamp;
 use domains::value_objects::seconds::Seconds;
 use errors::{AppError, AppResult};
 use crate::index::Index;
+use crate::config::CONFIG;
 
 // 想定されている型変換は
 // VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
 // 逆に取得する時は TimeStampIndex から VideoTimestampEntity への変換
 // VideoEntity へ変換する場合は TimeStampIndex ではなく VideoId等を使って VideoIndex を MeiliSearch から取得する
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TimeStampIndex {
     pub pid: TimestampId,
     pub video_id: VideoId,
@@ -94,7 +96,7 @@ impl Index for TimeStampIndex {
     }
 
     fn name() -> &'static str {
-        "timestamp_index"
+        &CONFIG.timestamp_index_name
     }
 }
 

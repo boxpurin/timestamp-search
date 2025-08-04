@@ -9,9 +9,10 @@ use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
 use crate::index::Index;
-use errors::{AppResult, AppError};
+use crate::config::CONFIG;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct VideoIndex {
     pub video_id: VideoId,
     pub video_title: VideoTitle,
@@ -96,6 +97,6 @@ impl Index for VideoIndex {
     }
 
     fn name() -> &'static str {
-        "video_index"
+        &CONFIG.video_index_name
     }
 }

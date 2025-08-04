@@ -12,7 +12,7 @@ use errors::AppResult;
 /// - タイムスタンプの削除
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
-pub trait InternalVideoRepository {
+pub trait InternalVideoTimeStampRepository {
     async fn add_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()>;
 
     async fn add_video_timestamp_entities(&self, entities: &[VideoTimestampEntity]) -> AppResult<()>;
