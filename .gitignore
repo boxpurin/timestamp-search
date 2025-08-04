@@ -8,6 +8,7 @@
 .vscode
 .venv
 .node_modules
+node_modules
 .env
 .env.dev
 Cargo.lock
