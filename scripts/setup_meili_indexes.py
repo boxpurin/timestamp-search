@@ -1,13 +1,11 @@
 import json
 import os
-from typing import Dict, List, Optional
-
 from client import MeilisearchIndexSetup
 
 def main():
     # Meilisearchセットアップインスタンスを作成
     setup: MeilisearchIndexSetup = MeilisearchIndexSetup()
-    
+
     if not setup.health_check():
         print("Meilisearchサーバーが正常に動作していません")
         return
@@ -46,8 +44,6 @@ def main():
             
             # インデックスの設定を更新
             setup.update_config(index_name, settings)
-
-        
 
 if __name__ == "__main__":
     main()
