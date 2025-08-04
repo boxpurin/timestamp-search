@@ -94,3 +94,11 @@ run = "docker compose -f ./docker/docker-compose.yml logs -f"
 [tasks.setup-meili]
 description = "Setup Meilisearch indexes"
 run = "uv pip install -r scripts/requirements.txt && uv run scripts/setup_meili_indexes.py"
+
+[tasks.video-index-stats]
+description = "Show Meilisearch indexes stats"
+run = "uv pip install -r scripts/requirements.txt && uv run scripts/index_stats.py videos"
+
+[tasks.timestamp-index-stats]
+description = "Show Meilisearch indexes stats"
+run = "uv pip install -r scripts/requirements.txt && uv run scripts/index_stats.py timestamps"

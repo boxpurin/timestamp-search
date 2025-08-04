@@ -1,11 +1,11 @@
 [
     {
-        "index_name": "video_index",
+        "index_name": "videos",
         "pid": "video_id",
         "setting_file": "video_index_settings.json"
     },
     {
-        "index_name": "timestamp_index",
+        "index_name": "timestamps",
         "pid" : "pid",
         "setting_file": "timestamp_index_settings.json"
     }
