@@ -26,23 +26,29 @@ impl ApiClient {
 
 #[async_trait::async_trait]
 impl<
-    I: Index + Serialize + Sync + Send + 'static,
-    T: Serialize + DeserializeOwned + Send + Sync + 'static,
-> MeiliSearchCrudApi<I, T> for ApiClient
+    I: Index + Serialize + DeserializeOwned+ Sync + Send + 'static,
+> MeiliSearchCrudApi<I> for ApiClient
 {
-    async fn add_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
+    async fn add_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
-        let _ = i
+        
+        let task = i
             .add_documents(&[entity], I::pid_field())
             .await?
             .wait_for_completion(&self.client, None, None)
             .await?;
 
+        if task.is_failure() {
+            let f = task.unwrap_failure();
+            tracing::error!("task failure : {}", f.error_message);
+        }
+
         Ok(())
     }
 
-    async fn add_entities(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError> {
+    async fn add_entities(&self, index_name: &str, entities: &[I]) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
+
         let _ = i
             .add_documents(entities, I::pid_field())
             .await?
@@ -52,7 +58,7 @@ impl<
         Ok(())
     }
 
-    async fn update_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError> {
+    async fn update_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
             .add_or_update(&[entity], I::pid_field())
@@ -66,7 +72,7 @@ impl<
     async fn update_entities(
         &self,
         index_name: &str,
-        entities: &[T],
+        entities: &[I],
     ) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
@@ -83,17 +89,20 @@ impl<
         index_name: &str,
         id: &str,
     ) -> Result<bool, MeilisearchError> {
-        let i = self.client.get_index(index_name).await?;
-        let result = i.get_document::<T>(id).await;
+        tracing::info!("find entity by id");
+        let i = self.client.get_index(index_name).await;
+        let result: Result<I, MeilisearchError> = i?.get_document::<I>(id).await;
 
         match result {
             Ok(_) => Ok(true),
             Err(e) => {
                 if let MeilisearchError::Meilisearch(e) = &e {
                     if e.error_code == ErrorCode::DocumentNotFound {
+                        tracing::info!("DocumentNotFound");
                         return Ok(false);
                     }
                 }
+                tracing::error!("error");
                 Err(e)
             }
         }
@@ -103,9 +112,9 @@ impl<
         &self,
         index_name: &str,
         id: &str,
-    ) -> Result<Option<T>, MeilisearchError> {
+    ) -> Result<Option<I>, MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
-        let result = i.get_document::<T>(id).await;
+        let result = i.get_document::<I>(id).await;
 
         match result {
             Ok(document) => Ok(Some(document)),
@@ -120,9 +129,9 @@ impl<
         }
     }
 
-    async fn get_all_entities(&self, index_name: &str) -> Result<Vec<T>, MeilisearchError> {
+    async fn get_all_entities(&self, index_name: &str) -> Result<Vec<I>, MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
-        let result = i.get_documents::<T>().await;
+        let result = i.get_documents::<I>().await;
 
         match result {
             Ok(documents) => Ok(documents.results),
