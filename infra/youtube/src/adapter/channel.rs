@@ -6,12 +6,18 @@ pub struct ChannelToChannelEntityConverter(pub Channel);
 pub struct VideoToChannelEntityConverter(pub Video);
 
 impl TryInto<ChannelEntity> for ChannelToChannelEntityConverter {
-    type Error = String;
+    type Error = AppError;
     fn try_into(self) -> Result<ChannelEntity, Self::Error> {
         let inner = self.0;
-        let snippet = inner.snippet.ok_or("Channel snippet is missing")?;
-        let id = inner.id.ok_or("Channel ID is missing")?;
-        let name = snippet.title.ok_or("Channel name is missing")?;
+        let snippet = inner.snippet.ok_or(AppError::InvalidInput(
+            "Video snippet is missing".to_string()
+        ))?;
+        let id = inner.id.ok_or(AppError::InvalidInput(
+            "Channel ID is missing".to_string()
+        ))?;
+        let name = snippet.title.ok_or(AppError::InvalidInput
+            ("Channel name is missing".to_string())
+        )?;
         Ok(ChannelEntity {
             id: id.into(),
             name: name.into(),
@@ -36,5 +42,22 @@ impl TryInto<ChannelEntity> for VideoToChannelEntityConverter {
             id: channel_id.into(),
             name: channel_name.into(),
         })
+    }
+}
+
+
+#[cfg(test)]
+mod unit_tests{
+    use super::*;
+    use domains::entities::channel::ChannelEntity;
+    use google_youtube3::api::{Channel, Video};
+
+    #[test]
+    fn channel_to_channel_entity_converter_test(){
+        let channel = Channel::default();
+        let c = ChannelToChannelEntityConverter(channel);
+
+        let r: Result<ChannelEntity, AppError> = c.try_into();
+        assert!(r.is_err());
     }
 }
