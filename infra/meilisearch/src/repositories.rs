@@ -8,20 +8,19 @@ pub mod video_crud;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait MeiliSearchCrudApi<
-    I: Serialize + Index + Send + Sync + 'static,
-    T: Serialize + DeserializeOwned + Send + Sync + 'static,
+    I: Serialize + Index + DeserializeOwned + Send + Sync + 'static,
 >
 {
-    async fn add_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError>;
+    async fn add_entity(&self, index_name: &str, index: &I) -> Result<(), MeilisearchError>;
 
-    async fn add_entities(&self, index_name: &str, entities: &[T]) -> Result<(), MeilisearchError>;
+    async fn add_entities(&self, index_name: &str, entities: &[I]) -> Result<(), MeilisearchError>;
 
-    async fn update_entity(&self, index_name: &str, entity: &T) -> Result<(), MeilisearchError>;
+    async fn update_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError>;
 
     async fn update_entities(
         &self,
         index_name: &str,
-        entities: &[T],
+        entities: &[I],
     ) -> Result<(), MeilisearchError>;
 
     async fn find_entity_by_id(&self, index_name: &str, id: &str)
@@ -31,9 +30,9 @@ pub trait MeiliSearchCrudApi<
         &self,
         index_name: &str,
         id: &str,
-    ) -> Result<Option<T>, MeilisearchError>;
+    ) -> Result<Option<I>, MeilisearchError>;
 
-    async fn get_all_entities(&self, index_name: &str) -> Result<Vec<T>, MeilisearchError>;
+    async fn get_all_entities(&self, index_name: &str) -> Result<Vec<I>, MeilisearchError>;
 
     async fn delete_entity_by_id(&self, index_name: &str, id: &str)
     -> Result<(), MeilisearchError>;
