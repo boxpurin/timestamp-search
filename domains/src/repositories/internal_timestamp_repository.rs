@@ -1,3 +1,4 @@
+use crate::entities::video::VideoEntity;
 use crate::entities::video_timestamp::VideoTimestampEntity;
 use crate::value_objects::timestamp_id::TimestampId;
 use crate::value_objects::video_id::VideoId;
@@ -13,17 +14,19 @@ use errors::AppResult;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait InternalVideoTimeStampRepository {
-    async fn add_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()>;
+    async fn add_video_timestamp_entity(&self, video_entity: &VideoEntity, timestamp_entity: &VideoTimestampEntity) -> AppResult<()>;
 
     async fn add_video_timestamp_entities(
         &self,
+        video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()>;
 
-    async fn update_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()>;
+    async fn update_video_timestamp_entity(&self, video_entity: &VideoEntity, entity: &VideoTimestampEntity) -> AppResult<()>;
 
     async fn update_video_timestamp_entities(
         &self,
+        video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()>;
 
