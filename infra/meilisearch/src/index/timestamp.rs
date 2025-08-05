@@ -87,7 +87,7 @@ impl Index for TimeStampIndex {
     }
 
     fn pid_field() -> Option<&'static str> {
-        Some("Pid")
+        Some("pid")
     }
 
     fn name() -> &'static str {
