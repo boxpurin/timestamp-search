@@ -1,7 +1,6 @@
 use crate::client::ApiClient;
-use crate::index::video::VideoIndex;
 use crate::index::Index;
-use crate::index::timestamp::{TimeStampIndex, VideoTimeStampDetails};
+use crate::index::timestamp::TimeStampIndex;
 use crate::repositories::MeiliSearchCrudApi;
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;

@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult};
+use errors::AppResult;
 use types::impl_string_value;
 
 impl_string_value!(TimeStampDescription);

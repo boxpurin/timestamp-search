@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult};
+use errors::AppResult;
 use types::impl_numeric_value;
 impl_numeric_value!(Seconds, u64);
 

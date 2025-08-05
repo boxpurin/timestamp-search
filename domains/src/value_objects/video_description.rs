@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult};
+use errors::AppResult;
 
 types::impl_string_value!(VideoDescription);
 impl VideoDescription {

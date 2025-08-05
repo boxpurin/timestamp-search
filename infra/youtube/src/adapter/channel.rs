@@ -1,5 +1,5 @@
 use domains::entities::channel::ChannelEntity;
-use errors::{AppError, AppResult};
+use errors::AppError;
 use google_youtube3::api::{Channel, Video};
 
 pub struct ChannelToChannelEntityConverter(pub Channel);

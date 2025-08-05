@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult};
+use errors::AppResult;
 types::impl_numeric_value!(Width, u32);
 
 impl Width {
