@@ -3,7 +3,7 @@ types::impl_string_value!(ThumbnailUrl);
 
 impl ThumbnailUrl {
     pub fn new(url: &str) -> AppResult<Self> {
-        if !url.starts_with("http://") || !url.starts_with("https://") {
+        if !url.starts_with("http://") && !url.starts_with("https://") {
             return Err(AppError::DomainParseError(url.to_string()));
         }
         Ok(ThumbnailUrl(url.to_string()))
