@@ -1,4 +1,3 @@
-use crate::entities::video::VideoEntity;
 use crate::value_objects::timestamp::TimeStamp;
 use crate::value_objects::video_id::VideoId;
 use errors::{AppError, AppResult};
