@@ -26,6 +26,7 @@ impl<E: ExternalVideoRepository, I: InternalVideoRepository> VideoFetchService<E
             .fetch_recent_video_by_channel_id(channel_id, count)
             .await?;
 
+        tracing::info!("Downloaded videos count {}", v.len());
         for video in &v {
             if !self
                 .internal_video_repository
@@ -47,11 +48,13 @@ impl<E: ExternalVideoRepository, I: InternalVideoRepository> VideoFetchService<E
             .fetch_all_videos_by_channel_id(channel_id)
             .await?;
 
+        tracing::info!("Downloaded videos count {}", v.len());
         for video in &v {
-            if !self
+            let ret = self
                 .internal_video_repository
                 .find_video_entity_by_id(&video.id)
-                .await?
+                .await?;
+            if !ret
             {
                 self.internal_video_repository
                     .add_video_entity(video)
