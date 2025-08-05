@@ -9,7 +9,7 @@ use crate::repositories::MeiliSearchCrudApi;
 use errors::{AppError, AppResult};
 
 pub struct MeiliSearchVideoCrudRepository<
-    T: MeiliSearchCrudApi<VideoIndex, VideoEntity> + Send + Sync,
+    T: MeiliSearchCrudApi<VideoIndex> + Send + Sync,
 > {
     client: T,
 }
@@ -21,39 +21,55 @@ pub fn create_video_crud_repository() -> MeiliSearchVideoCrudRepository<ApiClien
 }
 
 #[async_trait::async_trait]
-impl<T: MeiliSearchCrudApi<VideoIndex, VideoEntity> + Send + Sync> InternalVideoRepository
+impl<T: MeiliSearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
     for MeiliSearchVideoCrudRepository<T>
 {
     async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
         // Implementation for adding a video entity to MeiliSearch
+        let i = VideoIndex::from_entity(video_entity.clone());
+
         self.client
-            .add_entity(VideoIndex::name(), video_entity)
+            .add_entity(VideoIndex::name(), &i)
             .await
             .map_err(AppError::from)?;
         Ok(())
     }
 
     async fn add_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
+        let i: Vec<VideoIndex> = video_entities
+        .iter()
+        .map(|video_entity| {
+            VideoIndex::from_entity(video_entity.clone())
+        }).collect();
+
         self.client
-            .add_entities(VideoIndex::name(), video_entities)
+            .add_entities(VideoIndex::name(), i.as_slice())
             .await
             .map_err(AppError::from)?;
         Ok(())
     }
 
     async fn update_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
+        let i = VideoIndex::from_entity(video_entity.clone());
+
         // Implementation for updating a video entity in MeiliSearch
         self.client
-            .update_entity(VideoIndex::name(), video_entity)
+            .update_entity(VideoIndex::name(), &i)
             .await
             .map_err(AppError::from)?;
         Ok(())
     }
 
     async fn update_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
+        let i: Vec<VideoIndex> = video_entities
+        .iter()
+        .map(|video_entity| {
+            VideoIndex::from_entity(video_entity.clone())
+        }).collect();
+
         // Implementation for updating multiple video entities in MeiliSearch
         self.client
-            .update_entities(VideoIndex::name(), video_entities)
+            .update_entities(VideoIndex::name(), &i)
             .await
             .map_err(AppError::from)?;
         Ok(())
@@ -66,6 +82,7 @@ impl<T: MeiliSearchCrudApi<VideoIndex, VideoEntity> + Send + Sync> InternalVideo
             .find_entity_by_id(VideoIndex::name(), video_id.as_str())
             .await
             .map_err(AppError::from)?;
+        tracing::info!("{}", exists);
         Ok(exists)
     }
 
