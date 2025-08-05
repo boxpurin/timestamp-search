@@ -1,6 +1,6 @@
 use crate::value_objects::timestamp::TimeStamp;
 use crate::value_objects::video_id::VideoId;
-use errors::{AppError, AppResult};
+use errors::AppResult;
 use sha2::{Digest, Sha224};
 
 types::impl_string_value!(TimestampId);
