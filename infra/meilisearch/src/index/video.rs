@@ -94,7 +94,7 @@ impl Index for VideoIndex {
     }
 
     fn pid_field() -> Option<&'static str> {
-        Some("video_id")
+        Some("videoId")
     }
 
     fn name() -> &'static str {
