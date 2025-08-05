@@ -1,17 +1,19 @@
 use crate::client::ApiClient;
+use crate::index::video::VideoIndex;
 use crate::index::Index;
 use crate::index::timestamp::{TimeStampIndex, VideoTimeStampDetails};
 use crate::repositories::MeiliSearchCrudApi;
 use domains::entities::video_timestamp::VideoTimestampEntity;
+use domains::entities::video::VideoEntity;
 use domains::repositories::internal_timestamp_repository::InternalVideoTimeStampRepository;
 use domains::value_objects::timestamp_id::TimestampId;
 use domains::value_objects::video_id::VideoId;
 use errors::{AppError, AppResult};
 
 pub struct MeiliSearchVideoCrudRepository<
-    T: MeiliSearchCrudApi<TimeStampIndex, VideoTimestampEntity> + Send + Sync,
+    T: MeiliSearchCrudApi<TimeStampIndex> + Send + Sync,
 > {
-    client: T,
+    client : T,
 }
 
 pub fn create_timestamp_crud_repository() -> MeiliSearchVideoCrudRepository<ApiClient> {
@@ -20,32 +22,50 @@ pub fn create_timestamp_crud_repository() -> MeiliSearchVideoCrudRepository<ApiC
     }
 }
 
+
 #[async_trait::async_trait]
-impl<T: MeiliSearchCrudApi<TimeStampIndex, VideoTimestampEntity> + Send + Sync>
+impl<T: MeiliSearchCrudApi<TimeStampIndex> + Send + Sync>
     InternalVideoTimeStampRepository for MeiliSearchVideoCrudRepository<T>
 {
-    async fn add_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()> {
-        self.client
-            .add_entity(TimeStampIndex::name(), entity)
-            .await
-            .map_err(AppError::from)?;
+    async fn add_video_timestamp_entity(&self, video_entity: &VideoEntity, timestamp_entity: &VideoTimestampEntity) -> AppResult<()> {
+        let i = TimeStampIndex::from_entity(
+            video_entity.clone(),
+            timestamp_entity.timestamp.clone()
+        );
+
+        self.client.add_entity(
+            TimeStampIndex::name(), &i
+        ).await?;
         Ok(())
     }
 
     async fn add_video_timestamp_entities(
         &self,
+        video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()> {
+        let v = entities.iter().map(|e|{
+            TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone())
+        }).collect::<Vec<TimeStampIndex>>();
+
+        // Implementation for adding a video entity to MeiliSearch
         self.client
-            .add_entities(TimeStampIndex::name(), entities)
+            .add_entities(TimeStampIndex::name(), &v.as_ref())
             .await
             .map_err(AppError::from)?;
         Ok(())
     }
 
-    async fn update_video_timestamp_entity(&self, entity: &VideoTimestampEntity) -> AppResult<()> {
+    async fn update_video_timestamp_entity(&self,
+        video_entity: &VideoEntity,
+        entity: &VideoTimestampEntity) -> AppResult<()> {
+        let i = TimeStampIndex::from_entity(
+            video_entity.clone(),
+            entity.timestamp.clone()
+        );
+        
         self.client
-            .update_entity(TimeStampIndex::name(), entity)
+            .update_entity(TimeStampIndex::name(), &i)
             .await
             .map_err(AppError::from)?;
         Ok(())
@@ -53,10 +73,15 @@ impl<T: MeiliSearchCrudApi<TimeStampIndex, VideoTimestampEntity> + Send + Sync>
 
     async fn update_video_timestamp_entities(
         &self,
+        video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()> {
+        let v = entities.iter().map(|e|{
+            TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone())
+        }).collect::<Vec<TimeStampIndex>>();
+
         self.client
-            .update_entities(TimeStampIndex::name(), entities)
+            .update_entities(TimeStampIndex::name(), &v)
             .await
             .map_err(AppError::from)?;
 
@@ -79,12 +104,12 @@ impl<T: MeiliSearchCrudApi<TimeStampIndex, VideoTimestampEntity> + Send + Sync>
             .client
             .get_entity_by_id(TimeStampIndex::name(), video_id.as_str())
             .await?;
-        Ok(entity)
+        Ok(entity.map(|i| i.into()))
     }
 
     async fn get_all_video_timestamp_entities(&self) -> AppResult<Vec<VideoTimestampEntity>> {
         let entities = self.client.get_all_entities(TimeStampIndex::name()).await?;
-        Ok(entities)
+        Ok(entities.into_iter().map(|i| i.into()).collect())
     }
 
     async fn delete_video_timestamp_entity_by_id(&self, video_id: &VideoId) -> AppResult<()> {
