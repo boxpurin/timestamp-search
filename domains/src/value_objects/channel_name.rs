@@ -31,8 +31,6 @@ mod unit_tests {
     #[test]
     fn valid_channel_names() {
         assert!(ChannelName::new("ValidChannel").is_ok());
-        
-        
     }
 
     #[test]

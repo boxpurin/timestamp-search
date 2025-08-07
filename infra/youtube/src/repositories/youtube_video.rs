@@ -286,7 +286,7 @@ mod unit_tests {
     #[case(vec![])]
     #[case(vec![
         VideoEntity::new(
-            VideoId::new("video1").unwrap(),
+            VideoId::new("abc-def-ghi").unwrap(),
             VideoTitle::new("Video 1").unwrap(),
             Vec::new(),
             VideoDescription::new("Description 1").unwrap(),
@@ -307,11 +307,11 @@ mod unit_tests {
         mock_api
             .expect_fetch_channel_uploads_from_api()
             .with(eq(channel_id.clone()))
-            .returning(|_| Ok("PLBCF2DAC6FFB574DE".to_string()));
+            .returning(|_| Ok("abc-def-ghi".to_string()));
 
         mock_api
             .expect_fetch_playlist_videos_from_api()
-            .with(eq("PLBCF2DAC6FFB574DE"), eq(50), eq(&None))
+            .with(eq("abc-def-ghi"), eq(50), eq(&None))
             .returning(move |_, _, _| Ok((expected.clone(), None)));
 
         let repository = YoutubeVideoRepository::new(Box::new(mock_api));
@@ -328,11 +328,11 @@ mod unit_tests {
         mock_api
             .expect_fetch_channel_uploads_from_api()
             .with(eq(channel_id.clone()))
-            .returning(|_| Ok("PLBCF2DAC6FFB574DE".to_string()));
+            .returning(|_| Ok("abc-def-ghi".to_string()));
 
         mock_api
             .expect_fetch_playlist_videos_from_api()
-            .with(eq("PLBCF2DAC6FFB574DE"), eq(10), eq(&None))
+            .with(eq("abc-def-ghi"), eq(10), eq(&None))
             .returning(|_, _, _| Ok((vec![], None)));
 
         let repository = YoutubeVideoRepository::new(Box::new(mock_api));

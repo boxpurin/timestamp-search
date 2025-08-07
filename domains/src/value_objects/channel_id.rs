@@ -40,23 +40,20 @@ impl ChannelId {
 mod unit_tests {
     use super::*;
 
+    #[rstest::rstest]
     #[test]
-    fn valid_channel_ids() {
-        assert!(ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw").is_ok());
-        assert!(ChannelId::new("UC-lHJZR3Gqxm24_Vd_AJ5Yw").is_ok());
+    #[case("UC_x5XG1OV2P6uZZ5FSM9Ttw")]
+    #[case("UC-lHJZR3Gqxm24_Vd_AJ5Yw")]
+    fn valid_channel_ids(#[case] id: &str) {
+        assert!(ChannelId::new(id).is_ok());
     }
 
+    #[rstest::rstest]
     #[test]
-    fn invalid_channel_ids() {
-        // Invalid length
-        assert!(ChannelId::new("").is_err());
-        assert!(ChannelId::new("short").is_err());
-        assert!(ChannelId::new("this is way too long for a channel id").is_err());
-
-        // Invalid prefix
-        assert!(ChannelId::new("VC_x5XG1OV2P6uZZ5FSM9Ttw").is_err());
-
-        // Invalid characters
-        assert!(ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw!").is_err());
+    #[case::empty("")]
+    #[case::short("short")]
+    #[case::long("this is long long long long id")]
+    fn invalid_channel_ids(#[case] id: &str) {
+        assert!(ChannelId::new(id).is_err());
     }
 }

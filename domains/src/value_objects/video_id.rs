@@ -24,7 +24,7 @@ impl VideoId {
 }
 
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     use super::*;
     use rstest::rstest;
 

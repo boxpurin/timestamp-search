@@ -24,7 +24,7 @@ mod unit_tests {
 
     #[test]
     fn test_timestamp_id() {
-        let video_id = VideoId::new("video123").unwrap();
+        let video_id = VideoId::new("abc-def-ghi").unwrap();
         let timestamp = TimeStamp::new(
             Seconds::new(60).unwrap(),
             TimeStampDescription::new("Test description").unwrap(),
