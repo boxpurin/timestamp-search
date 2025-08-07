@@ -29,11 +29,14 @@ mod unit_tests {
     use super::*;
 
     #[test]
-    fn test_channel_name() {
-        let valid_name = ChannelName::new("ValidChannel");
-        assert!(valid_name.is_ok());
+    fn valid_channel_names() {
+        assert!(ChannelName::new("ValidChannel").is_ok());
+        
+        
+    }
 
-        let invalid_name = ChannelName::new("");
-        assert!(invalid_name.is_err());
+    #[test]
+    fn invalid_channel_names(){
+        assert!(ChannelName::new("").is_err());
     }
 }
