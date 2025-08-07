@@ -1,16 +1,22 @@
 use errors::{AppError, AppResult};
 types::impl_numeric_value!(Limit, usize);
+
+
+static LIMIT_MIN: usize = 1;
+static LIMIT_MAX: usize = 1000;
+
 impl Limit {
+    
     pub fn new(limit: usize) -> AppResult<Self> {
-        if limit == 0 {
+        if limit < LIMIT_MIN {
             return Err(AppError::InvalidInput(
-                "Limit must be greater than zero".to_string(),
+                format!("Limit must be greater than {}", LIMIT_MIN),
             ));
         }
 
-        if limit > 1000 {
+        if limit > LIMIT_MAX {
             return Err(AppError::InvalidInput(
-                "Limit must not exceed 1000".to_string(),
+                format!("Limit must not exceed {}", LIMIT_MAX),
             ));
         }
 
@@ -21,17 +27,23 @@ impl Limit {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    use errors::AppError;
+    use rstest::rstest;
 
+    #[rstest]
     #[test]
-    fn test_limit() {
-        assert!(Limit::new(0).is_err());
-        assert!(matches!(Limit::new(0), Err(AppError::InvalidInput(_))));
-        assert!(Limit::new(1001).is_err());
-        assert!(matches!(Limit::new(1001), Err(AppError::InvalidInput(_))));
-        assert!(Limit::new(500).is_ok());
+    #[case(vec![1, 5, 10, 25, 50, 100, 1000])]
+    fn valid_limit(#[case] limits: Vec<usize>) {
+        for limit in limits {
+            assert!(Limit::new(limit).is_ok());
+        }
+    }
 
-        let limit = Limit::new(200).unwrap();
-        assert_eq!(limit.0, 200);
+    #[rstest]
+    #[test]
+    #[case(vec![0, 1001])]
+    fn invalid_limit(#[case] limits: Vec<usize>) {
+        for limit in limits {
+            assert!(Limit::new(limit).is_err());
+        }
     }
 }
