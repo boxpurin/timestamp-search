@@ -3,13 +3,14 @@ use crate::repositories::internal_video_repository::InternalVideoRepository;
 use crate::value_objects::channel_id::ChannelId;
 use errors::AppResult;
 use crate::entities::video::VideoEntity;
+use std::sync::Arc;
 
 pub struct VideoFetchService<E: ExternalVideoRepository> {
-    external_video_repository: E,
+    external_video_repository: Arc<E>,
 }
 
 impl<E: ExternalVideoRepository> VideoFetchService<E> {
-    pub fn new(external_video_repository: E) -> Self {
+    pub fn new(external_video_repository: Arc<E>) -> Self {
         VideoFetchService {
             external_video_repository,
         }

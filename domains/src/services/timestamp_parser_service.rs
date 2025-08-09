@@ -1,5 +1,4 @@
 use fancy_regex::Regex;
-use std::str::FromStr;
 use errors::AppResult;
 use crate::entities::{
     video::VideoEntity,
