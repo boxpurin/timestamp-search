@@ -51,6 +51,6 @@ impl TryInto<ThumbnailDomain> for ThumbnailToThumbnailConverter {
             .height
             .ok_or(DomainParseError("Thumbnail height is missing".to_string()))?;
 
-        Ok(ThumbnailDomain::new(url, width, height)?)
+        ThumbnailDomain::new(url, width, height)
     }
 }
