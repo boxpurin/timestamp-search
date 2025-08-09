@@ -14,7 +14,7 @@ pub trait InternalVideoSearchRepository {
 
 #[cfg(test)]
 mod unit_tests{
-    use crate::repositories::internal_video_search_repository::{InternalVideoSearchRepository, MockInternalVideoSearchRepository};
+    use crate::repositories::internal_video_search_repository::MockInternalVideoSearchRepository;
     use super::*;
     use mockall::predicate::eq;
 
@@ -25,7 +25,7 @@ mod unit_tests{
 
         mock.expect_search_videos_by_query()
             .with(eq(query.clone()))
-            .returning(|_| Ok(vec![]));
+            .returning(|q| Ok(vec![]));
 
         let v = mock.search_videos_by_query(&query).await;
         assert!(v.is_ok());
