@@ -1,4 +1,7 @@
-use domains::services::video_fetch_service::VideoFetchService;
+use domains::services::{
+    video_fetch_service::VideoFetchService,
+    timestamp_parser_service::TimeStampParserService,
+};
 use domains::value_objects::channel_id::ChannelId;
 use meilisearch::repositories::video_crud::create_video_crud_repository;
 use youtube::repositories::youtube_video::create_youtube_video_repository;
@@ -7,12 +10,20 @@ use youtube::repositories::youtube_video::create_youtube_video_repository;
 async fn main() {
     let ext_repo = create_youtube_video_repository().await;
     let int_repo = create_video_crud_repository();
-    let video_fetch_service = VideoFetchService::new(ext_repo, int_repo);
+
+    let video_fetch_service = VideoFetchService::new(ext_repo);
+    let parser = TimeStampParserService::new();
 
     let channel_id = ChannelId::new("YOUR_CHANNEL_ID").expect("Invalid channel ID");
     // Replace with the actual channel ID you want to fetch videos for
-    let v = video_fetch_service
+    let vs = video_fetch_service
         .fetch_all_videos_by_channel_id(&channel_id)
         .await
         .unwrap();
+
+    for v in vs {
+        if let Ok(tss) = parser.parse_video(&v){
+            // internal videoに追加
+        }
+    }
 }
