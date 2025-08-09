@@ -14,13 +14,6 @@ macro_rules! impl_string_value_traits {
             }
         }
 
-        impl From<String> for $name {
-            /// Creates a new instance of `$name` from a `String`.
-            fn from(value: String) -> Self {
-                Self(value)
-            }
-        }
-
         impl AsRef<str> for $name {
             /// Returns a reference to the inner string.
             fn as_ref(&self) -> &str {
@@ -169,7 +162,7 @@ mod unit_tests {
     #[test]
     fn test_string_value() {
         // From<String> implementation
-        let value: TestStringValue = "Hello, World!".to_string().into();
+        let value: TestStringValue = TestStringValue::new("Hello, World!".to_string());
 
         // From<TestStringValue> implementation
         let _: String = value.clone().into();
@@ -207,8 +200,7 @@ mod unit_tests {
 
     #[test]
     fn test_private_string_value() {
-        // From<String> implementation
-        let value: TestPrivateStringValue = "Hello, World!".to_string().into();
+        let value: TestPrivateStringValue = TestPrivateStringValue::new("Hello, World!".to_string());
 
         // From<TestStringValue> implementation
         let _: String = value.clone().into();
