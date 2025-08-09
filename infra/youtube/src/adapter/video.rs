@@ -60,11 +60,11 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         let a = ls.actual_start_time;
 
         Ok(VideoEntity::new(
-            VideoId::from(id),
-            VideoTitle::from(title),
+            VideoId::new(&id)?,
+            VideoTitle::new(&title)?,
             tags,
-            VideoDescription::from(description),
-            ChannelEntity::new(ChannelId::from(channel_id), ChannelName::from(channel_name)),
+            VideoDescription::new(&description)?,
+            ChannelEntity::new(ChannelId::new(&channel_id)?, ChannelName::new(&channel_name)?),
             t,
             published_at,
             a,
