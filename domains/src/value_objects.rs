@@ -3,7 +3,7 @@ pub mod channel_name;
 pub mod height;
 pub mod limit;
 pub mod search_query_text;
-pub mod seconds;
+pub mod elapsed_time;
 pub mod thumbnail;
 pub mod thumbnail_url;
 pub mod timestamp;
