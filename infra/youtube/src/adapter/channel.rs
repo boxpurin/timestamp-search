@@ -1,6 +1,8 @@
 use domains::entities::channel::ChannelEntity;
 use errors::AppError;
 use google_youtube3::api::{Channel, Video};
+use domains::value_objects::channel_id::ChannelId;
+use domains::value_objects::channel_name::ChannelName;
 
 pub struct ChannelToChannelEntityConverter(pub Channel);
 pub struct VideoToChannelEntityConverter(pub Video);
@@ -19,8 +21,8 @@ impl TryInto<ChannelEntity> for ChannelToChannelEntityConverter {
             ("Channel name is missing".to_string())
         )?;
         Ok(ChannelEntity {
-            id: id.into(),
-            name: name.into(),
+            id: ChannelId::new(&id)?,
+            name: ChannelName::new(&name)?,
         })
     }
 }
@@ -39,8 +41,8 @@ impl TryInto<ChannelEntity> for VideoToChannelEntityConverter {
             "Channel name is missing in video snippet".to_string(),
         ))?;
         Ok(ChannelEntity {
-            id: channel_id.into(),
-            name: channel_name.into(),
+            id: ChannelId::new(&channel_id)?,
+            name: ChannelName::new(&channel_name)?,
         })
     }
 }
