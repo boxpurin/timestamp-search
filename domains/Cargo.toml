@@ -19,3 +19,4 @@ mockall.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 rstest.workspace = true
+fancy-regex.workspace = true

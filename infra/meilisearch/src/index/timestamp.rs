@@ -3,7 +3,7 @@ use crate::index::Index;
 use chrono::{DateTime, Utc};
 use domains::entities::video::VideoEntity;
 use domains::entities::video_timestamp::VideoTimestampEntity;
-use domains::value_objects::seconds::Seconds;
+use domains::value_objects::elapsed_time::ElapsedTime;
 use domains::value_objects::timestamp::TimeStamp;
 use domains::value_objects::timestamp_description::TimeStampDescription;
 use domains::value_objects::timestamp_id::TimestampId;
@@ -23,12 +23,12 @@ pub struct TimeStampIndex {
     pub pid: TimestampId,
     pub video_id: VideoId,
     pub description: TimeStampDescription,
-    pub start_time: Seconds, // 秒単位
+    pub start_time: ElapsedTime, // 秒単位
     pub video_details: Option<VideoTimeStampDetails>,
 }
 
 impl TimeStampIndex {
-    pub fn new<S: Into<Seconds>>(
+    pub fn new<S: Into<ElapsedTime>>(
         pid: TimestampId,
         video_id: VideoId,
         description: TimeStampDescription,

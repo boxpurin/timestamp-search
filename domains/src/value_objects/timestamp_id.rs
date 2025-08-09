@@ -19,14 +19,14 @@ impl TimestampId {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    use crate::value_objects::seconds::Seconds;
+    use crate::value_objects::elapsed_time::ElapsedTime;
     use crate::value_objects::timestamp_description::TimeStampDescription;
 
     #[test]
     fn test_timestamp_id() {
         let video_id = VideoId::new("abc-def-ghi").unwrap();
         let timestamp = TimeStamp::new(
-            Seconds::new(60).unwrap(),
+            ElapsedTime::new(60).unwrap(),
             TimeStampDescription::new("Test description").unwrap(),
         )
         .unwrap();
