@@ -1,4 +1,4 @@
-use crate::value_objects::{height::Height, thumbnail_url::ThumbnailUrl, width::Width};
+use crate::value_objects::{height::VideoThumbnailHeight, thumbnail_url::ThumbnailUrl, width::VideoThumbnailWidth};
 use errors::{AppError, AppResult};
 use garde::Validate;
 use serde::{Deserialize, Serialize};
@@ -8,23 +8,27 @@ pub struct Thumbnail {
     #[garde(url)]
     url: ThumbnailUrl,
     #[garde(skip)]
-    width: Width,
+    width: VideoThumbnailWidth,
     #[garde(skip)]
-    height: Height,
+    height: VideoThumbnailHeight,
 }
 
 impl Thumbnail {
-    pub fn new<W: TryInto<Width>, H: TryInto<Height>>(
+    pub fn new<W: TryInto<VideoThumbnailWidth>, H: TryInto<VideoThumbnailHeight>>(
         url: ThumbnailUrl,
         width: W,
         height: H,
     ) -> AppResult<Self> {
         let width = width
             .try_into()
-            .map_err(|_| AppError::DomainParseError("".to_string()))?;
+            .map_err(|_| AppError::DomainParseError(
+                "invalid width".to_string(),
+            ))?;
         let height = height
             .try_into()
-            .map_err(|_| AppError::DomainParseError("".to_string()))?;
+            .map_err(|_| AppError::DomainParseError(
+                "invalid height".to_string(),
+            ))?;
         Ok(Self { url, width, height })
     }
 
@@ -32,11 +36,11 @@ impl Thumbnail {
         &self.url
     }
 
-    pub fn width(&self) -> Width {
-        self.width
+    pub fn width(&self) -> &VideoThumbnailWidth {
+        &self.width
     }
 
-    pub fn height(&self) -> Height {
-        self.height
+    pub fn height(&self) -> &VideoThumbnailHeight {
+        &self.height
     }
 }
