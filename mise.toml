@@ -55,22 +55,37 @@ run = [
     "cargo nextest run --workspace --nocapture --status-level all"
 ]
 
-[tasks.unit-test]
+[tasks.run-unit-test]
 description = "Run unit tests in the workspace"
 depends = "test-install"
 run = "cargo nextest run unit_tests --workspace --nocapture --status-level all"
-env = { RUST_BACKTRACE = "1" }
+env = { RUST_BACKTRACE = "1", PROJECT_ENV="test" }
+
+[tasks.unit-test]
+description = "Run unit tests in the workspace"
+run = [
+    "mise run compose-up-test",
+    "mise run test-install",
+    "mise run run-unit-test",
+    "mise run compose-remove-test"
+]
+env = { RUST_BACKTRACE = "1", PROJECT_ENV="test" }
+
+[tasks.run-integral-test]
+description = "Run all tests in the workspace"
+run = "cargo nextest run integral_tests --workspace --nocapture --status-level all"
+env = { RUST_BACKTRACE = "1", PROJECT_ENV="test" }
 
 [tasks.integral-test]
 description = "Run all tests in the workspace"
-depends = "test-install"
-run = "cargo nextest run integral_tests --workspace --nocapture --status-level all"
-env = { RUST_BACKTRACE = "1" }
+run = ["mise run test-install", "mise run run-integral-test"]
+env = { RUST_BACKTRACE = "1", PROJECT_ENV="test" }
 
 [tasks.test-types]
 description = "Run tests for the types package"
 run = "cargo test --package types"
 
+#docker-compose
 [tasks.compose-build]
 env.file= ".env"
 description = "Build Docker images for the workspace"
@@ -92,6 +107,24 @@ run = "docker compose -f ./docker/docker-compose.yml rm -f"
 description = "Show logs from Docker containers"
 run = "docker compose -f ./docker/docker-compose.yml logs -f"
 
+# docker-compose for test
+[tasks.compose-up-test]
+description = "Start Docker containers for test for the workspace"
+run = "docker compose -f ./docker/docker-compose.test.yml up -d"
+
+[tasks.compose-down-test]
+description = "Stop Docker containers for the workspace"
+run = "docker compose -f ./docker/docker-compose.yml down"
+
+[tasks.compose-remove-test]
+description = "Remove Docker containers for the workspace"
+run = "docker compose -f ./docker/docker-compose.yml rm -f"
+
+[tasks.compose-logs-test]
+description = "Show logs from Docker containers"
+run = "docker compose -f ./docker/docker-compose.yml logs -f"
+
+# meilisearch python
 [tasks.setup-meili]
 description = "Setup Meilisearch indexes"
 run = "uv pip install -r scripts/requirements.txt && uv run scripts/setup_meili_indexes.py"
