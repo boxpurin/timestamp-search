@@ -52,7 +52,7 @@ impl TryInto<ChannelEntity> for VideoToChannelEntityConverter {
 mod unit_tests{
     use super::*;
     use domains::entities::channel::ChannelEntity;
-    use google_youtube3::api::{Channel, Video};
+    use google_youtube3::api::Channel;
 
     #[test]
     fn channel_to_channel_entity_converter_test(){
