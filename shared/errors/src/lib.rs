@@ -14,6 +14,9 @@ pub enum AppError {
     #[error("Invalid domain: {0}")]
     DomainParseError(String),
 
+    #[error("Entity build failed: {0}")]
+    EntityBuildFailed(String),
+
     #[error("Not found: {0}")]
     NotFound(String),
 
@@ -31,6 +34,18 @@ pub enum AppError {
 
     #[error("Service unavailable: {0}")]
     ServiceUnavailable(String),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum DomainError{
+    #[error("Value {0} is not satisfy validation.")]
+    NotSatisfyValidation(String),
+
+    #[error("Domain Parse Failure : {0}")]
+    ParseFailure(String),
+
+    #[error("Missing optional domain field. Expected field : {0}")]
+    MissingField(String)
 }
 
 impl From<Youtube3Error> for AppError {
@@ -163,6 +178,7 @@ impl IntoResponse for AppError {
         let status = match self {
             AppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
             AppError::DomainParseError(_) => StatusCode::BAD_REQUEST,
+            AppError::EntityBuildFailed(_) => StatusCode::BAD_REQUEST,
             AppError::NotFound(_) => StatusCode::NOT_FOUND,
             AppError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
