@@ -14,3 +14,7 @@ pub mod video_id;
 pub mod video_tag;
 pub mod video_title;
 pub mod width;
+pub mod page;
+pub mod per_page;
+pub mod offset;
+pub mod video_detail;

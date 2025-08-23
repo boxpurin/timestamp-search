@@ -20,6 +20,9 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 rstest.workspace = true
 fancy-regex.workspace = true
+rand.workspace = true
 
 [dev-dependencies]
-tokio.workspace = true
+anyhow = "1.0.86"
+tokio = { version = "1.38.0", features = ["full"] }
+mockall.workspace = true
