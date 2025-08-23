@@ -1,7 +1,5 @@
 use errors::AppResult;
 use types::impl_numeric_value;
-use std::str::FromStr;
-use tracing_subscriber::fmt::format;
 use errors::AppError::DomainParseError;
 
 impl_numeric_value!(ElapsedTime, u64);
@@ -59,8 +57,8 @@ mod unit_tests {
     #[rstest::rstest]
     #[test]
     #[case("2:12:23", 2*60*60+12*60+23)]
-    #[case("12:23", 12*60+23)]
-    #[case("01:23", 1*60+23)]
+    #[case("12:23", 743)]
+    #[case("01:23", 83)]
     #[case("0:23", 23)]
     fn valid_hhmmss(#[case] fmt: &str, #[case] expected: u64) {
         let e = ElapsedTime::from_hhmmss(fmt);
