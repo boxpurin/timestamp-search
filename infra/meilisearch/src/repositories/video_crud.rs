@@ -5,11 +5,11 @@ use domains::value_objects::video_id::VideoId;
 use crate::client::ApiClient;
 use crate::index::Index;
 use crate::index::video::VideoIndex;
-use crate::repositories::MeiliSearchCrudApi;
+use crate::repositories::MeilisearchCrudApi;
 use errors::{AppError, AppResult};
 
 pub struct MeiliSearchVideoCrudRepository<
-    T: MeiliSearchCrudApi<VideoIndex> + Send + Sync,
+    T: MeilisearchCrudApi<VideoIndex> + Send + Sync,
 > {
     client: T,
 }
@@ -21,7 +21,7 @@ pub fn create_video_crud_repository() -> MeiliSearchVideoCrudRepository<ApiClien
 }
 
 #[async_trait::async_trait]
-impl<T: MeiliSearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
+impl<T: MeilisearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
     for MeiliSearchVideoCrudRepository<T>
 {
     async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {

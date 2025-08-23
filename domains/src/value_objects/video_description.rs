@@ -6,3 +6,9 @@ impl VideoDescription {
         Ok(VideoDescription(description.to_string()))
     }
 }
+
+impl Default for VideoDescription {
+    fn default() -> Self {
+        VideoDescription::new("").unwrap()
+    }
+}

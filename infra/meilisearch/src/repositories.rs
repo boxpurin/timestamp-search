@@ -1,13 +1,18 @@
 use crate::index::Index;
 use meilisearch_sdk::errors::Error as MeilisearchError;
+use meilisearch_sdk::search::SearchResults;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+use domains::repositories::internal_timestamp_search_repository::VideoTimestampSearchQuery;
+use errors::AppResult;
+
 pub mod timestamp_crud;
 pub mod video_crud;
+pub mod timestamp_search;
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
-pub trait MeiliSearchCrudApi<
+pub trait MeilisearchCrudApi<
     I: Serialize + Index + DeserializeOwned + Send + Sync + 'static,
 >
 {
@@ -38,4 +43,13 @@ pub trait MeiliSearchCrudApi<
     -> Result<(), MeilisearchError>;
 
     async fn delete_all_entities(&self, index_name: &str) -> Result<(), MeilisearchError>;
+}
+
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
+pub trait MeilisearchSearchApi<
+    I: Serialize + Index + DeserializeOwned + Send + Sync + 'static,
+>
+{
+    async fn search_by_query(&self, search_query: VideoTimestampSearchQuery) -> AppResult<SearchResults<I>>;
 }

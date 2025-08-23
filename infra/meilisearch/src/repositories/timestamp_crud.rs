@@ -1,7 +1,7 @@
 use crate::client::ApiClient;
 use crate::index::Index;
 use crate::index::timestamp::TimeStampIndex;
-use crate::repositories::MeiliSearchCrudApi;
+use crate::repositories::MeilisearchCrudApi;
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;
 use domains::repositories::internal_timestamp_repository::InternalVideoTimeStampRepository;
@@ -9,22 +9,21 @@ use domains::value_objects::timestamp_id::TimestampId;
 use domains::value_objects::video_id::VideoId;
 use errors::{AppError, AppResult};
 
-pub struct MeiliSearchVideoCrudRepository<
-    T: MeiliSearchCrudApi<TimeStampIndex> + Send + Sync,
+pub struct MeilisearchVideoCrudRepository<
+    T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync,
 > {
     client : T,
 }
 
-pub fn create_timestamp_crud_repository() -> MeiliSearchVideoCrudRepository<ApiClient> {
-    MeiliSearchVideoCrudRepository {
+pub fn create_timestamp_crud_repository() -> MeilisearchVideoCrudRepository<ApiClient> {
+    MeilisearchVideoCrudRepository {
         client: ApiClient::new(),
     }
 }
 
-
 #[async_trait::async_trait]
-impl<T: MeiliSearchCrudApi<TimeStampIndex> + Send + Sync>
-    InternalVideoTimeStampRepository for MeiliSearchVideoCrudRepository<T>
+impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
+    InternalVideoTimeStampRepository for MeilisearchVideoCrudRepository<T>
 {
     async fn add_video_timestamp_entity(&self, video_entity: &VideoEntity, timestamp_entity: &VideoTimestampEntity) -> AppResult<()> {
         let i = TimeStampIndex::from_entity(

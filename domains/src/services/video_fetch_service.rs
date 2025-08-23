@@ -1,5 +1,4 @@
 use crate::repositories::external_video_repository::ExternalVideoRepository;
-use crate::repositories::internal_video_repository::InternalVideoRepository;
 use crate::value_objects::channel_id::ChannelId;
 use errors::AppResult;
 use crate::entities::video::VideoEntity;

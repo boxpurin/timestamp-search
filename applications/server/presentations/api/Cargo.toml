@@ -8,3 +8,15 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
+serde_with.workspace = true
+axum.workspace = true
+tokio.workspace = true
+tower.workspace = true
+garde.workspace = true
+chrono.workspace = true
+errors.workspace = true
+tower-layer.workspace = true
+tracing.workspace = true
+domains.workspace = true

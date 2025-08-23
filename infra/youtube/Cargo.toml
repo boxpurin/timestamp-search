@@ -22,3 +22,6 @@ tracing-test.workspace = true
 serde.workspace = true
 once_cell.workspace = true
 envy.workspace = true
+
+[dev-dependencies]
+domains.workspace = true

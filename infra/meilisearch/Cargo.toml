@@ -19,3 +19,9 @@ mockall.workspace = true
 tracing.workspace = true
 envy.workspace = true
 once_cell.workspace = true
+itertools.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
+anyhow.workspace = true
+domains.workspace = true

@@ -1,10 +1,13 @@
-use crate::value_objects::{timestamp::TimeStamp, video_id::VideoId};
+use crate::value_objects::{timestamp::TimeStamp, video_id::VideoId, video_detail::VideoDetail};
 use serde::{Deserialize, Serialize};
+use crate::entities::video::VideoEntity;
+use crate::value_objects::timestamp_description::TimeStampDescription;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, Serialize, Deserialize)]
 pub struct VideoTimestampEntity {
     pub video_id: VideoId,
     pub timestamp: TimeStamp,
+    pub video_detail: Option<VideoDetail>
 }
 
 impl VideoTimestampEntity {
@@ -12,6 +15,22 @@ impl VideoTimestampEntity {
         VideoTimestampEntity {
             video_id,
             timestamp,
+            video_detail: None
         }
+    }
+
+    pub fn with_details(video_id: VideoId, timestamp: TimeStamp, details: VideoDetail) -> Self {
+        VideoTimestampEntity {
+            video_id,
+            timestamp,
+            video_detail: Some(details)
+        }
+    }
+}
+
+impl PartialEq for VideoTimestampEntity {
+    fn eq(&self, other: &Self) -> bool {
+        self.video_id == other.video_id &&
+            self.timestamp == other.timestamp
     }
 }

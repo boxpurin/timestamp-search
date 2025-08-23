@@ -23,7 +23,7 @@ pub struct TimeStampIndex {
     pub pid: TimestampId,
     pub video_id: VideoId,
     pub description: TimeStampDescription,
-    pub start_time: ElapsedTime, // 秒単位
+    pub elapsed_time: ElapsedTime, // 秒単位
     pub video_details: Option<VideoTimeStampDetails>,
 }
 
@@ -39,7 +39,7 @@ impl TimeStampIndex {
             pid,
             video_id,
             description,
-            start_time: start_time.into(),
+            elapsed_time: start_time.into(),
             video_details,
         }
     }
@@ -49,7 +49,7 @@ impl TimeStampIndex {
             TimestampId::new(&video.id, &timestamp).unwrap(),
             video.id.clone(),
             timestamp.description,
-            timestamp.seconds,
+            timestamp.elapsed_time,
             Some(VideoTimeStampDetails::from_entity(video)),
         )
     }
@@ -63,12 +63,12 @@ impl TimeStampIndex {
     pub fn into_entity(self) -> VideoTimestampEntity {
         VideoTimestampEntity::new(
             self.video_id,
-            TimeStamp::new(self.start_time, self.description).unwrap(),
+            TimeStamp::new(self.elapsed_time, self.description).unwrap(),
         )
     }
 
     pub fn into_timestamp(self) -> TimeStamp {
-        TimeStamp::new(self.start_time, self.description).unwrap()
+        TimeStamp::new(self.elapsed_time, self.description).unwrap()
     }
 }
 
@@ -76,7 +76,7 @@ impl Into<VideoTimestampEntity> for TimeStampIndex {
     fn into(self) -> VideoTimestampEntity {
         VideoTimestampEntity::new(
             self.video_id,
-            TimeStamp::new(self.start_time, self.description).unwrap(),
+            TimeStamp::new(self.elapsed_time, self.description).unwrap(),
         )
     }
 }

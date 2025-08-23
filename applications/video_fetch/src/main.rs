@@ -32,7 +32,7 @@ async fn main() -> AppResult<()>{
         .fetch_all_videos_by_channel_id(&channel_id)
         .await?;
 
-    if let Err(e) = video_indexing.add_or_update_video_entities(&vs).await{
+    if let Err(_) = video_indexing.add_or_update_video_entities(&vs).await{
         return Err(AppError::InvalidInput("Failed to add video entities".to_string()));
     }
 
