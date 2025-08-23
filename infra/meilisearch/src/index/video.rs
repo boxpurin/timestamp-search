@@ -10,6 +10,8 @@ use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
 use serde::{Deserialize, Serialize};
+use domains::entities::channel::ChannelEntity;
+use domains::value_objects::thumbnail::Thumbnail;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -21,8 +23,8 @@ pub struct VideoIndex {
     pub channel_id: ChannelId,
     pub channel_name: ChannelName,
     pub thumbnail_url: Option<ThumbnailUrl>,
-    pub actual_start_time: Option<DateTime<Utc>>,
-    pub published_at: DateTime<Utc>,
+    pub actual_start_time: Option<i64>,
+    pub published_at: i64,
 }
 
 impl VideoIndex {
@@ -45,8 +47,8 @@ impl VideoIndex {
             channel_id,
             channel_name,
             thumbnail_url,
-            actual_start_time,
-            published_at,
+            actual_start_time: actual_start_time.map(|t| t.timestamp()),
+            published_at: published_at.timestamp(),
         }
     }
 
@@ -73,18 +75,24 @@ impl From<VideoEntity> for VideoIndex {
 
 impl Into<VideoEntity> for VideoIndex {
     fn into(self) -> VideoEntity {
-        VideoEntity::new(
+        VideoEntity::build(
             self.video_id,
             self.video_title,
-            self.video_tags,
-            self.video_description,
-            domains::entities::channel::ChannelEntity::new(self.channel_id, self.channel_name),
-            self.thumbnail_url.map(|url| {
-                domains::value_objects::thumbnail::Thumbnail::new(url, 320, 240).unwrap()
-            }),
-            self.published_at,
-            self.actual_start_time,
+            ChannelEntity::new(self.channel_id, self.channel_name)
         )
+            .with_tags(self.video_tags)
+            .with_description(self.video_description)
+            .with_thumbnail(self.thumbnail_url.map(|url| {
+                Thumbnail::new(url, 320, 240).unwrap()
+            }).unwrap())
+            .with_published_at(
+                DateTime::from_timestamp(self.published_at ,0).unwrap()
+            )
+            .with_actual_start_time(
+                self.actual_start_time
+                    .map(|t| DateTime::from_timestamp(t,0).unwrap()).unwrap()
+            )
+            .construct().unwrap()
     }
 }
 

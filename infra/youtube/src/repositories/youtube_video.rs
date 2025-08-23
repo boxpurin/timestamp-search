@@ -270,7 +270,6 @@ mod unit_tests {
     use super::*;
 
     use domains::entities::video::VideoEntity;
-    use domains::value_objects::video_description::VideoDescription;
     use domains::value_objects::video_id::VideoId;
     use domains::value_objects::video_title::VideoTitle;
 
@@ -284,22 +283,17 @@ mod unit_tests {
     #[tokio::test]
     #[rstest::rstest]
     #[case(vec![])]
-    #[case(vec![
-        VideoEntity::new(
-            VideoId::new("abc-def-ghi").unwrap(),
-            VideoTitle::new("Video 1").unwrap(),
-            Vec::new(),
-            VideoDescription::new("Description 1").unwrap(),
-            ChannelEntity::new(
-                ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw").unwrap(),
-                ChannelName::new("Channel 1").unwrap(),
-            ),
-            None,
-            chrono::Utc::now(),
-            None,
-        )
-    ]
-    )]
+    #[case(
+        vec![
+            VideoEntity::build(
+                VideoId::new("abc-def-ghi").unwrap(),
+                VideoTitle::new("video title").unwrap(),
+                ChannelEntity::with_random_id(
+                    ChannelName::new("ChannelName").unwrap()
+                )
+            ).construct()
+                .unwrap()
+        ])]
     async fn test_fetch_all_videos_by_channel_id(#[case] expected: Vec<VideoEntity>) {
         let channel_id = ChannelId::new("UC_x5XG1OV2P6uZZ5FSM9Ttw").unwrap();
         let len = expected.len();

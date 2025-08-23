@@ -1,3 +1,5 @@
+use rand::distr::Alphanumeric;
+use rand::Rng;
 use crate::value_objects::channel_id::ChannelId;
 use crate::value_objects::channel_name::ChannelName;
 use serde::{Deserialize, Serialize};
@@ -9,7 +11,33 @@ pub struct ChannelEntity {
 }
 
 impl ChannelEntity {
-    pub fn new(id: ChannelId, name: ChannelName) -> Self {
-        ChannelEntity { id, name }
+    pub fn new(id: ChannelId, name:ChannelName) -> Self {
+        Self { id, name }
+    }
+
+
+    /// Test utility function.
+    pub fn with_random_id(name : ChannelName) -> Self {
+        let mut rng = rand::rng();
+        let v: String = (0..21).map(|_| rng.sample(Alphanumeric) as char).collect();
+        Self { id: ChannelId::new(&format!("UC_{}", v)).unwrap(), name }
+    }
+}
+
+
+#[cfg(test)]
+mod unit_tests {
+    use super::*;
+    #[test]
+    fn random_id_channel() {
+        let c = ChannelEntity::with_random_id(
+            ChannelName::new("Channel name 1").unwrap()
+        );
+
+        let c2 = ChannelEntity::with_random_id(
+            ChannelName::new("Channel name 2").unwrap()
+        );
+
+        assert_ne!(c.id, c2.id);
     }
 }

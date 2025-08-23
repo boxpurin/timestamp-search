@@ -59,15 +59,21 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         ))?;
         let a = ls.actual_start_time;
 
-        Ok(VideoEntity::new(
+        let mut v = VideoEntity::build(
             VideoId::new(&id)?,
             VideoTitle::new(&title)?,
-            tags,
-            VideoDescription::new(&description)?,
-            ChannelEntity::new(ChannelId::new(&channel_id)?, ChannelName::new(&channel_name)?),
-            t,
-            published_at,
-            a,
-        ))
+            ChannelEntity::new(ChannelId::new(&channel_id)?, ChannelName::new(&channel_name)?))
+            .with_tags(tags)
+            .with_published_at(published_at);
+
+        if let Some(t) = t {
+            v = v.with_thumbnail(t);
+        }
+
+        if let Some(a) = a {
+            v = v.with_actual_start_time(a);
+        }
+
+        Ok(v.construct()?)
     }
 }
