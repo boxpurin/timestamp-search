@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TimeStamp {
-    pub seconds: ElapsedTime,
+    pub elapsed_time: ElapsedTime,
     pub description: TimeStampDescription,
 }
 
@@ -15,7 +15,7 @@ impl TimeStamp {
         description: TimeStampDescription,
     ) -> AppResult<Self> {
         Ok(TimeStamp {
-            seconds: seconds
+            elapsed_time: seconds
                 .try_into()
                 .map_err(|_| AppError::DomainParseError("Invalid seconds".to_string()))?,
             description,
