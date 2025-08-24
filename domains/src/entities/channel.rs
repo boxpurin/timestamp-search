@@ -17,6 +17,7 @@ impl ChannelEntity {
 
 
     /// Test utility function.
+    #[cfg(feature = "test_util")]
     pub fn with_random_id(name : ChannelName) -> Self {
         let mut rng = rand::rng();
         let v: String = (0..21).map(|_| rng.sample(Alphanumeric) as char).collect();

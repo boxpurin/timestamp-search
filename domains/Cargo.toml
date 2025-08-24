@@ -7,6 +7,9 @@ license.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 
+[features]
+test_util = []
+
 [dependencies]
 types.workspace = true
 errors.workspace = true

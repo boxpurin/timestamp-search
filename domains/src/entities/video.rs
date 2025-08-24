@@ -28,6 +28,7 @@ impl VideoEntity {
         VideoEntityBuilder::new(id, title, channel)
     }
 
+    #[cfg(feature = "test_util")]
     pub fn with_random_id(title: VideoTitle, channel: ChannelEntity) -> VideoEntityBuilder {
         let mut rng = rand::rng();
         let v : String = (0..11).map(|_| rng.sample(Alphanumeric) as char).collect();

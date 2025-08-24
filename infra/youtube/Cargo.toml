@@ -8,7 +8,7 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-domains.workspace = true
+domains = { workspace = true , features = ["test_util"] }
 errors.workspace = true
 async-trait.workspace = true
 chrono.workspace = true
@@ -22,6 +22,3 @@ tracing-test.workspace = true
 serde.workspace = true
 once_cell.workspace = true
 envy.workspace = true
-
-[dev-dependencies]
-domains.workspace = true
