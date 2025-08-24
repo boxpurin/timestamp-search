@@ -6,9 +6,22 @@ publish.workspace = true
 license.workspace = true
 authors.workspace = true
 rust-version.workspace = true
+autotests = false
+
+[[test]]
+name = "integration_tests"
+path = "integration/mod.rs"
 
 [lib]
 path = "lib.rs"
 
 [dev-dependencies]
-domains = { workspace = true , features = ["test_util"]}
+anyhow.workspace = true
+chrono = { workspace = true, features = ["now"] }
+domains = { workspace = true , features = ["test_util"] }
+errors.workspace = true
+meilisearch.workspace = true
+rstest.workspace = true
+tokio.workspace = true
+types.workspace = true
+youtube.workspace = true
