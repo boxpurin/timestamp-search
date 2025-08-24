@@ -57,9 +57,8 @@ mod unit_tests{
     #[test]
     fn channel_to_channel_entity_converter_test(){
         let channel = Channel::default();
-        let c = ChannelToChannelEntityConverter(channel);
 
-        let r: Result<ChannelEntity, AppError> = c.try_into();
+        let r: Result<ChannelEntity, AppError> = ChannelToChannelEntityConverter(channel).try_into();
         assert!(r.is_err());
     }
 }
