@@ -17,7 +17,6 @@ members = [
     "infra/youtube",
     "tests",
     "tests/utils",
-    "tests/internal",
 ]
 
 [workspace.dependencies]
