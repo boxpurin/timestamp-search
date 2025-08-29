@@ -9,6 +9,7 @@ resolver = "3"
 members = [
     "infra/meilisearch",
     "applications/server/presentations/api",
+    "applications/usecase",
     "applications/video_fetch",
     "domains",
     "shared/errors",
