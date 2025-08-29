@@ -14,5 +14,6 @@ youtube.workspace = true
 meilisearch.workspace = true
 errors.workspace = true
 clap.workspace = true
+serde_json.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
