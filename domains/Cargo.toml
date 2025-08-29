@@ -26,6 +26,6 @@ fancy-regex.workspace = true
 rand.workspace = true
 
 [dev-dependencies]
-anyhow = "1.0.86"
-tokio = { version = "1.38.0", features = ["full"] }
+anyhow.workspace = true
+tokio.workspace = true
 mockall.workspace = true

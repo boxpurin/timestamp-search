@@ -15,6 +15,12 @@ pub struct MeilisearchVideoCrudRepository<
     client : T,
 }
 
+impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync> MeilisearchVideoCrudRepository<T>{
+    pub fn new(client : T) -> Self {
+        Self { client }
+    }
+}
+
 pub fn create_timestamp_crud_repository() -> MeilisearchVideoCrudRepository<ApiClient> {
     MeilisearchVideoCrudRepository {
         client: ApiClient::new(),
