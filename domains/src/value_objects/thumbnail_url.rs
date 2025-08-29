@@ -7,9 +7,6 @@ impl ThumbnailUrl {
             return Err(AppError::DomainParseError(url.to_string()));
         }
 
-        if !url.ends_with(".jpg") && !url.ends_with(".png") {
-            return Err(AppError::DomainParseError(url.to_string()));
-        }
         Ok(ThumbnailUrl(url.to_string()))
     }
 }
