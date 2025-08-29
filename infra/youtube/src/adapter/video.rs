@@ -54,10 +54,11 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             .published_at
             .ok_or(DomainParseError("Published date is missing".to_string()))?;
 
-        let ls = inner.live_streaming_details.ok_or(DomainParseError(
-            "Live streaming details are missing".to_string(),
-        ))?;
-        let a = ls.actual_start_time;
+        let a = if let Some(ls) = inner.live_streaming_details{
+            ls.actual_start_time
+        } else {
+            None
+        };
 
         let mut v = VideoEntity::build(
             VideoId::new(&id)?,
