@@ -64,6 +64,7 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             VideoId::new(&id)?,
             VideoTitle::new(&title)?,
             ChannelEntity::new(ChannelId::new(&channel_id)?, ChannelName::new(&channel_name)?))
+            .with_description(VideoDescription::new(&description)?)
             .with_tags(tags)
             .with_published_at(published_at);
 
