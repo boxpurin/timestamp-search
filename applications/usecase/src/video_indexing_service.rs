@@ -1,6 +1,6 @@
 use errors::AppResult;
-use crate::entities::video::VideoEntity;
-use crate::repositories::internal_video_repository::InternalVideoRepository;
+use domains::entities::video::VideoEntity;
+use domains::repositories::internal_video_repository::InternalVideoRepository;
 use std::sync::Arc;
 pub struct VideoIndexingService<I: InternalVideoRepository> {
     pub repo: Arc<I>

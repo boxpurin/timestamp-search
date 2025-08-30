@@ -1,8 +1,8 @@
 use errors::AppResult;
-use crate::entities::video::VideoEntity;
-use crate::entities::video_timestamp::VideoTimestampEntity;
-use crate::repositories::internal_timestamp_repository::InternalVideoTimeStampRepository;
-use crate::repositories::internal_video_repository::InternalVideoRepository;
+use domains::entities::video::VideoEntity;
+use domains::entities::video_timestamp::VideoTimestampEntity;
+use domains::repositories::internal_timestamp_repository::InternalVideoTimeStampRepository;
+use domains::repositories::internal_video_repository::InternalVideoRepository;
 use std::sync::Arc;
 
 pub struct TimeStampIndexingService<I:InternalVideoTimeStampRepository, V:InternalVideoRepository>{

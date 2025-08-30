@@ -1,19 +1,17 @@
-use domains::services::{
-    video_fetch_service::VideoFetchService,
-    video_indexing_service::VideoIndexingService,
-    timestamp_parser_service::TimeStampParserService,
-    timestamp_indexing_service::TimeStampIndexingService,
-};
+use usecase::timestamp_parser_service::TimeStampParserService;
 use domains::value_objects::channel_id::ChannelId;
 use meilisearch::repositories::{
-    video_crud::create_video_crud_repository,
     timestamp_crud::create_timestamp_crud_repository,
+    video_crud::create_video_crud_repository,
 };
 use youtube::repositories::youtube_video::create_youtube_video_repository;
 use std::sync::Arc;
 use errors::{AppError, AppResult};
 use clap::Parser;
 use std::fs::File;
+use usecase::timestamp_indexing_service::TimeStampIndexingService;
+use usecase::video_fetch_service::VideoFetchService;
+use usecase::video_indexing_service::VideoIndexingService;
 
 #[derive(Parser, Debug)]
 struct Args {

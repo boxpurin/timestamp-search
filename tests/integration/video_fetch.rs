@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use rstest::{rstest, fixture};
-use domains::services::timestamp_indexing_service::TimeStampIndexingService;
-use domains::services::timestamp_parser_service::TimeStampParserService;
-use domains::services::video_fetch_service::VideoFetchService;
-use domains::services::video_indexing_service::VideoIndexingService;
+use usecase::timestamp_indexing_service::TimeStampIndexingService;
+use usecase::timestamp_parser_service::TimeStampParserService;
+use usecase::video_fetch_service::VideoFetchService;
+use usecase::video_indexing_service::VideoIndexingService;
 use domains::value_objects::channel_id::ChannelId;
 use meilisearch::repositories::timestamp_crud::{create_timestamp_crud_repository};
 use meilisearch::repositories::video_crud::create_video_crud_repository;

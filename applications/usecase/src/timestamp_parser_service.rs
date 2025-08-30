@@ -1,10 +1,10 @@
 use fancy_regex::Regex;
 use errors::AppResult;
-use crate::entities::{
+use domains::entities::{
     video::VideoEntity,
     video_timestamp::VideoTimestampEntity,
 };
-use crate::value_objects::{
+use domains::value_objects::{
     video_description::VideoDescription,
     timestamp::TimeStamp,
     timestamp_description::TimeStampDescription,
@@ -51,15 +51,16 @@ impl TimeStampParserService {
 #[cfg(test)]
 mod unit_tests{
     use super::*;
-    use crate::value_objects::video_description::VideoDescription;
+    use domains::value_objects::video_description::VideoDescription;
 
     #[rstest::rstest]
     #[test]
-    #[case::single_item("01:10 test Description.", 1)]
-    #[case::single_item_multi_line(r#"01:10 test Description.
+    #[case::single_line_single_item("01:10 test Description.", 1)]
+    #[case::multi_line_single_item(r#"01:10 test Description.
     Second rows"#, 1)]
-    #[case::multi_item(r#"01:10 test Description.
+    #[case::multi_line_multi_item(r#"01:10 test Description.
     01:12 test Description."#, 2)]
+    #[case::single_line_multi_item("01:10 test Description. 01:12 test Description.", 2)]
     fn valid_parse(#[case] description: &str, #[case] expected_num: usize) {
         let d = VideoDescription::new(description).unwrap();
 

@@ -26,6 +26,7 @@ meilisearch = { path = "infra/meilisearch" }
 youtube = { path = "infra/youtube" }
 types = { path = "shared/types" }
 errors = { path = "shared/errors" }
+usecase =  { path = "applications/usecase" }
 serde = { version = "1.0", features = ["derive"] }
 serde_with = "3.11.0"
 serde_json = "1.0"

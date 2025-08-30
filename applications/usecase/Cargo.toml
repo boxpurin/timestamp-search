@@ -8,3 +8,10 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+domains.workspace = true
+errors.workspace = true
+fancy-regex.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+rstest.workspace = true

@@ -1,7 +1,7 @@
-use crate::repositories::external_video_repository::ExternalVideoRepository;
-use crate::value_objects::channel_id::ChannelId;
+use domains::repositories::external_video_repository::ExternalVideoRepository;
+use domains::value_objects::channel_id::ChannelId;
 use errors::AppResult;
-use crate::entities::video::VideoEntity;
+use domains::entities::video::VideoEntity;
 use std::sync::Arc;
 
 pub struct VideoFetchService<E: ExternalVideoRepository> {

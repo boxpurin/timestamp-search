@@ -24,3 +24,4 @@ meilisearch.workspace = true
 rstest.workspace = true
 tokio.workspace = true
 youtube.workspace = true
+usecase.workspace = true
