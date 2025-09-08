@@ -24,7 +24,8 @@ use domains::value_objects::per_page::PerPage;
 /// - page                    : 頁数
 /// - per_page                : ページ毎の数
 ///
-#[derive(Serialize, Deserialize, Validate, Debug)]
+#[derive(Deserialize, Validate, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchTimeStampRequest{
     #[garde(length(min = 1, max = 100))]
     #[serde(rename="q")]
@@ -45,8 +46,10 @@ pub struct SearchTimeStampRequest{
     #[garde(skip)]
     pub parts : Option<String>,
     #[garde(range(min=1, max=1000))]
+    #[serde(default)]
     pub page: usize,
     #[garde(range(min=1, max=100))]
+    #[serde(default)]
     pub per_page: usize,
 }
 

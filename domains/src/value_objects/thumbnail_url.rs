@@ -1,11 +1,26 @@
-use errors::{AppError, AppResult};
+use url::{Position, Url};
+use errors::{AppError, AppError::DomainParseError, AppResult};
 types::impl_string_value!(ThumbnailUrl);
 
 impl ThumbnailUrl {
     pub fn new(url: &str) -> AppResult<Self> {
-        if !url.starts_with("http://") && !url.starts_with("https://") {
-            return Err(AppError::DomainParseError(url.to_string()));
-        }
+        match Url::parse(url) {
+            Ok(u) => {
+                let s = u.scheme();
+                if  s != "http" && s != "https" {
+                    return Err(DomainParseError("expected scheme is http or https".to_string()));
+                }
+                if let Some(p) = u.path_segments().map(|c| c.collect::<Vec<_>>()){
+                    let p = p.last().unwrap().to_string();
+                    if !p.ends_with(".jpg") && !p.ends_with(".jpeg") && !p.ends_with(".png") {
+                        return Err(DomainParseError("expected ext .jpg .jpeg .png".to_string()));
+                    }
+                }
+            },
+            Err(e) => return Err(
+                DomainParseError(e.to_string())
+            ),
+        };
 
         Ok(ThumbnailUrl(url.to_string()))
     }
@@ -22,6 +37,7 @@ mod unit_tests {
     #[case("http://example.com/image.jpg")]
     #[case("https://example.com/image.jpg")]
     #[case("https://example.com/image.png")]
+    #[case("https://example.com/image.png?with_query=something")]
     fn valid_thumbnail_url(#[case] url:&str) {
         assert!(ThumbnailUrl::new(url).is_ok());
     }

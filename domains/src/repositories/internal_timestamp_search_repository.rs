@@ -17,6 +17,7 @@ pub trait InternalVideoTimeStampSearchRepository {
     async fn search_timestamps_by_query(&self, query: VideoTimestampSearchQuery) -> AppResult<VideoTimestampSearchResult>;
 }
 
+
 /// 検索クエリ
 ///
 pub struct VideoTimestampSearchQuery {

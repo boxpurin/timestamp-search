@@ -11,7 +11,7 @@ use chrono::{DateTime, Utc};
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::repositories::internal_timestamp_search_repository::VideoTimestampSearchResult;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all="camelCase")]
 pub struct SearchTimeStampResponse {
     items: Vec<ResponseTimeStamp>,
@@ -21,7 +21,7 @@ pub struct SearchTimeStampResponse {
     total_hits: usize,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all="camelCase")]
 pub struct ResponseTimeStamp {
     video_id: VideoId,
@@ -31,7 +31,7 @@ pub struct ResponseTimeStamp {
     video_details: Option<ResponseTimeStampVideoDetails>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all="camelCase")]
 pub struct ResponseTimeStampVideoDetails{
     #[serde(skip_serializing_if = "Option::is_none")]

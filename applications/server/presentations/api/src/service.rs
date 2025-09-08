@@ -1,13 +1,16 @@
+use std::sync::Arc;
 use domains::repositories::internal_timestamp_search_repository::{InternalVideoTimeStampSearchRepository, VideoTimestampSearchQuery, VideoTimestampSearchResult};
 use errors::AppResult;
 use crate::request::SearchTimeStampRequest;
 
+#[derive(Clone)]
 pub struct TimeStampSearchService {
-    search_repository: Box<dyn InternalVideoTimeStampSearchRepository>,
+    search_repository: Arc<dyn InternalVideoTimeStampSearchRepository + Send + Sync>,
 }
 
+
 impl TimeStampSearchService {
-    pub fn new(search_repository: Box<dyn InternalVideoTimeStampSearchRepository>) -> Self {
+    pub fn new(search_repository: Arc<dyn InternalVideoTimeStampSearchRepository + Send + Sync>) -> Self {
         Self { search_repository }
     }
 
