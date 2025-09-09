@@ -1,6 +1,18 @@
+.local
 docker
 target
+
+tests
 infra/youtube/local
+
 Cargo.lock
 .gitignore
-Makefile.toml
+
+# python scripts
+pyproject.toml
+scripts
+
+# gemini-cli
+GEMINI.md
+package.json
+pnpm-lock.yaml
