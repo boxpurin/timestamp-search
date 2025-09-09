@@ -46,11 +46,9 @@ pub struct SearchTimeStampRequest{
     #[garde(skip)]
     pub parts : Option<String>,
     #[garde(range(min=1, max=1000))]
-    #[serde(default)]
-    pub page: usize,
+    pub page: Option<usize>,
     #[garde(range(min=1, max=100))]
-    #[serde(default)]
-    pub per_page: usize,
+    pub per_page: Option<usize>,
 }
 
 impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
@@ -77,8 +75,8 @@ impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
             actual_start_at: search_time_stamp.actual_start_at,
             parts,
             limit: Limit::new(1000)?,
-            page: Page::new(search_time_stamp.page)?,
-            per_page: PerPage::new(search_time_stamp.per_page)?
+            page: Page::new(search_time_stamp.page.unwrap_or(1))?,
+            per_page: PerPage::new(search_time_stamp.per_page.unwrap_or(25))?
         })
     }
 }
