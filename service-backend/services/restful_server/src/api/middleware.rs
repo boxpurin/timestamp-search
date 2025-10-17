@@ -23,11 +23,15 @@ pub async fn use_backet(
     next: Next,
 ) -> Result<impl IntoResponse, Response> {
     tracing::debug!("use_backet Request : {:?}", req);
+
+    #[allow(clippy::collapsible_if)]
     if let Ok(l) = state.limiter.write()
-        && !l.try_acquire(1)
     {
-        tracing::error!("No token left in limiter");
-        return Err((StatusCode::TOO_MANY_REQUESTS, "No token left.").into_response());
+        if !l.try_acquire(1)
+        {
+            tracing::error!("No token left in limiter");
+            return Err((StatusCode::TOO_MANY_REQUESTS, "No token left.").into_response());
+        }
     }
 
     let res = next.run(req).await;
