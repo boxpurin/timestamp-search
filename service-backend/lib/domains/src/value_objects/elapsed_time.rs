@@ -1,6 +1,6 @@
+use errors::AppError::DomainParseError;
 use errors::AppResult;
 use types::impl_numeric_value;
-use errors::AppError::DomainParseError;
 
 impl_numeric_value!(ElapsedTime, u64);
 
@@ -9,7 +9,7 @@ impl ElapsedTime {
         Ok(ElapsedTime(seconds))
     }
 
-    pub fn from_hhmmss(s : &str) -> AppResult<Self> {
+    pub fn from_hhmmss(s: &str) -> AppResult<Self> {
         {
             let parts: Vec<&str> = s.split(':').collect();
 
@@ -35,9 +35,10 @@ impl ElapsedTime {
                         .map_err(|e| DomainParseError(e.to_string()))?;
                     Self::new(hours * 60 * 60 + minutes * 60 + seconds)
                 }
-                _ => Err(
-                    DomainParseError(format!("from ElapsedTime : Invalid time format : {}", s))
-                ),
+                _ => Err(DomainParseError(format!(
+                    "from ElapsedTime : Invalid time format : {}",
+                    s
+                ))),
             }
         }
     }
@@ -74,5 +75,4 @@ mod unit_tests {
     fn invalid_hhmmss(#[case] fmt: &str) {
         assert!(ElapsedTime::from_hhmmss(fmt).is_err());
     }
-
 }

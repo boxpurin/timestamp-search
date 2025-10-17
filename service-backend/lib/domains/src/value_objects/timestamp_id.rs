@@ -35,6 +35,10 @@ mod unit_tests {
 
         assert!(!timestamp_id.0.is_empty());
         assert!(timestamp_id.0.contains(video_id.as_str()));
-        assert!(timestamp_id.0.contains(&timestamp.elapsed_time.0.to_string()));
+        assert!(
+            timestamp_id
+                .0
+                .contains(&timestamp.elapsed_time.0.to_string())
+        );
     }
 }

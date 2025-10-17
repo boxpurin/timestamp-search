@@ -4,9 +4,11 @@ use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
 use errors::{AppError, AppResult};
-use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2, Result as YouTubeResult, common};
 use google_youtube3::api::{Channel as YouTubeChannel, Video as YouTubeVideo};
 use google_youtube3::hyper::StatusCode;
+use google_youtube3::{
+    Result as YouTubeResult, YouTube, common, hyper_rustls, hyper_util, yup_oauth2,
+};
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
 
@@ -68,16 +70,35 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
             AppError::InvalidInput(format!("Channel not found: {}", channel_id));
         }
 
-        let uploads = c.unwrap_or_default().content_details.unwrap_or_default().related_playlists.unwrap_or_default().uploads.unwrap_or_default();
+        let uploads = c
+            .unwrap_or_default()
+            .content_details
+            .unwrap_or_default()
+            .related_playlists
+            .unwrap_or_default()
+            .uploads
+            .unwrap_or_default();
 
-        let (mut ids, mut next) = self.api_client.fetch_playlist_video_ids(&uploads, 50, None).await?;
+        let (mut ids, mut next) = self
+            .api_client
+            .fetch_playlist_video_ids(&uploads, 50, None)
+            .await?;
         let v = self.api_client.fetch_videos(ids).await?;
-        videos.extend(v.into_iter().map(|v| VideoEntityConverter(v).try_into().unwrap()));
+        videos.extend(
+            v.into_iter()
+                .map(|v| VideoEntityConverter(v).try_into().unwrap()),
+        );
 
         while next.is_some() {
-            (ids, next) = self.api_client.fetch_playlist_video_ids(&uploads, 50, next).await?;
+            (ids, next) = self
+                .api_client
+                .fetch_playlist_video_ids(&uploads, 50, next)
+                .await?;
             let v = self.api_client.fetch_videos(ids).await?;
-            videos.extend(v.into_iter().map(|v| VideoEntityConverter(v).try_into().unwrap()));
+            videos.extend(
+                v.into_iter()
+                    .map(|v| VideoEntityConverter(v).try_into().unwrap()),
+            );
         }
         Ok(videos)
     }
@@ -100,11 +121,23 @@ impl ExternalVideoRepository for YoutubeVideoRepository {
             AppError::InvalidInput(format!("Channel not found: {}", channel_id));
         }
 
-        let uploads = c.unwrap_or_default().content_details.unwrap_or_default().related_playlists.unwrap_or_default().uploads.unwrap_or_default();
-        let (ids, _) = self.api_client.fetch_playlist_video_ids(&uploads, max_results, None).await?;
+        let uploads = c
+            .unwrap_or_default()
+            .content_details
+            .unwrap_or_default()
+            .related_playlists
+            .unwrap_or_default()
+            .uploads
+            .unwrap_or_default();
+        let (ids, _) = self
+            .api_client
+            .fetch_playlist_video_ids(&uploads, max_results, None)
+            .await?;
         let v = self.api_client.fetch_videos(ids).await?;
 
-        Ok(v.into_iter().map(|v| VideoEntityConverter(v).try_into().unwrap()).collect())
+        Ok(v.into_iter()
+            .map(|v| VideoEntityConverter(v).try_into().unwrap())
+            .collect())
     }
 }
 
@@ -157,62 +190,84 @@ impl YouTubeApi {
         Ok(v)
     }
 
-    pub async fn fetch_channel(&self, channel_id: &ChannelId) -> YouTubeResult<Option<YouTubeChannel>> {
-        let res = self.try_req(|| {
-            self
-            .hub
-            .channels()
-            .list(&vec!["contentDetails".to_string()])
-            .add_id(channel_id)
-            .doit()
-        }).await?;
+    pub async fn fetch_channel(
+        &self,
+        channel_id: &ChannelId,
+    ) -> YouTubeResult<Option<YouTubeChannel>> {
+        let res = self
+            .try_req(|| {
+                self.hub
+                    .channels()
+                    .list(&vec!["contentDetails".to_string()])
+                    .add_id(channel_id)
+                    .doit()
+            })
+            .await?;
         let items = res.items.unwrap_or_default();
         let c = items.first().cloned();
         Ok(c)
     }
 
-    pub async fn fetch_playlist_video_ids(&self, playlist_id: &str, max_results: u32, next_page_token: Option<String>) -> YouTubeResult<(Vec<String>, Option<String>)> {
-        let res = self.try_req(||{
-            let mut req = self.hub.playlist_items()
-                .list(&vec!["snippet".to_string()])
-                .playlist_id(playlist_id)
-                .max_results(max_results);
+    pub async fn fetch_playlist_video_ids(
+        &self,
+        playlist_id: &str,
+        max_results: u32,
+        next_page_token: Option<String>,
+    ) -> YouTubeResult<(Vec<String>, Option<String>)> {
+        let res = self
+            .try_req(|| {
+                let mut req = self
+                    .hub
+                    .playlist_items()
+                    .list(&vec!["snippet".to_string()])
+                    .playlist_id(playlist_id)
+                    .max_results(max_results);
                 if next_page_token.is_some() {
                     req = req.page_token(&next_page_token.clone().unwrap());
                 }
                 req.doit()
-        }).await?;
+            })
+            .await?;
 
         let items = res.items.unwrap_or_default();
 
         let video_ids = items
             .into_iter()
-            .map(|i| i.snippet.unwrap_or_default().resource_id.unwrap_or_default().video_id.unwrap_or_default())
+            .map(|i| {
+                i.snippet
+                    .unwrap_or_default()
+                    .resource_id
+                    .unwrap_or_default()
+                    .video_id
+                    .unwrap_or_default()
+            })
             .collect();
         Ok((video_ids, res.next_page_token))
     }
 
     pub async fn fetch_videos(&self, video_ids: Vec<String>) -> YouTubeResult<Vec<YouTubeVideo>> {
-        let res = self.try_req(||{
-            let mut req = self.hub
-                .videos()
-                .list(&vec![
-                    "snippet".to_string(),
-                    "contentDetails".to_string(),
-                    "liveStreamingDetails".to_string()]
-                )
-                .max_results(video_ids.len() as u32);
+        let res = self
+            .try_req(|| {
+                let mut req = self
+                    .hub
+                    .videos()
+                    .list(&vec![
+                        "snippet".to_string(),
+                        "contentDetails".to_string(),
+                        "liveStreamingDetails".to_string(),
+                    ])
+                    .max_results(video_ids.len() as u32);
 
-            for v in video_ids.iter() {
-                req = req.add_id(v);
-            }
+                for v in video_ids.iter() {
+                    req = req.add_id(v);
+                }
 
-            req.doit()
-        }).await?;
+                req.doit()
+            })
+            .await?;
 
         Ok(res.items.unwrap_or_default())
     }
 }
 #[cfg(test)]
-mod unit_tests {
-}
+mod unit_tests {}

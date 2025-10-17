@@ -1,4 +1,6 @@
-use crate::value_objects::{height::VideoThumbnailHeight, thumbnail_url::ThumbnailUrl, width::VideoThumbnailWidth};
+use crate::value_objects::{
+    height::VideoThumbnailHeight, thumbnail_url::ThumbnailUrl, width::VideoThumbnailWidth,
+};
 use errors::{AppError, AppResult};
 use garde::Validate;
 use serde::{Deserialize, Serialize};
@@ -21,14 +23,10 @@ impl Thumbnail {
     ) -> AppResult<Self> {
         let width = width
             .try_into()
-            .map_err(|_| AppError::DomainParseError(
-                "invalid width".to_string(),
-            ))?;
+            .map_err(|_| AppError::DomainParseError("invalid width".to_string()))?;
         let height = height
             .try_into()
-            .map_err(|_| AppError::DomainParseError(
-                "invalid height".to_string(),
-            ))?;
+            .map_err(|_| AppError::DomainParseError("invalid height".to_string()))?;
         Ok(Self { url, width, height })
     }
 

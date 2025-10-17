@@ -1,7 +1,7 @@
+use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
 use errors::AppResult;
-use domains::entities::video::VideoEntity;
 use std::sync::Arc;
 
 pub struct VideoFetchService<E: ExternalVideoRepository> {
@@ -29,7 +29,10 @@ impl<E: ExternalVideoRepository> VideoFetchService<E> {
         Ok(v)
     }
 
-    pub async fn fetch_all_videos_by_channel_id(&self, channel_id: &ChannelId) -> AppResult<Vec<VideoEntity>> {
+    pub async fn fetch_all_videos_by_channel_id(
+        &self,
+        channel_id: &ChannelId,
+    ) -> AppResult<Vec<VideoEntity>> {
         let v = self
             .external_video_repository
             .fetch_all_videos_by_channel_id(channel_id)

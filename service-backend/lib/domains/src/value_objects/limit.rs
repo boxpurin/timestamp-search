@@ -1,23 +1,23 @@
 use errors::{AppError, AppResult};
 types::impl_numeric_value!(Limit, usize);
 
-
 static LIMIT_MIN: usize = 1;
 static LIMIT_MAX: usize = 1000;
 
 impl Limit {
-    
     pub fn new(limit: usize) -> AppResult<Self> {
         if limit < LIMIT_MIN {
-            return Err(AppError::InvalidInput(
-                format!("Limit must be greater than {}", LIMIT_MIN),
-            ));
+            return Err(AppError::InvalidInput(format!(
+                "Limit must be greater than {}",
+                LIMIT_MIN
+            )));
         }
 
         if limit > LIMIT_MAX {
-            return Err(AppError::InvalidInput(
-                format!("Limit must not exceed {}", LIMIT_MAX),
-            ));
+            return Err(AppError::InvalidInput(format!(
+                "Limit must not exceed {}",
+                LIMIT_MAX
+            )));
         }
 
         Ok(Limit(limit))

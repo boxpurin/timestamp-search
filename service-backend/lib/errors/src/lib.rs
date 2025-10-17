@@ -37,7 +37,7 @@ pub enum AppError {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum DomainError{
+pub enum DomainError {
     #[error("Value {0} is not satisfy validation.")]
     NotSatisfyValidation(String),
 
@@ -45,7 +45,7 @@ pub enum DomainError{
     ParseFailure(String),
 
     #[error("Missing optional domain field. Expected field : {0}")]
-    MissingField(String)
+    MissingField(String),
 }
 
 impl From<Youtube3Error> for AppError {

@@ -14,7 +14,11 @@ use errors::AppResult;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait InternalVideoTimeStampRepository {
-    async fn add_video_timestamp_entity(&self, video_entity: &VideoEntity, timestamp_entity: &VideoTimestampEntity) -> AppResult<()>;
+    async fn add_video_timestamp_entity(
+        &self,
+        video_entity: &VideoEntity,
+        timestamp_entity: &VideoTimestampEntity,
+    ) -> AppResult<()>;
 
     async fn add_video_timestamp_entities(
         &self,
@@ -22,7 +26,11 @@ pub trait InternalVideoTimeStampRepository {
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()>;
 
-    async fn update_video_timestamp_entity(&self, video_entity: &VideoEntity, entity: &VideoTimestampEntity) -> AppResult<()>;
+    async fn update_video_timestamp_entity(
+        &self,
+        video_entity: &VideoEntity,
+        entity: &VideoTimestampEntity,
+    ) -> AppResult<()>;
 
     async fn update_video_timestamp_entities(
         &self,

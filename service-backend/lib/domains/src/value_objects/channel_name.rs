@@ -34,7 +34,7 @@ mod unit_tests {
     }
 
     #[test]
-    fn invalid_channel_names(){
+    fn invalid_channel_names() {
         assert!(ChannelName::new("").is_err());
     }
 }

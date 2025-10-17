@@ -54,7 +54,7 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             .published_at
             .ok_or(DomainParseError("Published date is missing".to_string()))?;
 
-        let a = if let Some(ls) = inner.live_streaming_details{
+        let a = if let Some(ls) = inner.live_streaming_details {
             ls.actual_start_time
         } else {
             None
@@ -63,10 +63,14 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
         let mut v = VideoEntity::build(
             VideoId::new(&id)?,
             VideoTitle::new(&title)?,
-            ChannelEntity::new(ChannelId::new(&channel_id)?, ChannelName::new(&channel_name)?))
-            .with_description(VideoDescription::new(&description)?)
-            .with_tags(tags)
-            .with_published_at(published_at);
+            ChannelEntity::new(
+                ChannelId::new(&channel_id)?,
+                ChannelName::new(&channel_name)?,
+            ),
+        )
+        .with_description(VideoDescription::new(&description)?)
+        .with_tags(tags)
+        .with_published_at(published_at);
 
         if let Some(t) = t {
             v = v.with_thumbnail(t);

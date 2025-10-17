@@ -1,14 +1,14 @@
-use crate::entities::channel::{ChannelEntity};
+use crate::entities::channel::ChannelEntity;
 use crate::value_objects::thumbnail::Thumbnail;
 use crate::value_objects::video_description::VideoDescription;
 use crate::value_objects::video_id::VideoId;
 use crate::value_objects::video_tag::VideoTag;
 use crate::value_objects::video_title::VideoTitle;
 use chrono::{DateTime, Utc};
-use rand::distr::Alphanumeric;
-use rand::Rng;
-use serde::{Deserialize, Serialize};
 use errors::AppResult;
+use rand::Rng;
+use rand::distr::Alphanumeric;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VideoEntity {
@@ -23,19 +23,18 @@ pub struct VideoEntity {
 }
 
 impl VideoEntity {
-    pub fn build(id: VideoId, title:VideoTitle, channel: ChannelEntity) -> VideoEntityBuilder {
+    pub fn build(id: VideoId, title: VideoTitle, channel: ChannelEntity) -> VideoEntityBuilder {
         VideoEntityBuilder::new(id, title, channel)
     }
 
     #[cfg(feature = "test_util")]
     pub fn with_random_id(title: VideoTitle, channel: ChannelEntity) -> VideoEntityBuilder {
         let mut rng = rand::rng();
-        let v : String = (0..11).map(|_| rng.sample(Alphanumeric) as char).collect();
+        let v: String = (0..11).map(|_| rng.sample(Alphanumeric) as char).collect();
         let id = VideoId::new(&v).unwrap();
         VideoEntityBuilder::new(id, title, channel)
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub struct VideoEntityBuilder {
@@ -50,7 +49,7 @@ pub struct VideoEntityBuilder {
 }
 
 impl VideoEntityBuilder {
-    pub fn new(id: VideoId, title:VideoTitle, channel: ChannelEntity) -> Self {
+    pub fn new(id: VideoId, title: VideoTitle, channel: ChannelEntity) -> Self {
         Self {
             id,
             title,
@@ -68,10 +67,7 @@ impl VideoEntityBuilder {
         self
     }
 
-    pub fn with_description(
-        mut self,
-        description: VideoDescription,
-    ) -> Self {
+    pub fn with_description(mut self, description: VideoDescription) -> Self {
         self.description = description;
         self
     }

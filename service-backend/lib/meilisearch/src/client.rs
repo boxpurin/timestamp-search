@@ -1,15 +1,17 @@
 use crate::config::CONFIG;
 use crate::index::Index;
+use crate::index::timestamp::TimeStampIndex;
 use crate::repositories::{MeilisearchCrudApi, MeilisearchSearchApi};
+use domains::repositories::internal_timestamp_search_repository::{
+    Part, VideoTimestampSearchQuery,
+};
+use errors::AppResult;
+use itertools::Itertools;
 use meilisearch_sdk::client::Client;
-use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResults};
 use meilisearch_sdk::errors::{Error as MeilisearchError, ErrorCode};
+use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResults};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-use domains::repositories::internal_timestamp_search_repository::{VideoTimestampSearchQuery, Part};
-use errors::AppResult;
-use crate::index::timestamp::TimeStampIndex;
-use itertools::Itertools;
 use std::collections::HashSet;
 
 pub struct ApiClient {
@@ -37,13 +39,12 @@ impl Default for ApiClient {
 }
 
 #[async_trait::async_trait]
-impl<
-    I: Index + Serialize + DeserializeOwned+ Sync + Send + 'static,
-> MeilisearchCrudApi<I> for ApiClient
+impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> MeilisearchCrudApi<I>
+    for ApiClient
 {
     async fn add_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
-        
+
         let task = i
             .add_documents(&[entity], I::pid_field())
             .await?
@@ -168,11 +169,11 @@ impl<
     }
 }
 
-
 #[async_trait::async_trait]
-impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
-    async fn search_by_query(&self,
-                             search_query: VideoTimestampSearchQuery
+impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
+    async fn search_by_query(
+        &self,
+        search_query: VideoTimestampSearchQuery,
     ) -> AppResult<SearchResults<TimeStampIndex>> {
         let i = self.client.get_index(TimeStampIndex::name()).await?;
         let mut q = MeilisearchSearchQuery::new(&i);
@@ -184,8 +185,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
         let filter_text = {
             let mut v = Vec::<String>::new();
 
-            if let Some(ids) = search_query.video_ids
-            {
+            if let Some(ids) = search_query.video_ids {
                 if ids.is_empty() {
                     v.push(format!("videoId IN [{}]", ids.join(" , ")));
                 }
@@ -200,13 +200,11 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
             if let Some(at) = search_query.actual_start_at {
                 v.push(format!("actualStartAt = {}", at.timestamp()));
             } else {
-                if let Some(from) = search_query.actual_start_from
-                {
+                if let Some(from) = search_query.actual_start_from {
                     v.push(format!("actualStartAt <= {}", from.timestamp()));
                 };
 
-                if let Some(to) = search_query.actual_start_to
-                {
+                if let Some(to) = search_query.actual_start_to {
                     v.push(format!("actualStartAt >= {}", to.timestamp()));
                 }
             }
@@ -232,7 +230,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
                         a.insert("videoDetail.thumbnailUrl");
                         a.insert("videoDetail.actualStartAt");
                         a.insert("videoDetail.publishedAt");
-                    },
+                    }
                     Part::VideoTitle => {
                         a.insert("videoDetail.videoTitle");
                     }
@@ -252,7 +250,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
             }
         }
 
-        let a  = Vec::from_iter(a);
+        let a = Vec::from_iter(a);
         q.with_attributes_to_search_on(&a);
 
         q.with_page(search_query.page.into());

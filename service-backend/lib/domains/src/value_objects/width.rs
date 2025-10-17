@@ -1,5 +1,5 @@
-use errors::AppResult;
 use errors::AppError::InvalidInput;
+use errors::AppResult;
 
 types::impl_numeric_value!(VideoThumbnailWidth, u32);
 
@@ -7,21 +7,20 @@ types::impl_numeric_value!(VideoThumbnailWidth, u32);
 ///
 /// https://developers.google.com/youtube/v3/docs/thumbnails
 const STANDARD_WIDTHS: &[u32] = &[
-    120,    // default
-    320,    // medium
-    480,    // high
-    640,    // standard
-    1280,   // maxres
+    120,  // default
+    320,  // medium
+    480,  // high
+    640,  // standard
+    1280, // maxres
 ];
 
 impl VideoThumbnailWidth {
     pub fn new(width: u32) -> AppResult<Self> {
         if !STANDARD_WIDTHS.contains(&width) {
-            Err(InvalidInput(
-                format!("Invalid standard width: {} , Expected one of {:?}",
-                        width,
-                        STANDARD_WIDTHS))
-            )?;
+            Err(InvalidInput(format!(
+                "Invalid standard width: {} , Expected one of {:?}",
+                width, STANDARD_WIDTHS
+            )))?;
         }
 
         Ok(VideoThumbnailWidth(width))
@@ -52,5 +51,4 @@ mod unit_tests {
             assert!(VideoThumbnailWidth::new(w).is_err());
         }
     }
-
 }

@@ -1,16 +1,15 @@
-use garde::Validate;
-use serde::Deserialize;
-use domains::value_objects::{
-    video_id::VideoId,
-    video_tag::VideoTag,
-};
-use domains::repositories::internal_timestamp_search_repository::{VideoTimestampSearchQuery, Part};
 use chrono::{DateTime, Utc};
+use domains::repositories::internal_timestamp_search_repository::{
+    Part, VideoTimestampSearchQuery,
+};
 use domains::value_objects::limit::Limit;
-use domains::value_objects::search_query_text::SearchQueryText;
-use std::str::FromStr;
 use domains::value_objects::page::Page;
 use domains::value_objects::per_page::PerPage;
+use domains::value_objects::search_query_text::SearchQueryText;
+use domains::value_objects::{video_id::VideoId, video_tag::VideoTag};
+use garde::Validate;
+use serde::Deserialize;
+use std::str::FromStr;
 
 ///
 /// フロントエンドから受け取るタイムスタンプ検索リクエスト
@@ -26,34 +25,36 @@ use domains::value_objects::per_page::PerPage;
 ///
 #[derive(Deserialize, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SearchTimeStampRequest{
+pub struct SearchTimeStampRequest {
     #[garde(length(min = 1, max = 100))]
-    #[serde(rename="q")]
+    #[serde(rename = "q")]
     pub keyword: String,
     #[garde(skip)]
     pub ids: Option<Vec<VideoId>>,
     #[garde(skip)]
     pub tags: Option<Vec<VideoTag>>,
     #[garde(skip)]
-    #[serde(rename="startFrom")]
+    #[serde(rename = "startFrom")]
     pub actual_start_from: Option<DateTime<Utc>>,
     #[garde(skip)]
-    #[serde(rename="startTo")]
+    #[serde(rename = "startTo")]
     pub actual_start_to: Option<DateTime<Utc>>,
     #[garde(skip)]
-    #[serde(rename="startAt")]
+    #[serde(rename = "startAt")]
     pub actual_start_at: Option<DateTime<Utc>>,
     #[garde(skip)]
-    pub parts : Option<String>,
-    #[garde(range(min=1, max=1000))]
+    pub parts: Option<String>,
+    #[garde(range(min = 1, max = 1000))]
     pub page: Option<usize>,
-    #[garde(range(min=1, max=100))]
+    #[garde(range(min = 1, max = 100))]
     pub per_page: Option<usize>,
 }
 
 impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
     type Error = errors::AppError;
-    fn try_from(search_time_stamp: SearchTimeStampRequest) -> Result<VideoTimestampSearchQuery, Self::Error> {
+    fn try_from(
+        search_time_stamp: SearchTimeStampRequest,
+    ) -> Result<VideoTimestampSearchQuery, Self::Error> {
         let parts = if let Some(parts) = search_time_stamp.parts {
             let parts = parts.split(",");
             let mut p = Vec::new();
@@ -76,7 +77,7 @@ impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
             parts,
             limit: Limit::new(1000)?,
             page: Page::new(search_time_stamp.page.unwrap_or(1))?,
-            per_page: PerPage::new(search_time_stamp.per_page.unwrap_or(25))?
+            per_page: PerPage::new(search_time_stamp.per_page.unwrap_or(25))?,
         })
     }
 }

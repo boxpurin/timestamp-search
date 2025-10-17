@@ -1,22 +1,20 @@
 use crate::entities::video_timestamp::VideoTimestampEntity;
+use crate::value_objects::page::Page;
+use crate::value_objects::per_page::PerPage;
 use crate::value_objects::search_query_text::SearchQueryText;
-use crate::value_objects::{
-    video_id::VideoId,
-    video_tag::VideoTag,
-    limit::Limit
-};
+use crate::value_objects::{limit::Limit, video_id::VideoId, video_tag::VideoTag};
 use chrono::{DateTime, Utc};
 use errors::{AppError, AppResult};
 use std::str::FromStr;
-use crate::value_objects::page::Page;
-use crate::value_objects::per_page::PerPage;
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait InternalVideoTimeStampSearchRepository {
-    async fn search_timestamps_by_query(&self, query: VideoTimestampSearchQuery) -> AppResult<VideoTimestampSearchResult>;
+    async fn search_timestamps_by_query(
+        &self,
+        query: VideoTimestampSearchQuery,
+    ) -> AppResult<VideoTimestampSearchResult>;
 }
-
 
 /// 検索クエリ
 ///
@@ -42,7 +40,7 @@ pub struct VideoTimestampSearchResult {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub enum Part{
+pub enum Part {
     VideoDetail,
     VideoTitle,
     VideoTags,
@@ -62,29 +60,34 @@ impl FromStr for Part {
             "thumbnailUrl" => Ok(Part::ThumbnailUrl),
             "actualStartAt" => Ok(Part::ActualStartAt),
             "publishedAt" => Ok(Part::PublishedAt),
-            _ => Err(AppError::InvalidInput(
-                format!(r#"Invalid part. \
+            _ => Err(AppError::InvalidInput(format!(
+                r#"Invalid part. \
                     required 'videoDetail',\
                     'videoTitle',\
                     'videoTags',\
                     'thumbnailUrl',\
                     'actualStartAt',\
                     'publishedAt'.\
-                    input : {}"#, s)
-            ))
+                    input : {}"#,
+                s
+            ))),
         }
     }
 }
 
 #[cfg(test)]
 mod unit_tests {
+    use crate::repositories::internal_video_search_repository::{
+        InternalVideoSearchRepository, MockInternalVideoSearchRepository, SearchQuery,
+    };
     use mockall::predicate::eq;
-    use crate::repositories::internal_video_search_repository::{MockInternalVideoSearchRepository, SearchQuery, InternalVideoSearchRepository};
 
     #[tokio::test]
-    async fn internal_timestamp_search_repository_mock(){
+    async fn internal_timestamp_search_repository_mock() {
         let mut mock = MockInternalVideoSearchRepository::new();
-        let query = SearchQuery{ query : "query".to_string() };
+        let query = SearchQuery {
+            query: "query".to_string(),
+        };
 
         mock.expect_search_videos_by_query()
             .with(eq(query.clone()))
@@ -93,5 +96,4 @@ mod unit_tests {
         let v = mock.search_videos_by_query(&query).await;
         assert!(v.is_ok());
     }
-
 }

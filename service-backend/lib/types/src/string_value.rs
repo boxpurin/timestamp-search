@@ -200,7 +200,8 @@ mod unit_tests {
 
     #[test]
     fn test_private_string_value() {
-        let value: TestPrivateStringValue = TestPrivateStringValue::new("Hello, World!".to_string());
+        let value: TestPrivateStringValue =
+            TestPrivateStringValue::new("Hello, World!".to_string());
 
         // From<TestStringValue> implementation
         let _: String = value.clone().into();

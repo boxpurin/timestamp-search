@@ -1,18 +1,17 @@
-use usecase::timestamp_parser_service::TimeStampParserService;
-use domains::value_objects::channel_id::ChannelId;
-use meilisearch::repositories::{
-    timestamp_crud::create_timestamp_crud_repository,
-    video_crud::create_video_crud_repository,
-};
-use youtube::repositories::youtube_video::create_youtube_video_repository;
-use std::sync::Arc;
-use errors::{AppError, AppResult};
 use clap::Parser;
-use std::fs::File;
 use domains::entities::video::VideoEntity;
+use domains::value_objects::channel_id::ChannelId;
+use errors::{AppError, AppResult};
+use meilisearch::repositories::{
+    timestamp_crud::create_timestamp_crud_repository, video_crud::create_video_crud_repository,
+};
+use std::fs::File;
+use std::sync::Arc;
 use usecase::timestamp_indexing_service::TimeStampIndexingService;
+use usecase::timestamp_parser_service::TimeStampParserService;
 use usecase::video_fetch_service::VideoFetchService;
 use usecase::video_indexing_service::VideoIndexingService;
+use youtube::repositories::youtube_video::create_youtube_video_repository;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -30,7 +29,7 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() -> AppResult<()>{
+async fn main() -> AppResult<()> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();
@@ -38,18 +37,21 @@ async fn main() -> AppResult<()>{
     let args = Args::parse();
     let videos = if args.in_external {
         tracing::info!("Load video from external service.");
-        let channel_id = std::env::var("TSS_TARGET_CHANNEL_ID").expect("TSSEARCH_TARGET_CHANNEL_ID");
+        let channel_id =
+            std::env::var("TSS_TARGET_CHANNEL_ID").expect("TSSEARCH_TARGET_CHANNEL_ID");
         let ext_repo = Arc::new(create_youtube_video_repository().await);
         let video_fetch_service = VideoFetchService::new(ext_repo.clone());
         let channel_id = ChannelId::new(&channel_id)?;
 
-        video_fetch_service.fetch_recent_video_by_channel_id(&channel_id, 10).await?
+        video_fetch_service
+            .fetch_recent_video_by_channel_id(&channel_id, 10)
+            .await?
     } else {
         tracing::info!("Load video entity from local json file.");
         let mut videos = Vec::new();
         if let Some(in_json) = args.in_json {
             let file = File::open(in_json).expect("Unable to open file");
-            let v : Vec<VideoEntity> = serde_json::from_reader(file).expect("Invalid JSON file");
+            let v: Vec<VideoEntity> = serde_json::from_reader(file).expect("Invalid JSON file");
             videos.extend(v);
         } else {
             panic!("Input json file is not set.");
@@ -66,13 +68,21 @@ async fn main() -> AppResult<()>{
         let video_indexing = VideoIndexingService::new(int_repo.clone());
         let ts_indexing = TimeStampIndexingService::new(tss_repo.clone(), int_repo.clone());
 
-        if video_indexing.add_or_update_video_entities(&videos).await.is_err() {
-            return Err(AppError::InvalidInput("Failed to add video entities".to_string()));
+        if video_indexing
+            .add_or_update_video_entities(&videos)
+            .await
+            .is_err()
+        {
+            return Err(AppError::InvalidInput(
+                "Failed to add video entities".to_string(),
+            ));
         }
 
         for v in videos {
-            if let Ok(tss) = parser.parse_video(&v){
-                ts_indexing.add_or_update_timestamps(&v, tss.as_slice()).await?;
+            if let Ok(tss) = parser.parse_video(&v) {
+                ts_indexing
+                    .add_or_update_timestamps(&v, tss.as_slice())
+                    .await?;
             }
         }
     } else {

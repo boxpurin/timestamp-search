@@ -2,21 +2,19 @@ use crate::client::ApiClient;
 use crate::index::Index;
 use crate::index::timestamp::TimeStampIndex;
 use crate::repositories::MeilisearchCrudApi;
-use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::entities::video::VideoEntity;
+use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::repositories::internal_timestamp_repository::InternalVideoTimeStampRepository;
 use domains::value_objects::timestamp_id::TimestampId;
 use domains::value_objects::video_id::VideoId;
 use errors::{AppError, AppResult};
 
-pub struct MeilisearchVideoCrudRepository<
-    T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync,
-> {
-    client : T,
+pub struct MeilisearchVideoCrudRepository<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync> {
+    client: T,
 }
 
-impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync> MeilisearchVideoCrudRepository<T>{
-    pub fn new(client : T) -> Self {
+impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync> MeilisearchVideoCrudRepository<T> {
+    pub fn new(client: T) -> Self {
         Self { client }
     }
 }
@@ -28,18 +26,18 @@ pub fn create_timestamp_crud_repository() -> MeilisearchVideoCrudRepository<ApiC
 }
 
 #[async_trait::async_trait]
-impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
-    InternalVideoTimeStampRepository for MeilisearchVideoCrudRepository<T>
+impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync> InternalVideoTimeStampRepository
+    for MeilisearchVideoCrudRepository<T>
 {
-    async fn add_video_timestamp_entity(&self, video_entity: &VideoEntity, timestamp_entity: &VideoTimestampEntity) -> AppResult<()> {
-        let i = TimeStampIndex::from_entity(
-            video_entity.clone(),
-            timestamp_entity.timestamp.clone()
-        );
+    async fn add_video_timestamp_entity(
+        &self,
+        video_entity: &VideoEntity,
+        timestamp_entity: &VideoTimestampEntity,
+    ) -> AppResult<()> {
+        let i =
+            TimeStampIndex::from_entity(video_entity.clone(), timestamp_entity.timestamp.clone());
 
-        self.client.add_entity(
-            TimeStampIndex::name(), &i
-        ).await?;
+        self.client.add_entity(TimeStampIndex::name(), &i).await?;
         Ok(())
     }
 
@@ -48,9 +46,10 @@ impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
         video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()> {
-        let v = entities.iter().map(|e|{
-            TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone())
-        }).collect::<Vec<TimeStampIndex>>();
+        let v = entities
+            .iter()
+            .map(|e| TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone()))
+            .collect::<Vec<TimeStampIndex>>();
 
         // Implementation for adding a video entity to MeiliSearch
         self.client
@@ -60,14 +59,13 @@ impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
         Ok(())
     }
 
-    async fn update_video_timestamp_entity(&self,
+    async fn update_video_timestamp_entity(
+        &self,
         video_entity: &VideoEntity,
-        entity: &VideoTimestampEntity) -> AppResult<()> {
-        let i = TimeStampIndex::from_entity(
-            video_entity.clone(),
-            entity.timestamp.clone()
-        );
-        
+        entity: &VideoTimestampEntity,
+    ) -> AppResult<()> {
+        let i = TimeStampIndex::from_entity(video_entity.clone(), entity.timestamp.clone());
+
         self.client
             .update_entity(TimeStampIndex::name(), &i)
             .await
@@ -80,9 +78,10 @@ impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
         video_entity: &VideoEntity,
         entities: &[VideoTimestampEntity],
     ) -> AppResult<()> {
-        let v = entities.iter().map(|e|{
-            TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone())
-        }).collect::<Vec<TimeStampIndex>>();
+        let v = entities
+            .iter()
+            .map(|e| TimeStampIndex::from_entity(video_entity.clone(), e.timestamp.clone()))
+            .collect::<Vec<TimeStampIndex>>();
 
         self.client
             .update_entities(TimeStampIndex::name(), &v)

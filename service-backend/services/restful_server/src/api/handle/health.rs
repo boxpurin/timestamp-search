@@ -1,9 +1,8 @@
 use axum::response::Json;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 /// サーバーのヘルスチェック用
-pub(crate) async fn health_check() -> Json<Value>
-{
+pub(crate) async fn health_check() -> Json<Value> {
     Json(json!( {"message" : "available"}))
 }
 

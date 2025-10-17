@@ -34,7 +34,7 @@ run = "cargo check --manifest-path ${MANIFEST_PATH} --all-targets --all-features
 
 [tasks.fmt]
 description = "Format all packages in the workspace"
-run = "cargo fmt --manifest-path ${MANIFEST_PATH} --all"
+run = "cargo fmt --manifest-path ${MANIFEST_PATH} --all --workspace --check"
 
 [tasks.clippy]
 description = "Run Clippy on all packages in the workspace"

@@ -1,8 +1,8 @@
 use domains::entities::channel::ChannelEntity;
-use errors::AppError;
-use google_youtube3::api::{Channel, Video};
 use domains::value_objects::channel_id::ChannelId;
 use domains::value_objects::channel_name::ChannelName;
+use errors::AppError;
+use google_youtube3::api::{Channel, Video};
 
 #[allow(dead_code)]
 pub struct ChannelToChannelEntityConverter(pub Channel);
@@ -15,14 +15,14 @@ impl TryInto<ChannelEntity> for ChannelToChannelEntityConverter {
     fn try_into(self) -> Result<ChannelEntity, Self::Error> {
         let inner = self.0;
         let snippet = inner.snippet.ok_or(AppError::InvalidInput(
-            "Video snippet is missing".to_string()
+            "Video snippet is missing".to_string(),
         ))?;
-        let id = inner.id.ok_or(AppError::InvalidInput(
-            "Channel ID is missing".to_string()
+        let id = inner
+            .id
+            .ok_or(AppError::InvalidInput("Channel ID is missing".to_string()))?;
+        let name = snippet.title.ok_or(AppError::InvalidInput(
+            "Channel name is missing".to_string(),
         ))?;
-        let name = snippet.title.ok_or(AppError::InvalidInput
-            ("Channel name is missing".to_string())
-        )?;
         Ok(ChannelEntity {
             id: ChannelId::new(&id)?,
             name: ChannelName::new(&name)?,
@@ -50,18 +50,18 @@ impl TryInto<ChannelEntity> for VideoToChannelEntityConverter {
     }
 }
 
-
 #[cfg(test)]
-mod unit_tests{
+mod unit_tests {
     use super::*;
     use domains::entities::channel::ChannelEntity;
     use google_youtube3::api::Channel;
 
     #[test]
-    fn channel_to_channel_entity_converter_test(){
+    fn channel_to_channel_entity_converter_test() {
         let channel = Channel::default();
 
-        let r: Result<ChannelEntity, AppError> = ChannelToChannelEntityConverter(channel).try_into();
+        let r: Result<ChannelEntity, AppError> =
+            ChannelToChannelEntityConverter(channel).try_into();
         assert!(r.is_err());
     }
 }

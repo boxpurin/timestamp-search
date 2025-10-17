@@ -24,20 +24,21 @@ pub trait InternalVideoRepository {
     async fn delete_all_video_entities(&self) -> AppResult<()>;
 }
 
-
 #[cfg(test)]
 mod unit_tests {
-    use std::collections::HashMap;
-    use std::sync::{Arc, Mutex};
-    use mockall::predicate::eq;
-    use errors::{AppError, AppResult};
     use crate::entities::channel::ChannelEntity;
     use crate::entities::video::VideoEntity;
-    use crate::repositories::internal_video_repository::{InternalVideoRepository, MockInternalVideoRepository};
+    use crate::repositories::internal_video_repository::{
+        InternalVideoRepository, MockInternalVideoRepository,
+    };
     use crate::value_objects::channel_id::ChannelId;
     use crate::value_objects::channel_name::ChannelName;
     use crate::value_objects::video_id::VideoId;
     use crate::value_objects::video_title::VideoTitle;
+    use errors::{AppError, AppResult};
+    use mockall::predicate::eq;
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
 
     struct InMemoryVideoRepository {
         pub db: Arc<Mutex<HashMap<VideoId, VideoEntity>>>,
@@ -45,7 +46,9 @@ mod unit_tests {
 
     impl InMemoryVideoRepository {
         pub fn new() -> Self {
-            Self { db: Arc::new(Mutex::new(HashMap::new())) }
+            Self {
+                db: Arc::new(Mutex::new(HashMap::new())),
+            }
         }
     }
 
@@ -96,7 +99,10 @@ mod unit_tests {
             Ok(b.is_some())
         }
 
-        async fn get_video_entity_by_id(&self, video_id: &VideoId) -> AppResult<Option<VideoEntity>> {
+        async fn get_video_entity_by_id(
+            &self,
+            video_id: &VideoId,
+        ) -> AppResult<Option<VideoEntity>> {
             let db = self
                 .db
                 .lock()
@@ -132,48 +138,34 @@ mod unit_tests {
         }
     }
 
-
     #[tokio::test]
-    async fn internal_video_search_repository_mock() -> anyhow::Result<()>{
+    async fn internal_video_search_repository_mock() -> anyhow::Result<()> {
         let mut mock = MockInternalVideoRepository::new();
 
         let c = ChannelEntity::new(
             ChannelId::new("UC_1234567890abcdefghijk")?,
-            ChannelName::new("Channel Name")?
+            ChannelName::new("Channel Name")?,
         );
-        let v = VideoEntity::with_random_id(
-            VideoTitle::new("test title")?,
-            c.clone()
-        ).construct()?;
+        let v =
+            VideoEntity::with_random_id(VideoTitle::new("test title")?, c.clone()).construct()?;
 
         mock.expect_add_video_entity()
             .with(eq(v.clone()))
-            .returning(|_| {
-                Ok(())
-            });
+            .returning(|_| Ok(()));
 
-        let r = mock
-            .add_video_entity(&v)
-            .await;
+        let r = mock.add_video_entity(&v).await;
         assert!(r.is_ok());
 
         mock.expect_update_video_entity()
             .with(eq(v.clone()))
-            .returning(|_| {
-                Ok(())
-            });
+            .returning(|_| Ok(()));
 
-        let r = mock
-            .update_video_entity(&v)
-            .await;
+        let r = mock.update_video_entity(&v).await;
         assert!(r.is_ok());
 
-        mock.expect_delete_all_video_entities()
-            .returning(|| Ok(()));
+        mock.expect_delete_all_video_entities().returning(|| Ok(()));
 
-        let r = mock
-            .delete_all_video_entities()
-            .await;
+        let r = mock.delete_all_video_entities().await;
         assert!(r.is_ok());
 
         Ok(())
@@ -185,13 +177,11 @@ mod unit_tests {
 
         let c = ChannelEntity::new(
             ChannelId::new("UC_1234567890abcdefghijk")?,
-            ChannelName::new("Channel Name")?
+            ChannelName::new("Channel Name")?,
         );
 
-        let v = VideoEntity::with_random_id(
-            VideoTitle::new("test title")?,
-            c.clone()
-        ).construct()?;
+        let v =
+            VideoEntity::with_random_id(VideoTitle::new("test title")?, c.clone()).construct()?;
 
         let r = repo.add_video_entity(&v).await;
         assert!(r.is_ok());

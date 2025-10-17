@@ -39,7 +39,7 @@ mod unit_tests {
     #[rstest]
     #[test]
     #[case::empty("")] // empty
-    #[case::shortest("short")]    // invalid length
+    #[case::shortest("short")] // invalid length
     #[case::invalid("aqz-KE-bpKQ!")] // invalid char
     fn invalid_video_id(#[case] invalid_id: &str) {
         assert!(VideoId::new(invalid_id).is_err());
