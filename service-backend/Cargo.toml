@@ -3,7 +3,6 @@ package.edition = "2024"
 package.publish = false
 package.license = "MIT"
 package.authors = ["boxpurin"]
-package.rust-version = "1.87.0"
 resolver = "3"
 
 members = [
