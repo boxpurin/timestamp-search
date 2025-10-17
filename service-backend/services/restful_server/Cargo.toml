@@ -1,0 +1,30 @@
+[package]
+name = "restful_server"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+axum = { workspace = true }
+envy.workspace = true
+once_cell.workspace = true
+tokio = { workspace = true , features = ["time"] }
+tower.workspace = true
+garde.workspace = true
+chrono.workspace = true
+errors.workspace = true
+meilisearch.workspace = true
+tower-layer.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+domains.workspace = true
+leaky-bucket.workspace = true
+tower-http = { version = "0.6.6", features = ["trace", "cors"] }
+
+[dev-dependencies]
+async-trait.workspace = true
+tracing-test.workspace = true

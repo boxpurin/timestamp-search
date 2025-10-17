@@ -1,0 +1,50 @@
+name: Rust_CI_DEV
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["develop"]
+
+env:
+  CARGO_TERM_COLOR: always
+  MANIFEST_PATH: service-backend/Cargo.toml
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build test
+        run: cargo build --manifest-path ${{ env.MANIFEST_PATH }} --verbose
+
+      - name: Run tests
+        run: cargo nextest run --manifest-path ${{ env.MANIFEST_PATH }} --verbose
+
+      - name: Check formatting
+        run: cargo fmt --all --manifest-path ${{ env.MANIFEST_PATH }} --check
+
+      - name: Lint with clippy
+        run: cargo clippy --manifest-path ${{ env.MANIFEST_PATH }}

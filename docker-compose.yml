@@ -1,0 +1,29 @@
+services:
+  restful_server:
+    build:
+      context: .
+      dockerfile: ./docker/restful_server/Dockerfile
+    ports:
+      - "${TSS_APP_PORT}:${TSS_APP_PORT}"
+    environment:
+      - RUST_LOG=debug
+      - TSS_APP_INDEX_URL=${MEILI_CONNECTION_ADDR}
+    volumes:
+      - ./service-backend:/app/service-backend:ro
+    networks:
+      - app-network
+  meilisearch:
+    image: getmeili/meilisearch:v1.15.2
+    restart: unless-stopped
+    ports:
+      - "${MEILI_OUTER_PORT}:${MEILI_INNER_PORT}"
+    environment:
+      MEILI_HTTP_ADDR: ${MEILI_HTTP_ADDR}
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_LOG_LEVEL: ${MEILI_LOG_LEVEL}
+      MEILI_ENV: ${MEILI_ENV}
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

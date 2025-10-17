@@ -1,11 +1,8 @@
 .local
 docker
-target
 
-tests
-infra/youtube/local
+service-backend/target
 
-Cargo.lock
 .gitignore
 
 # python scripts

@@ -13,7 +13,7 @@ def main():
     setup.delete_all_indexes()
 
     # インデックス設定ファイルを読み込む
-    indexes_file: str = "scripts/indexes.json"
+    indexes_file: str = "indexes.json"
     if not os.path.exists(indexes_file):
         print(f"インデックス設定ファイルが見つかりません: {indexes_file}")
         return
@@ -34,7 +34,7 @@ def main():
         # インデックスを作成
         if setup.create_index(index_name, primary_key=pid):
             # 設定ファイルを読み込む
-            settings_path = os.path.join("scripts", setting_file)
+            settings_path = os.path.join("settings", setting_file)
             if not os.path.exists(settings_path):
                 print(f"設定ファイルが見つかりません: {settings_path}")
                 continue
