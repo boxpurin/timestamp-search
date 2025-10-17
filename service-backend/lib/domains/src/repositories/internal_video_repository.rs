@@ -74,7 +74,7 @@ mod unit_tests {
                 .db
                 .lock()
                 .map_err(|_| AppError::Conflict("".to_string()))?;
-            if let Some(mut v) = db.get_mut(&video_entity.id) {
+            if let Some(v) = db.get_mut(&video_entity.id) {
                 *v = video_entity.clone();
             }
             Ok(())
@@ -109,7 +109,7 @@ mod unit_tests {
                 .db
                 .lock()
                 .map_err(|_| AppError::Conflict("".to_string()))?;
-            let vs = db.iter().map(|(_, v)| v.clone()).collect::<Vec<VideoEntity>>();
+            let vs = db.values().cloned().collect();
             Ok(vs)
         }
 

@@ -8,7 +8,6 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use domains::repositories::internal_timestamp_search_repository::{VideoTimestampSearchQuery, Part};
 use errors::AppResult;
-use crate::repositories::timestamp_search::MeilisearchTimestampSearchRepository;
 use crate::index::timestamp::TimeStampIndex;
 use itertools::Itertools;
 use std::collections::HashSet;
@@ -28,6 +27,12 @@ impl ApiClient {
             .expect("Error creating meilisearch client");
 
         Self { client }
+    }
+}
+
+impl Default for ApiClient {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -83,7 +88,7 @@ impl<
     ) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
         let _ = i
-            .add_or_update(&entities, I::pid_field())
+            .add_or_update(entities, I::pid_field())
             .await?
             .wait_for_completion(&self.client, None, None)
             .await?;
@@ -181,13 +186,13 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient{
 
             if let Some(ids) = search_query.video_ids
             {
-                if ids.len() > 0 {
+                if ids.is_empty() {
                     v.push(format!("videoId IN [{}]", ids.join(" , ")));
                 }
             };
 
             if let Some(tags) = search_query.video_tags {
-                if tags.len() > 0 {
+                if tags.is_empty() {
                     v.push(format!("tagId IN [{}]", tags.join(" , ")));
                 }
             }

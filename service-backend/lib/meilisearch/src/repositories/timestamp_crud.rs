@@ -54,7 +54,7 @@ impl<T: MeilisearchCrudApi<TimeStampIndex> + Send + Sync>
 
         // Implementation for adding a video entity to MeiliSearch
         self.client
-            .add_entities(TimeStampIndex::name(), &v.as_ref())
+            .add_entities(TimeStampIndex::name(), v.as_ref())
             .await
             .map_err(AppError::from)?;
         Ok(())

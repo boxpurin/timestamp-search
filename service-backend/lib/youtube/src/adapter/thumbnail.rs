@@ -4,8 +4,11 @@ use errors::AppError::{self, DomainParseError};
 use google_youtube3::api::{Thumbnail, ThumbnailDetails, Video};
 
 /// Converter from YouTube Video to ThumbnailDetails
+#[allow(dead_code)]
 pub struct VideoToThumbnailConverter(pub Video);
+#[allow(dead_code)]
 pub struct ThumbnailsToThumbnailConverter(pub ThumbnailDetails);
+#[allow(dead_code)]
 pub struct ThumbnailToThumbnailConverter(pub Thumbnail);
 
 impl TryInto<ThumbnailDomain> for VideoToThumbnailConverter {

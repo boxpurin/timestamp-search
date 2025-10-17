@@ -76,6 +76,6 @@ impl TryInto<VideoEntity> for VideoEntityConverter {
             v = v.with_actual_start_time(a);
         }
 
-        Ok(v.construct()?)
+        v.construct()
     }
 }

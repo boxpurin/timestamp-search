@@ -1,6 +1,6 @@
 use crate::config::CONFIG;
 use crate::index::Index;
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use domains::entities::video::VideoEntity;
 use domains::value_objects::channel_id::ChannelId;
 use domains::value_objects::channel_name::ChannelName;
@@ -28,42 +28,18 @@ pub struct VideoIndex {
 }
 
 impl VideoIndex {
-    pub fn new(
-        id: VideoId,
-        title: VideoTitle,
-        tags: Vec<VideoTag>,
-        description: VideoDescription,
-        channel_id: ChannelId,
-        channel_name: ChannelName,
-        thumbnail_url: Option<ThumbnailUrl>,
-        actual_start_time: Option<DateTime<Utc>>,
-        published_at: DateTime<Utc>,
-    ) -> Self {
-        VideoIndex {
-            video_id: id,
-            video_title: title,
-            video_tags: tags,
-            video_description: description,
-            channel_id,
-            channel_name,
-            thumbnail_url,
-            actual_start_time: actual_start_time.map(|t| t.timestamp()),
-            published_at: published_at.timestamp(),
-        }
-    }
-
     pub fn from_entity(video: VideoEntity) -> Self {
-        VideoIndex::new(
-            video.id,
-            video.title,
-            video.tags,
-            video.description,
-            video.channel.id,
-            video.channel.name,
-            video.thumbnail.map(|t| t.url().clone()),
-            video.actual_start_time,
-            video.published_at,
-        )
+        VideoIndex {
+            video_id: video.id,
+            video_title: video.title,
+            video_tags: video.tags,
+            video_description: video.description,
+            channel_id : video.channel.id,
+            channel_name : video.channel.name,
+            thumbnail_url : video.thumbnail.map(|t| t.url().clone()),
+            actual_start_time: video.actual_start_time.map(|t| t.timestamp()),
+            published_at: video.published_at.timestamp(),
+        }
     }
 }
 
@@ -73,23 +49,23 @@ impl From<VideoEntity> for VideoIndex {
     }
 }
 
-impl Into<VideoEntity> for VideoIndex {
-    fn into(self) -> VideoEntity {
+impl From<VideoIndex> for VideoEntity {
+    fn from(v: VideoIndex) -> VideoEntity {
         VideoEntity::build(
-            self.video_id,
-            self.video_title,
-            ChannelEntity::new(self.channel_id, self.channel_name)
+            v.video_id,
+            v.video_title,
+            ChannelEntity::new(v.channel_id, v.channel_name)
         )
-            .with_tags(self.video_tags)
-            .with_description(self.video_description)
-            .with_thumbnail(self.thumbnail_url.map(|url| {
+            .with_tags(v.video_tags)
+            .with_description(v.video_description)
+            .with_thumbnail(v.thumbnail_url.map(|url| {
                 Thumbnail::new(url, 320, 240).unwrap()
             }).unwrap())
             .with_published_at(
-                DateTime::from_timestamp(self.published_at ,0).unwrap()
+                DateTime::from_timestamp(v.published_at ,0).unwrap()
             )
             .with_actual_start_time(
-                self.actual_start_time
+                v.actual_start_time
                     .map(|t| DateTime::from_timestamp(t,0).unwrap()).unwrap()
             )
             .construct().unwrap()

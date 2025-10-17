@@ -72,11 +72,11 @@ impl TimeStampIndex {
     }
 }
 
-impl Into<VideoTimestampEntity> for TimeStampIndex {
-    fn into(self) -> VideoTimestampEntity {
+impl From<TimeStampIndex> for VideoTimestampEntity {
+    fn from(v: TimeStampIndex) -> VideoTimestampEntity {
         VideoTimestampEntity::new(
-            self.video_id,
-            TimeStamp::new(self.elapsed_time, self.description).unwrap(),
+            v.video_id,
+            TimeStamp::new(v.elapsed_time, v.description).unwrap(),
         )
     }
 }

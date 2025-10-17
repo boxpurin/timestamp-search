@@ -4,7 +4,7 @@ use domains::entities::video::VideoEntity;
 use domains::repositories::external_video_repository::ExternalVideoRepository;
 use domains::value_objects::channel_id::ChannelId;
 use errors::{AppError, AppResult};
-use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2, Result as YouTubeResult, Error as YouTubeError, common};
+use google_youtube3::{YouTube, hyper_rustls, hyper_util, yup_oauth2, Result as YouTubeResult, common};
 use google_youtube3::api::{Channel as YouTubeChannel, Video as YouTubeVideo};
 use google_youtube3::hyper::StatusCode;
 use hyper_rustls::HttpsConnector;
@@ -167,7 +167,7 @@ impl YouTubeApi {
             .doit()
         }).await?;
         let items = res.items.unwrap_or_default();
-        let c = items.get(0).cloned();
+        let c = items.first().cloned();
         Ok(c)
     }
 
@@ -204,7 +204,7 @@ impl YouTubeApi {
                 .max_results(video_ids.len() as u32);
 
             for v in video_ids.iter() {
-                req = req.add_id(&v);
+                req = req.add_id(v);
             }
 
             req.doit()

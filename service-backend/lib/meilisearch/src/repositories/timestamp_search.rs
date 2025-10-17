@@ -1,4 +1,3 @@
-use domains::repositories::internal_timestamp_search_repository;
 use domains::repositories::internal_timestamp_search_repository::{InternalVideoTimeStampSearchRepository, VideoTimestampSearchQuery, VideoTimestampSearchResult};
 use errors::AppResult;
 use crate::adapter::SearchResultConverter;
