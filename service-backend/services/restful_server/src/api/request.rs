@@ -1,5 +1,5 @@
 use garde::Validate;
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 use domains::value_objects::{
     video_id::VideoId,
     video_tag::VideoTag,

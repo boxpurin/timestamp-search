@@ -1,11 +1,9 @@
-use std::sync::Arc;
-use axum::extract::{Query, State, Request};
-use axum::http::StatusCode;
+use axum::extract::{Query, State};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use chrono::Utc;
 use garde::Validate;
-use errors::{AppError, AppResult};
+use errors::AppError;
 use crate::api::app_state::AppState;
 use crate::api::request::SearchTimeStampRequest;
 use crate::api::response::SearchTimeStampResponse;
@@ -17,7 +15,7 @@ pub async fn search_timestamp(
     tracing::info!("Search timestamp: {:?}", Utc::now());
     query.validate().map_err(|e| {
         AppError::InvalidInput(
-            format!("invalid query parameter : {}", e.to_string())
+            format!("invalid query parameter : {}", e)
         ).into_response()
     })?;
 
@@ -29,7 +27,7 @@ pub async fn search_timestamp(
             e.into_response()
         });
 
-    if let Err(e) = r {
+    if r.is_err() {
         return Err(AppError::InternalServerError("error".to_string()).into_response())
     };
 

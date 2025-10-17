@@ -20,7 +20,7 @@ impl TimeStampSearchService {
         Ok(v)
     }
 }
-
+#[allow(dead_code)]
 pub struct RestApiService {
     
 }

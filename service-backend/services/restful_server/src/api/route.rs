@@ -1,12 +1,8 @@
-use std::sync::Arc;
 use axum::routing::get;
-use axum::{middleware, Router};
+use axum::Router;
 use crate::api::app_state::AppState;
 use crate::api::handle::health::health_check;
 use crate::api::handle::timestamp_search::search_timestamp;
-use crate::api::middleware::use_backet;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
-use tracing::Level;
 
 pub fn router() -> Router<AppState> {
     let router = Router::new()
@@ -28,19 +24,17 @@ fn build_timestamp_search() -> Router<AppState> {
 
 #[cfg(test)]
 mod unit_tests {
+    use std::sync::Arc;
     use super::*;
 
     use leaky_bucket::RateLimiter;
     use tower::{ServiceExt};
     use domains::repositories::internal_timestamp_search_repository::{InternalVideoTimeStampSearchRepository, VideoTimestampSearchQuery, VideoTimestampSearchResult};
     use errors::AppResult;
-    use axum::{
-        http::{ StatusCode, Method },
-        body::Body,
-    };
+    use axum::{http::{StatusCode, Method}, body::Body, middleware};
     use domains::value_objects::page::Page;
     use domains::value_objects::per_page::PerPage;
-    use crate::api::middleware::access_log_console;
+    use crate::api::middleware::{access_log_console, use_backet};
     use crate::api::service::TimeStampSearchService;
 
     pub struct TestVideoTimeStampSearchRepository{}

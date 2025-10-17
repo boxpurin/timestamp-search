@@ -9,6 +9,7 @@ use std::sync::Arc;
 use errors::{AppError, AppResult};
 use clap::Parser;
 use std::fs::File;
+use domains::entities::video::VideoEntity;
 use usecase::timestamp_indexing_service::TimeStampIndexingService;
 use usecase::video_fetch_service::VideoFetchService;
 use usecase::video_indexing_service::VideoIndexingService;
@@ -42,15 +43,14 @@ async fn main() -> AppResult<()>{
         let video_fetch_service = VideoFetchService::new(ext_repo.clone());
         let channel_id = ChannelId::new(&channel_id)?;
 
-        let videos = video_fetch_service.fetch_recent_video_by_channel_id(&channel_id, 10).await?;
-
-        videos
+        video_fetch_service.fetch_recent_video_by_channel_id(&channel_id, 10).await?
     } else {
         tracing::info!("Load video entity from local json file.");
         let mut videos = Vec::new();
         if let Some(in_json) = args.in_json {
             let file = File::open(in_json).expect("Unable to open file");
-            videos = serde_json::from_reader(file).expect("Invalid JSON file");
+            let v : Vec<VideoEntity> = serde_json::from_reader(file).expect("Invalid JSON file");
+            videos.extend(v);
         } else {
             panic!("Input json file is not set.");
         }
@@ -66,7 +66,7 @@ async fn main() -> AppResult<()>{
         let video_indexing = VideoIndexingService::new(int_repo.clone());
         let ts_indexing = TimeStampIndexingService::new(tss_repo.clone(), int_repo.clone());
 
-        if let Err(_) = video_indexing.add_or_update_video_entities(&videos).await{
+        if video_indexing.add_or_update_video_entities(&videos).await.is_err() {
             return Err(AppError::InvalidInput("Failed to add video entities".to_string()));
         }
 

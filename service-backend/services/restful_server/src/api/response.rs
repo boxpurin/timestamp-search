@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 use domains::value_objects::{
     video_id::VideoId,
     video_title::VideoTitle,
@@ -66,7 +66,7 @@ impl From<VideoTimestampEntity> for ResponseTimeStamp {
     fn from(entity: VideoTimestampEntity) -> Self {
         ResponseTimeStamp{
             video_id: entity.video_id.clone(),
-            elapsed_time: entity.timestamp.elapsed_time.clone(),
+            elapsed_time: entity.timestamp.elapsed_time,
             description: entity.timestamp.description.clone(),
             video_details: ResponseTimeStampVideoDetails::try_from(entity).ok(),
         }

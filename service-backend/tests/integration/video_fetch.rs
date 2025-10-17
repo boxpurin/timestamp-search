@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use rstest::{rstest, fixture};
+use rstest::rstest;
 use usecase::timestamp_indexing_service::TimeStampIndexingService;
 use usecase::timestamp_parser_service::TimeStampParserService;
 use usecase::video_fetch_service::VideoFetchService;

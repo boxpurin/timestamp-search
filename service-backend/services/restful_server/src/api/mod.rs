@@ -7,6 +7,7 @@ pub mod service;
 pub mod middleware;
 pub mod config;
 
+#[allow(dead_code)]
 pub async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
