@@ -11,3 +11,4 @@ axum.workspace = true
 thiserror.workspace = true
 meilisearch-sdk.workspace = true
 google-youtube3.workspace = true
+tracing.workspace = true

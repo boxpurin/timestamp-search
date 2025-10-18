@@ -52,35 +52,49 @@ impl From<Youtube3Error> for AppError {
     fn from(e: Youtube3Error) -> Self {
         match e {
             Youtube3Error::HttpError(e) => {
+                tracing::error!("HTTP error in YouTube API: {}", e);
                 AppError::InternalServerError(format!("HTTP error in YouTube API: {}", e))
             }
-            Youtube3Error::UploadSizeLimitExceeded(i, e) => AppError::InvalidInput(format!(
-                "Upload size limit exceeded: {} bytes. Error: {}",
-                i, e
-            )),
+            Youtube3Error::UploadSizeLimitExceeded(i, e) => {
+                tracing::error!("Upload size limit exceeded: {} bytes. Error: {}", i, e);
+                AppError::InvalidInput(format!(
+                    "Upload size limit exceeded: {} bytes. Error: {}",
+                    i, e
+                ))
+            },
             Youtube3Error::BadRequest(v) => {
+                tracing::error!("Bad request to YouTube API: {:?}", v);
                 AppError::InvalidInput(format!("Bad request to YouTube API: {:?}", v))
             }
             Youtube3Error::MissingAPIKey => {
+                tracing::error!("YouTube API key is missing");
                 AppError::Unauthorized("YouTube API key is missing".to_string())
             }
-            Youtube3Error::MissingToken(_) => {
+            Youtube3Error::MissingToken(e) => {
+                tracing::error!("YouTube API token is missing {}", e);
                 AppError::Unauthorized("YouTube API token is missing.".to_string())
             }
             Youtube3Error::Cancelled => {
-                AppError::ServiceUnavailable("YouTube API request was cancelled".to_string())
+                tracing::error!("YouTube API request was cancelled");
+                AppError::ServiceUnavailable("request was cancelled".to_string())
             }
             Youtube3Error::FieldClash(s) => {
+                tracing::error!("Field clash in YouTube API response: {}", s);
                 AppError::InvalidInput(format!("Field clash in YouTube API response: {}", s))
             }
-            Youtube3Error::JsonDecodeError(s, e) => AppError::InvalidInput(format!(
-                "JSON decode error in YouTube API response: {}. Error: {}",
-                s, e
-            )),
+            Youtube3Error::JsonDecodeError(s, e) => {
+                tracing::error!("JSON decode error in YouTube API response: {}. Error: {}", s, e);
+                AppError::InvalidInput(format!(
+                    "JSON decode error in YouTube API response: {}. Error: {}",
+                    s, e
+                ))
+            },
             Youtube3Error::Failure(r) => {
+                tracing::error!("Failure in YouTube API response: {:?}", r);
                 AppError::InternalServerError(format!("Failure in YouTube API response: {:?}", r))
             }
             Youtube3Error::Io(e) => {
+                tracing::error!("IO error in YouTube API: {}", e);
                 AppError::InternalServerError(format!("IO error in YouTube API: {}", e))
             }
         }
