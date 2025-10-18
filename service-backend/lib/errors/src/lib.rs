@@ -38,14 +38,28 @@ pub enum AppError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum DomainError {
-    #[error("Value {0} is not satisfy validation.")]
-    NotSatisfyValidation(String),
+    /// バリデーション失敗時のエラー
+    #[error("Validation failure. : {0}")]
+    ValidationFailure(&'static str),
 
-    #[error("Domain Parse Failure : {0}")]
-    ParseFailure(String),
+    /// 変換エラー
+    #[error("Domain parse failure.")]
+    ParseFailure,
+}
 
-    #[error("Missing optional domain field. Expected field : {0}")]
-    MissingField(String),
+impl From<DomainError> for AppError {
+    fn from(e: DomainError) -> Self {
+        match e {
+            DomainError::ValidationFailure(s) => {
+                tracing::error!("{}", e);
+                AppError::InvalidInput(e.to_string())
+            },
+            DomainError::ParseFailure => {
+                tracing::error!("Domain Parse failure: {}", e);
+                AppError::DomainParseError(e.to_string())
+            },
+        }
+    }
 }
 
 impl From<Youtube3Error> for AppError {
