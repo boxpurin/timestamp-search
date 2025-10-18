@@ -4,6 +4,11 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[allow(dead_code)]
 pub static SERVER_CONFIG: once_cell::sync::Lazy<ServerConfig> =
-    once_cell::sync::Lazy::new(|| envy::prefixed("TSS_SERVER_").from_env().unwrap());
+    once_cell::sync::Lazy::new(|| envy::prefixed("TSS_APP_").from_env().unwrap());
+
+impl ServerConfig {
+    pub fn listen_addr(&self) -> String {
+        format!("0.0.0.0:{}", self.port)
+    }
+}

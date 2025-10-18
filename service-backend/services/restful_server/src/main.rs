@@ -4,6 +4,7 @@ use api::route::router;
 use api::service::TimeStampSearchService;
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
+use crate::api::config::SERVER_CONFIG;
 
 mod api;
 
@@ -33,8 +34,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .layer(axum::middleware::from_fn(access_log_console))
         .with_state(state.clone());
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:7878").await?;
+    
+    let listener = tokio::net::TcpListener::bind(SERVER_CONFIG.listen_addr()).await?;
     let ret = axum::serve(listener, app).await;
 
     if let Err(e) = ret {
