@@ -18,6 +18,12 @@ struct Args {
     #[arg(long, default_value = "false")]
     pub in_external: bool,
 
+    #[arg(long, default_value = "false")]
+    pub all :bool,
+
+    #[arg(short, long, default_value = "10")]
+    pub num_recent :  u32,
+
     #[arg(short, long, conflicts_with = "in_external")]
     pub in_json: Option<String>,
 
@@ -43,9 +49,17 @@ async fn main() -> AppResult<()> {
         let video_fetch_service = VideoFetchService::new(ext_repo.clone());
         let channel_id = ChannelId::new(&channel_id)?;
 
-        video_fetch_service
-            .fetch_recent_video_by_channel_id(&channel_id, 10)
-            .await?
+        tracing::info!("fetch target channel {channel_id}");
+
+        if args.all {
+            video_fetch_service
+                .fetch_all_videos_by_channel_id(&channel_id)
+                .await?
+        } else {
+            video_fetch_service
+                .fetch_recent_video_by_channel_id(&channel_id, args.num_recent)
+                .await?
+        }
     } else {
         tracing::info!("Load video entity from local json file.");
         let mut videos = Vec::new();
