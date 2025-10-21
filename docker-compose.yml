@@ -8,6 +8,11 @@ services:
     environment:
       - RUST_LOG=debug
       - TSS_APP_INDEX_URL=${MEILI_CONNECTION_ADDR}
+      - TSS_APP_PORT=${TSS_APP_PORT}
+      - MEILI_CONNECTION_ADDR=${MEILI_CONNECTION_ADDR}
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_VIDEO_INDEX_NAME=${MEILI_VIDEO_INDEX_NAME}
+      - MEILI_TIMESTAMP_INDEX_NAME=${MEILI_TIMESTAMP_INDEX_NAME}
     volumes:
       - ./service-backend:/app/service-backend:ro
     networks:

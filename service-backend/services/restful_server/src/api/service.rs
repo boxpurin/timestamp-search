@@ -21,7 +21,10 @@ impl TimeStampSearchService {
         &self,
         req: SearchTimeStampRequest,
     ) -> AppResult<VideoTimestampSearchResult> {
+        tracing::debug!("restful_server::api::service::TimeStampSearchService::search_timestamp");
         let query = VideoTimestampSearchQuery::try_from(req)?;
+
+        tracing::debug!("begin search_timestamps_by_query");
         let v = self
             .search_repository
             .search_timestamps_by_query(query)

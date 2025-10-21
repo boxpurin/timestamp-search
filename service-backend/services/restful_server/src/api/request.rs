@@ -55,6 +55,7 @@ impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
     fn try_from(
         search_time_stamp: SearchTimeStampRequest,
     ) -> Result<VideoTimestampSearchQuery, Self::Error> {
+        tracing::debug!("{:?}", search_time_stamp);
         let parts = if let Some(parts) = search_time_stamp.parts {
             let parts = parts.split(",");
             let mut p = Vec::new();

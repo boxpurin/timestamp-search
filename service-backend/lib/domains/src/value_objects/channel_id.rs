@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult, DomainError};
+use errors::DomainError;
 types::impl_string_value!(ChannelId);
 impl ChannelId {
     /// Creates a new `ChannelId` from a string slice.
@@ -28,7 +28,7 @@ impl ChannelId {
             .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
         {
             return Err(DomainError::ValidationFailure(
-                "Channel ID must contain only alphanumeric characters, hyphens, or underscores"                 
+                "Channel ID must contain only alphanumeric characters, hyphens, or underscores"
             ));
         }
         Ok(ChannelId(id.to_string()))

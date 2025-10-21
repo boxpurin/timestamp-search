@@ -178,6 +178,10 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
         let i = self.client.get_index(TimeStampIndex::name()).await?;
         let mut q = MeilisearchSearchQuery::new(&i);
 
+        tracing::debug!("Health check");
+        self.client.health().await?;
+        tracing::debug!("available.");
+
         // set query
         q.with_query(search_query.query.as_str());
 
@@ -217,8 +221,6 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
 
         // set attributes_to_search_on
         let mut a = HashSet::new();
-        a.insert("videoId");
-        a.insert("elapsedTime");
         a.insert("description");
 
         if let Some(parts) = search_query.parts {
@@ -256,6 +258,8 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
         q.with_page(search_query.page.into());
         q.with_hits_per_page(search_query.per_page.into());
         q.with_limit(search_query.limit.into());
+
+        tracing::debug!("Search query : {:?}", q);
 
         Ok(q.execute().await?)
     }

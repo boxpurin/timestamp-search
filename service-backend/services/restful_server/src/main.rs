@@ -26,6 +26,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build();
 
     let state = AppState::new(service, limiter);
+    
+    let route = router();
 
     let app = router()
         .layer(axum::middleware::from_fn_with_state(

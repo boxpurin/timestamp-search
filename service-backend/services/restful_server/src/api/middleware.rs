@@ -12,7 +12,6 @@ pub async fn access_log_console(req: Request, next: Next) -> Result<impl IntoRes
     let res = next.run(req).await;
 
     tracing::info!("Response StatusCode : {}", res.status());
-
     Ok(res)
 }
 

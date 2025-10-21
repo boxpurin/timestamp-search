@@ -45,6 +45,7 @@ pub struct ResponseTimeStampVideoDetails {
 
 impl From<VideoTimestampSearchResult> for SearchTimeStampResponse {
     fn from(result: VideoTimestampSearchResult) -> Self {
+        tracing::debug!("{:?}", result);
         let items = result.items.into_iter().map(|e| e.into()).collect();
         SearchTimeStampResponse {
             items,

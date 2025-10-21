@@ -22,6 +22,7 @@ impl InternalVideoTimeStampSearchRepository for MeilisearchTimestampSearchReposi
         &self,
         query: VideoTimestampSearchQuery,
     ) -> AppResult<VideoTimestampSearchResult> {
+        tracing::debug!("Query : {:?}", query);
         let ret = self.client.search_by_query(query).await?;
 
         SearchResultConverter::convert_to_domain(ret)

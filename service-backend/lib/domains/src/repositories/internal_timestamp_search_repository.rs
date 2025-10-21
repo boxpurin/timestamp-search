@@ -17,7 +17,7 @@ pub trait InternalVideoTimeStampSearchRepository {
 }
 
 /// 検索クエリ
-///
+#[derive(Debug)]
 pub struct VideoTimestampSearchQuery {
     pub query: SearchQueryText,
     pub video_ids: Option<Vec<VideoId>>,
@@ -31,6 +31,7 @@ pub struct VideoTimestampSearchQuery {
     pub per_page: PerPage,
 }
 
+#[derive(Debug)]
 pub struct VideoTimestampSearchResult {
     pub items: Vec<VideoTimestampEntity>,
     pub page: Page,
