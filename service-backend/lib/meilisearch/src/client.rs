@@ -221,7 +221,6 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
             q.with_filter(&filter_text);
         }
 
-
         // set attributes_to_search_on
         let mut a = HashSet::new();
         a.insert("pid");

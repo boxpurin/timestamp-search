@@ -23,3 +23,4 @@ itertools.workspace = true
 [dev-dependencies]
 tokio.workspace = true
 anyhow.workspace = true
+rstest.workspace = true

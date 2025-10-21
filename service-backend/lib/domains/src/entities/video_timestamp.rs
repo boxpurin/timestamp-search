@@ -17,7 +17,11 @@ impl VideoTimestampEntity {
         }
     }
 
-    pub fn with_details(video_id: VideoId, timestamp: TimeStamp, details: Option<VideoDetail>) -> Self {
+    pub fn with_details(
+        video_id: VideoId,
+        timestamp: TimeStamp,
+        details: Option<VideoDetail>,
+    ) -> Self {
         VideoTimestampEntity {
             video_id,
             timestamp,

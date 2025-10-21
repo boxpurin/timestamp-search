@@ -52,11 +52,11 @@ impl From<DomainError> for AppError {
         match e {
             DomainError::ValidationFailure(_) => {
                 tracing::error!("{}", e);
-                AppError::InvalidInput(format!("{}",e))
+                AppError::InvalidInput(format!("{}", e))
             }
             DomainError::ParseFailure => {
                 tracing::error!("Domain Parse failure: {}", e);
-                AppError::DomainParseError(format!("{}",e))
+                AppError::DomainParseError(format!("{}", e))
             }
         }
     }

@@ -10,5 +10,5 @@ pub struct VideoDetail {
     pub video_tags: Option<Vec<VideoTag>>,
     pub thumbnail_url: Option<ThumbnailUrl>,
     pub published_at: Option<DateTime<Utc>>,
-    pub actual_start_time: Option<DateTime<Utc>>,
+    pub actual_start_at: Option<DateTime<Utc>>,
 }

@@ -77,7 +77,7 @@ impl TryFrom<VideoTimestampEntity> for ResponseTimeStampVideoDetails {
                 thumbnail_url: detail.thumbnail_url,
                 tags: detail.video_tags,
                 published_at: detail.published_at,
-                actual_start_time: detail.actual_start_time,
+                actual_start_time: detail.actual_start_at,
             });
         };
 

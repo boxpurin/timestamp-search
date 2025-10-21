@@ -51,26 +51,23 @@ impl From<VideoEntity> for VideoIndex {
 
 impl From<VideoIndex> for VideoEntity {
     fn from(v: VideoIndex) -> VideoEntity {
-        VideoEntity::build(
+        let mut builder = VideoEntity::build(
             v.video_id,
             v.video_title,
             ChannelEntity::new(v.channel_id, v.channel_name),
         )
         .with_tags(v.video_tags)
         .with_description(v.video_description)
-        .with_thumbnail(
-            v.thumbnail_url
-                .map(|url| Thumbnail::new(url, 320, 240).unwrap())
-                .unwrap(),
-        )
-        .with_published_at(DateTime::from_timestamp(v.published_at, 0).unwrap())
-        .with_actual_start_time(
-            v.actual_start_time
-                .map(|t| DateTime::from_timestamp(t, 0).unwrap())
-                .unwrap(),
-        )
-        .construct()
-        .unwrap()
+        .with_published_at(DateTime::from_timestamp(v.published_at, 0).unwrap());
+
+        if let Some(url) = v.thumbnail_url {
+            builder = builder.with_thumbnail(Thumbnail::new(url, 320, 240).unwrap());
+        }
+
+        if let Some(t) = v.actual_start_time {
+            builder = builder.with_actual_start_time(DateTime::from_timestamp(t, 0).unwrap());
+        }
+        builder.construct().unwrap()
     }
 }
 
