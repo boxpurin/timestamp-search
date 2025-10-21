@@ -1,10 +1,10 @@
+use crate::api::config::SERVER_CONFIG;
 use api::app_state::AppState;
 use api::middleware::{access_log_console, use_backet};
 use api::route::router;
 use api::service::TimeStampSearchService;
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
-use crate::api::config::SERVER_CONFIG;
 
 mod api;
 
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build();
 
     let state = AppState::new(service, limiter);
-    
+
     let route = router();
 
     let app = router()
@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .layer(axum::middleware::from_fn(access_log_console))
         .with_state(state.clone());
-    
+
     let listener = tokio::net::TcpListener::bind(SERVER_CONFIG.listen_addr()).await?;
     let ret = axum::serve(listener, app).await;
 

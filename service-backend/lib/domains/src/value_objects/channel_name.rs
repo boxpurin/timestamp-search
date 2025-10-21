@@ -15,9 +15,7 @@ impl ChannelName {
     /// ```
     pub fn new(name: &str) -> AppResult<Self> {
         if name.is_empty() {
-            return Err(DomainError::ValidationFailure(
-                "Channel name cannot be empty",
-            ).into());
+            return Err(DomainError::ValidationFailure("Channel name cannot be empty").into());
         }
 
         Ok(ChannelName(name.to_string()))

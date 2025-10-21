@@ -19,10 +19,10 @@ struct Args {
     pub in_external: bool,
 
     #[arg(long, default_value = "false")]
-    pub all :bool,
+    pub all: bool,
 
     #[arg(short, long, default_value = "10")]
-    pub num_recent :  u32,
+    pub num_recent: u32,
 
     #[arg(short, long, conflicts_with = "in_external")]
     pub in_json: Option<String>,

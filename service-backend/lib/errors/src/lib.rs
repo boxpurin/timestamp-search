@@ -53,11 +53,11 @@ impl From<DomainError> for AppError {
             DomainError::ValidationFailure(s) => {
                 tracing::error!("{}", e);
                 AppError::InvalidInput(e.to_string())
-            },
+            }
             DomainError::ParseFailure => {
                 tracing::error!("Domain Parse failure: {}", e);
                 AppError::DomainParseError(e.to_string())
-            },
+            }
         }
     }
 }
@@ -75,7 +75,7 @@ impl From<Youtube3Error> for AppError {
                     "Upload size limit exceeded: {} bytes. Error: {}",
                     i, e
                 ))
-            },
+            }
             Youtube3Error::BadRequest(v) => {
                 tracing::error!("Bad request to YouTube API: {:?}", v);
                 AppError::InvalidInput(format!("Bad request to YouTube API: {:?}", v))
@@ -97,12 +97,16 @@ impl From<Youtube3Error> for AppError {
                 AppError::InvalidInput(format!("Field clash in YouTube API response: {}", s))
             }
             Youtube3Error::JsonDecodeError(s, e) => {
-                tracing::error!("JSON decode error in YouTube API response: {}. Error: {}", s, e);
+                tracing::error!(
+                    "JSON decode error in YouTube API response: {}. Error: {}",
+                    s,
+                    e
+                );
                 AppError::InvalidInput(format!(
                     "JSON decode error in YouTube API response: {}. Error: {}",
                     s, e
                 ))
-            },
+            }
             Youtube3Error::Failure(r) => {
                 tracing::error!("Failure in YouTube API response: {:?}", r);
                 AppError::InternalServerError(format!("Failure in YouTube API response: {:?}", r))

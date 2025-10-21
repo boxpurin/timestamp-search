@@ -18,17 +18,13 @@ pub async fn search_timestamp(
         AppError::InvalidInput(format!("invalid query parameter : {}", e)).into_response()
     })?;
 
-    let r = state
-        .timestamp_search
-        .search_timestamp(query)
-        .await;
+    let r = state.timestamp_search.search_timestamp(query).await;
 
     match r {
         Ok(r) => Ok(Json(r.into())),
         Err(e) => {
             tracing::error!("Search timestamp failed");
             Err(e.into_response())
-        },
+        }
     }
-
 }
