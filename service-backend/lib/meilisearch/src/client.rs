@@ -110,6 +110,7 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
         match result {
             Ok(_) => Ok(true),
             Err(e) => {
+                #[allow(clippy::collapsible_if)]
                 if let MeilisearchError::Meilisearch(e) = &e {
                     if e.error_code == ErrorCode::DocumentNotFound {
                         tracing::info!("DocumentNotFound");
@@ -133,6 +134,7 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
         match result {
             Ok(document) => Ok(Some(document)),
             Err(e) => {
+                #[allow(clippy::collapsible_if)]
                 if let MeilisearchError::Meilisearch(e) = &e {
                     if e.error_code == ErrorCode::DocumentNotFound {
                         return Ok(None);
@@ -190,12 +192,14 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
         let filter_text = {
             let mut v = Vec::<String>::new();
 
+            #[allow(clippy::collapsible_if)]
             if let Some(ids) = search_query.video_ids {
                 if ids.is_empty() {
                     v.push(format!("videoId IN [{}]", ids.join(" , ")));
                 }
             };
 
+            #[allow(clippy::collapsible_if)]
             if let Some(tags) = search_query.video_tags {
                 if tags.is_empty() {
                     v.push(format!("tagId IN [{}]", tags.join(" , ")));
