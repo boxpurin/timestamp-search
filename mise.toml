@@ -9,7 +9,7 @@ MANIFEST_PATH = "service-backend/Cargo.toml"
 
 [tasks.run-fetch]
 description = "Run the video fetch application"
-env = { RUST_LOG = "info" }
+env = { RUST_LOG = "info", MEILI_CONNECTION_ADDR="http://localhost:7700" }
 run = "cargo run --manifest-path ${MANIFEST_PATH} --package video_fetch -- --in-external --out-internal"
 
 [tasks.run-server]
