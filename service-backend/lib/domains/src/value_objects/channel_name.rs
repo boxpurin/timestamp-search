@@ -1,4 +1,4 @@
-use errors::{AppError, AppResult, DomainError};
+use errors::{AppResult, DomainError};
 types::impl_string_value!(ChannelName);
 
 impl ChannelName {

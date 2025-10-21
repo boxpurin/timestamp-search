@@ -50,13 +50,13 @@ pub enum DomainError {
 impl From<DomainError> for AppError {
     fn from(e: DomainError) -> Self {
         match e {
-            DomainError::ValidationFailure(s) => {
+            DomainError::ValidationFailure(_) => {
                 tracing::error!("{}", e);
-                AppError::InvalidInput(e.to_string())
+                AppError::InvalidInput(format!("{}",e))
             }
             DomainError::ParseFailure => {
                 tracing::error!("Domain Parse failure: {}", e);
-                AppError::DomainParseError(e.to_string())
+                AppError::DomainParseError(format!("{}",e))
             }
         }
     }
