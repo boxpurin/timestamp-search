@@ -42,7 +42,7 @@ pub struct VideoTimestampSearchResult {
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Part {
-    VideoDetail,
+    VideoDetails,
     VideoTitle,
     VideoTags,
     ThumbnailUrl,
@@ -55,7 +55,7 @@ impl FromStr for Part {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "videoDetail" => Ok(Part::VideoDetail),
+            "videoDetails" => Ok(Part::VideoDetails),
             "videoTitle" => Ok(Part::VideoTitle),
             "videoTags" => Ok(Part::VideoTags),
             "thumbnailUrl" => Ok(Part::ThumbnailUrl),

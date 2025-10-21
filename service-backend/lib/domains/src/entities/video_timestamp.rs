@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct VideoTimestampEntity {
     pub video_id: VideoId,
     pub timestamp: TimeStamp,
-    pub video_detail: Option<VideoDetail>,
+    pub video_details: Option<VideoDetail>,
 }
 
 impl VideoTimestampEntity {
@@ -13,15 +13,15 @@ impl VideoTimestampEntity {
         VideoTimestampEntity {
             video_id,
             timestamp,
-            video_detail: None,
+            video_details: None,
         }
     }
 
-    pub fn with_details(video_id: VideoId, timestamp: TimeStamp, details: VideoDetail) -> Self {
+    pub fn with_details(video_id: VideoId, timestamp: TimeStamp, details: Option<VideoDetail>) -> Self {
         VideoTimestampEntity {
             video_id,
             timestamp,
-            video_detail: Some(details),
+            video_details: details,
         }
     }
 }

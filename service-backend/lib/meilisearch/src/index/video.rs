@@ -37,7 +37,7 @@ impl VideoIndex {
             channel_id: video.channel.id,
             channel_name: video.channel.name,
             thumbnail_url: video.thumbnail.map(|t| t.url().clone()),
-            actual_start_time: video.actual_start_time.map(|t| t.timestamp()),
+            actual_start_time: video.actual_start_at.map(|t| t.timestamp()),
             published_at: video.published_at.timestamp(),
         }
     }

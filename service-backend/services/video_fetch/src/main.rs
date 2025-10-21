@@ -37,7 +37,7 @@ struct Args {
 #[tokio::main]
 async fn main() -> AppResult<()> {
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
+        .with_max_level(tracing::Level::DEBUG)
         .init();
 
     let args = Args::parse();

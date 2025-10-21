@@ -19,7 +19,7 @@ pub struct VideoEntity {
     pub channel: ChannelEntity,
     pub thumbnail: Option<Thumbnail>,
     pub published_at: DateTime<Utc>,
-    pub actual_start_time: Option<DateTime<Utc>>,
+    pub actual_start_at: Option<DateTime<Utc>>,
 }
 
 impl VideoEntity {
@@ -45,7 +45,7 @@ pub struct VideoEntityBuilder {
     channel: ChannelEntity,
     thumbnail: Option<Thumbnail>,
     published_at: DateTime<Utc>,
-    actual_start_time: Option<DateTime<Utc>>,
+    actual_start_at: Option<DateTime<Utc>>,
 }
 
 impl VideoEntityBuilder {
@@ -58,7 +58,7 @@ impl VideoEntityBuilder {
             channel,
             thumbnail: None,
             published_at: Utc::now(),
-            actual_start_time: None,
+            actual_start_at: None,
         }
     }
 
@@ -83,7 +83,7 @@ impl VideoEntityBuilder {
     }
 
     pub fn with_actual_start_time(mut self, actual_start_time: DateTime<Utc>) -> Self {
-        self.actual_start_time = Some(actual_start_time);
+        self.actual_start_at = Some(actual_start_time);
         self
     }
 
@@ -96,7 +96,7 @@ impl VideoEntityBuilder {
             channel: self.channel,
             thumbnail: self.thumbnail,
             published_at: self.published_at,
-            actual_start_time: self.actual_start_time,
+            actual_start_at: self.actual_start_at,
         })
     }
 }

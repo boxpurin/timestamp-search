@@ -10,8 +10,10 @@ use domains::value_objects::timestamp_id::TimestampId;
 use domains::value_objects::video_id::VideoId;
 use domains::value_objects::video_tag::VideoTag;
 use domains::value_objects::video_title::VideoTitle;
+use domains::value_objects::video_detail::VideoDetail;
 use errors::{AppError, AppResult};
 use serde::{Deserialize, Serialize};
+use domains::value_objects::thumbnail_url::ThumbnailUrl;
 
 // 想定されている型変換は
 // VideoEntity と TimeStamp の２つから TimeStampIndex（とVideoTimeStampDetails）を作り出す
@@ -74,9 +76,16 @@ impl TimeStampIndex {
 
 impl From<TimeStampIndex> for VideoTimestampEntity {
     fn from(v: TimeStampIndex) -> VideoTimestampEntity {
-        VideoTimestampEntity::new(
+        VideoTimestampEntity::with_details(
             v.video_id,
             TimeStamp::new(v.elapsed_time, v.description).unwrap(),
+            v.video_details.map(|d| VideoDetail{
+                video_title: d.video_title,
+                video_tags: d.video_tags,
+                thumbnail_url: d.thumbnail_url,
+                published_at: d.published_at,
+                actual_start_time: d.actual_start_at,
+            }),
         )
     }
 }
@@ -96,33 +105,38 @@ impl Index for TimeStampIndex {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all="camelCase")]
 pub struct VideoTimeStampDetails {
-    pub video_title: VideoTitle,
-    pub tags: Vec<VideoTag>,
-    pub published_at: DateTime<Utc>,
-    pub actual_start_time: Option<DateTime<Utc>>,
+    pub video_title: Option<VideoTitle>,
+    pub video_tags: Option<Vec<VideoTag>>,
+    pub thumbnail_url: Option<ThumbnailUrl>,
+    pub published_at: Option<DateTime<Utc>>,
+    pub actual_start_at: Option<DateTime<Utc>>,
 }
 impl VideoTimeStampDetails {
     pub fn new(
-        video_title: VideoTitle,
-        tags: Vec<VideoTag>,
-        published_at: DateTime<Utc>,
-        actual_start_time: Option<DateTime<Utc>>,
+        video_title: Option<VideoTitle>,
+        video_tags: Option<Vec<VideoTag>>,
+        thumbnail_url: Option<ThumbnailUrl>,
+        published_at: Option<DateTime<Utc>>,
+        actual_start_at: Option<DateTime<Utc>>,
     ) -> Self {
         VideoTimeStampDetails {
             video_title,
-            tags,
+            video_tags,
+            thumbnail_url,
             published_at,
-            actual_start_time,
+            actual_start_at,
         }
     }
 
     pub fn from_entity(video: VideoEntity) -> Self {
         VideoTimeStampDetails::new(
-            video.title,
-            video.tags,
-            video.published_at,
-            video.actual_start_time,
+            Some(video.title),
+            Some(video.tags),
+            video.thumbnail.map(|t| t.url().clone()),
+            Some(video.published_at),
+            video.actual_start_at,
         )
     }
 }

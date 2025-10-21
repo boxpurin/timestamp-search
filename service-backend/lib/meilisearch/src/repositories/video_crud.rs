@@ -34,7 +34,7 @@ impl<T: MeilisearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
     }
 
     async fn add_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
-        tracing::info!("add_video_entities");
+        tracing::debug!("add_video_entities");
         let i: Vec<VideoIndex> = video_entities
             .iter()
             .map(|video_entity| VideoIndex::from_entity(video_entity.clone()))
@@ -48,6 +48,7 @@ impl<T: MeilisearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
     }
 
     async fn update_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
+        tracing::debug!("update_video_entity");
         let i = VideoIndex::from_entity(video_entity.clone());
 
         // Implementation for updating a video entity in MeiliSearch
@@ -59,7 +60,7 @@ impl<T: MeilisearchCrudApi<VideoIndex> + Send + Sync> InternalVideoRepository
     }
 
     async fn update_video_entities(&self, video_entities: &[VideoEntity]) -> AppResult<()> {
-        tracing::info!("update_video_entities");
+        tracing::debug!("update_video_entities");
         let i: Vec<VideoIndex> = video_entities
             .iter()
             .map(|video_entity| VideoIndex::from_entity(video_entity.clone()))

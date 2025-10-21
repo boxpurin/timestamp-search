@@ -71,7 +71,7 @@ impl From<VideoTimestampEntity> for ResponseTimeStamp {
 impl TryFrom<VideoTimestampEntity> for ResponseTimeStampVideoDetails {
     type Error = ();
     fn try_from(entity: VideoTimestampEntity) -> Result<Self, Self::Error> {
-        if let Some(detail) = entity.video_detail {
+        if let Some(detail) = entity.video_details {
             return Ok(Self {
                 title: detail.video_title,
                 thumbnail_url: detail.thumbnail_url,

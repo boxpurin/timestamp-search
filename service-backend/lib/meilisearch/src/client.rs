@@ -9,7 +9,7 @@ use errors::AppResult;
 use itertools::Itertools;
 use meilisearch_sdk::client::Client;
 use meilisearch_sdk::errors::{Error as MeilisearchError, ErrorCode};
-use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResults};
+use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResults, Selectors};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::HashSet;
@@ -72,6 +72,7 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
     }
 
     async fn update_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
+        tracing::debug!("update_entity. index_name : {}", index_name);
         let i = self.client.get_index(index_name).await?;
         let _ = i
             .add_or_update(&[entity], I::pid_field())
@@ -216,51 +217,60 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
         };
 
         if !filter_text.is_empty() {
+            tracing::debug!("filter : {:?}", filter_text);
             q.with_filter(&filter_text);
         }
 
+
         // set attributes_to_search_on
         let mut a = HashSet::new();
+        a.insert("pid");
+        a.insert("videoId");
         a.insert("description");
+        a.insert("elapsedTime");
 
+        tracing::debug!("parts : {:?}", search_query.parts);
         if let Some(parts) = search_query.parts {
             for part in parts {
                 match part {
-                    Part::VideoDetail => {
-                        a.insert("videoDetail.videoTitle");
-                        a.insert("videoDetail.videoTags");
-                        a.insert("videoDetail.thumbnailUrl");
-                        a.insert("videoDetail.actualStartAt");
-                        a.insert("videoDetail.publishedAt");
+                    Part::VideoDetails => {
+                        a.insert("videoDetails.videoTitle");
+                        a.insert("videoDetails.videoTags");
+                        a.insert("videoDetails.thumbnailUrl");
+                        a.insert("videoDetails.actualStartAt");
+                        a.insert("videoDetails.publishedAt");
                     }
                     Part::VideoTitle => {
-                        a.insert("videoDetail.videoTitle");
+                        a.insert("videoDetails.videoTitle");
                     }
                     Part::VideoTags => {
-                        a.insert("videoDetail.videoTags");
+                        a.insert("videoDetails.videoTags");
                     }
                     Part::ThumbnailUrl => {
-                        a.insert("videoDetail.thumbnailUrl");
+                        a.insert("videoDetails.thumbnailUrl");
                     }
                     Part::ActualStartAt => {
-                        a.insert("videoDetail.actualStartAt");
+                        a.insert("videoDetails.actualStartAt");
                     }
                     Part::PublishedAt => {
-                        a.insert("videoDetail.publishedAt");
+                        a.insert("videoDetails.publishedAt");
                     }
                 };
             }
         }
 
         let a = Vec::from_iter(a);
-        q.with_attributes_to_search_on(&a);
+        tracing::debug!("with_attributes_to_retrieve : {:?}", a);
+        q.with_attributes_to_retrieve(Selectors::Some(&a));
 
+        tracing::debug!("Search page : {:?}", search_query.page);
         q.with_page(search_query.page.into());
+        tracing::debug!("Search per_page : {:?}", search_query.per_page);
         q.with_hits_per_page(search_query.per_page.into());
+        tracing::debug!("Search limit : {:?}", search_query.limit);
         q.with_limit(search_query.limit.into());
 
-        tracing::debug!("Search query : {:?}", q);
-
+        tracing::debug!("Search query : {:?}", search_query.query);
         Ok(q.execute().await?)
     }
 }
