@@ -84,3 +84,66 @@ impl Index for VideoIndex {
         &CONFIG.video_index_name
     }
 }
+
+#[cfg(test)]
+mod unit_tests {
+    use super::*;
+    use crate::index::video::VideoIndex;
+    use domains::entities::channel::ChannelEntity;
+    use domains::entities::video::VideoEntityBuilder;
+    use domains::value_objects::channel_name::ChannelName;
+    use domains::value_objects::video_description::VideoDescription;
+    use domains::value_objects::video_id::VideoId;
+    use rstest::rstest;
+
+    #[rstest]
+    fn conversion_index_entity_test() -> anyhow::Result<()> {
+        let id = VideoId::new("abc-def-ghi")?;
+        let title = VideoTitle::new("VideoTitle")?;
+        let description = VideoDescription::new("Description")?;
+        let channel_name = ChannelName::new("Channel Name")?;
+        let channel = ChannelEntity::with_random_id(channel_name.clone());
+        let channel_id = channel.id.clone();
+
+        let entity = VideoEntityBuilder::new(id.clone(), title.clone(), channel.clone())
+            .with_description(description)
+            .construct()?;
+        let index = VideoIndex::from_entity(entity.clone());
+
+        // conversion check
+        assert_eq!(index.video_id, entity.id);
+        assert_eq!(index.video_tags, entity.tags);
+        assert_eq!(index.video_title, entity.title);
+        assert_eq!(index.video_description, entity.description);
+        assert_eq!(
+            index.thumbnail_url,
+            entity.thumbnail.map(|t| t.url().clone())
+        );
+        assert_eq!(index.channel_id, channel_id);
+        assert_eq!(index.channel_name, entity.channel.name);
+        assert_eq!(index.published_at, entity.published_at.timestamp());
+        assert_eq!(
+            index.actual_start_time,
+            entity.actual_start_at.map(|t| t.timestamp())
+        );
+
+        let entity = VideoEntity::from(index.clone());
+        assert_eq!(index.video_id, entity.id);
+        assert_eq!(index.video_tags, entity.tags);
+        assert_eq!(index.video_title, entity.title);
+        assert_eq!(index.video_description, entity.description);
+        assert_eq!(
+            index.thumbnail_url,
+            entity.thumbnail.map(|t| t.url().clone())
+        );
+        assert_eq!(index.channel_id, channel_id);
+        assert_eq!(index.channel_name, entity.channel.name);
+        assert_eq!(index.published_at, entity.published_at.timestamp());
+        assert_eq!(
+            index.actual_start_time,
+            entity.actual_start_at.map(|t| t.timestamp())
+        );
+
+        Ok(())
+    }
+}
