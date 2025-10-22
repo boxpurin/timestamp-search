@@ -34,7 +34,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .layer(axum::middleware::from_fn(access_log_console))
         .with_state(state.clone());
-
+    
+    tracing::info!("server start listen addr : {}", SERVER_CONFIG.listen_addr());
     let listener = tokio::net::TcpListener::bind(SERVER_CONFIG.listen_addr()).await?;
     let ret = axum::serve(listener, app).await;
 
