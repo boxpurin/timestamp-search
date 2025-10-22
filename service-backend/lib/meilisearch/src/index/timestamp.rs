@@ -144,9 +144,10 @@ impl VideoTimeStampDetails {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    use crate::index::video::VideoIndex;
+    use crate::index::timestamp::{TimeStampIndex, VideoTimeStampDetails};
     use domains::entities::channel::ChannelEntity;
     use domains::entities::video::VideoEntityBuilder;
+    use domains::value_objects::timestamp::TimeStamp;
     use domains::value_objects::channel_name::ChannelName;
     use domains::value_objects::video_description::VideoDescription;
     use domains::value_objects::video_id::VideoId;
@@ -159,46 +160,36 @@ mod unit_tests {
         let description = VideoDescription::new("Description")?;
         let channel_name = ChannelName::new("Channel Name")?;
         let channel = ChannelEntity::with_random_id(channel_name.clone());
-        let channel_id = channel.id.clone();
+        let _channel_id = channel.id.clone();
 
-        let entity = VideoEntityBuilder::new(id.clone(), title.clone(), channel.clone())
+        let video = VideoEntityBuilder::new(id.clone(), title.clone(), channel.clone())
             .with_description(description)
             .construct()?;
-        let index = VideoIndex::from_entity(entity.clone());
 
-        // conversion check
-        assert_eq!(index.video_id, entity.id);
-        assert_eq!(index.video_tags, entity.tags);
-        assert_eq!(index.video_title, entity.title);
-        assert_eq!(index.video_description, entity.description);
-        assert_eq!(
-            index.thumbnail_url,
-            entity.thumbnail.map(|t| t.url().clone())
-        );
-        assert_eq!(index.channel_id, channel_id);
-        assert_eq!(index.channel_name, entity.channel.name);
-        assert_eq!(index.published_at, entity.published_at.timestamp());
-        assert_eq!(
-            index.actual_start_time,
-            entity.actual_start_at.map(|t| t.timestamp())
-        );
+        let timestamp = TimeStamp {
+            description: TimeStampDescription::new("test")?,
+            elapsed_time: ElapsedTime::new(100)?,
+        };
 
-        let entity = VideoEntity::from(index.clone());
-        assert_eq!(index.video_id, entity.id);
-        assert_eq!(index.video_tags, entity.tags);
-        assert_eq!(index.video_title, entity.title);
-        assert_eq!(index.video_description, entity.description);
-        assert_eq!(
-            index.thumbnail_url,
-            entity.thumbnail.map(|t| t.url().clone())
-        );
-        assert_eq!(index.channel_id, channel_id);
-        assert_eq!(index.channel_name, entity.channel.name);
-        assert_eq!(index.published_at, entity.published_at.timestamp());
-        assert_eq!(
-            index.actual_start_time,
-            entity.actual_start_at.map(|t| t.timestamp())
-        );
+        let index = TimeStampIndex::from_entity(video, timestamp.clone());
+
+        assert_eq!(index.pid, TimestampId::new(&id, &timestamp)?);
+        assert_eq!(index.video_id, id);
+        assert_eq!(index.description, timestamp.description);
+        assert_eq!(index.elapsed_time, timestamp.elapsed_time);
+
+        index.video_details.as_ref().map(|d| {
+            assert_eq!(d.video_title, Some(title));
+            assert_eq!(d.video_tags, Some(vec![]));
+            assert_eq!(d.thumbnail_url, None);
+            assert!(d.published_at.is_some()); // published_atは生成時に自動でなにか入っている
+            assert_eq!(d.actual_start_at, None);
+        });
+
+        let e = index.clone().into_entity();
+        let e2 = VideoTimestampEntity::from(index.clone());
+
+        assert_eq!(e, e2);
 
         Ok(())
     }
