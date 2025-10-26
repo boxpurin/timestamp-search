@@ -23,7 +23,7 @@ pub struct VideoIndex {
     pub channel_id: ChannelId,
     pub channel_name: ChannelName,
     pub thumbnail_url: Option<ThumbnailUrl>,
-    pub actual_start_time: Option<i64>,
+    pub actual_start_at: Option<i64>,
     pub published_at: i64,
 }
 
@@ -37,7 +37,7 @@ impl VideoIndex {
             channel_id: video.channel.id,
             channel_name: video.channel.name,
             thumbnail_url: video.thumbnail.map(|t| t.url().clone()),
-            actual_start_time: video.actual_start_at.map(|t| t.timestamp()),
+            actual_start_at: video.actual_start_at.map(|t| t.timestamp()),
             published_at: video.published_at.timestamp(),
         }
     }
@@ -64,7 +64,7 @@ impl From<VideoIndex> for VideoEntity {
             builder = builder.with_thumbnail(Thumbnail::new(url, 320, 240).unwrap());
         }
 
-        if let Some(t) = v.actual_start_time {
+        if let Some(t) = v.actual_start_at {
             builder = builder.with_actual_start_time(DateTime::from_timestamp(t, 0).unwrap());
         }
         builder.construct().unwrap()
@@ -123,7 +123,7 @@ mod unit_tests {
         assert_eq!(index.channel_name, entity.channel.name);
         assert_eq!(index.published_at, entity.published_at.timestamp());
         assert_eq!(
-            index.actual_start_time,
+            index.actual_start_at,
             entity.actual_start_at.map(|t| t.timestamp())
         );
 
@@ -140,7 +140,7 @@ mod unit_tests {
         assert_eq!(index.channel_name, entity.channel.name);
         assert_eq!(index.published_at, entity.published_at.timestamp());
         assert_eq!(
-            index.actual_start_time,
+            index.actual_start_at,
             entity.actual_start_at.map(|t| t.timestamp())
         );
 
