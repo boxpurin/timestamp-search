@@ -3,7 +3,7 @@ use api::app_state::AppState;
 use api::middleware::{access_log_console, use_backet};
 use api::route::router;
 use api::service::TimeStampSearchService;
-use axum::http::{Method, HeaderValue};
+use axum::http::{Method, HeaderValue, header::{AUTHORIZATION}};
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
@@ -18,6 +18,7 @@ fn use_cors() -> CorsLayer{
             "http://localhost:3000".parse::<HeaderValue>().unwrap(),
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
         ])
+        .allow_headers(vec![AUTHORIZATION])
 }
 
 #[tokio::main]
