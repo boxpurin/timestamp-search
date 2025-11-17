@@ -7,6 +7,7 @@ use axum::http::{Method, HeaderValue, header::{AUTHORIZATION}};
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
+use tracing::Level;
 
 mod api;
 
@@ -23,7 +24,9 @@ fn use_cors() -> CorsLayer{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(Level::DEBUG)
+        .init();
 
     let ts = Arc::new(
         meilisearch::repositories::timestamp_search::create_meilisearch_timestamp_search_repository(
