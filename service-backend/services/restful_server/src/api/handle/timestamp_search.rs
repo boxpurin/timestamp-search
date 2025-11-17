@@ -13,15 +13,20 @@ pub async fn search_timestamp(
     Query(query): Query<SearchTimeStampRequest>,
 ) -> Result<Json<SearchTimeStampResponse>, Response> {
     tracing::debug!("Search timestamp: {:?}", Utc::now());
+
     query.validate().map_err(|e| {
         tracing::error!("Query validation failed. report : {}", e);
         AppError::InvalidInput(format!("invalid query parameter : {}", e)).into_response()
     })?;
 
+    tracing::info!("Search timestamp : {:?}", query);
     let r = state.timestamp_search.search_timestamp(query).await;
 
     match r {
-        Ok(r) => Ok(Json(r.into())),
+        Ok(r) => {
+            tracing::info!("search timestamp succeed.");
+            Ok(Json(r.into()))
+        },
         Err(e) => {
             tracing::error!("Search timestamp failed");
             Err(e.into_response())
