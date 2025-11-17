@@ -28,6 +28,7 @@ impl ApiClient {
         let client = Client::new(&CONFIG.connection_addr, Some(&CONFIG.master_key))
             .expect("Error creating meilisearch client");
 
+        tracing::info!("Connection to MeiliSearch established");
         Self { client }
     }
 }
