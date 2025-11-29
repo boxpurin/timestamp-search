@@ -40,7 +40,7 @@ pub struct ResponseTimeStampVideoDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     published_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    actual_start_time: Option<DateTime<Utc>>,
+    actual_start_at: Option<DateTime<Utc>>,
 }
 
 impl From<VideoTimestampSearchResult> for SearchTimeStampResponse {
@@ -77,7 +77,7 @@ impl TryFrom<VideoTimestampEntity> for ResponseTimeStampVideoDetails {
                 thumbnail_url: detail.thumbnail_url,
                 tags: detail.video_tags,
                 published_at: detail.published_at,
-                actual_start_time: detail.actual_start_at,
+                actual_start_at: detail.actual_start_at,
             });
         };
 
