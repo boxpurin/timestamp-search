@@ -1,91 +1,42 @@
+experimental_monorepo_root = true
+
 [tools]
 node = "lts"
 pnpm = "latest"
 uv = "latest"
 
 [env]
-_.file = '.env.{{ env.PROJECT_ENV | default(value="dev") }}'
+_.file = ['.env.dev', '.env.gcp']
 MANIFEST_PATH = "service-backend/Cargo.toml"
-
-[tasks.run-fetch]
-description = "Run the video fetch application"
-env = { RUST_LOG = "info", MEILI_CONNECTION_ADDR="http://localhost:7700" }
-run = "cargo run --manifest-path ${MANIFEST_PATH} --package video_fetch -- --in-external --out-internal"
-
-[tasks.run-server]
-description = "Run the server application"
-run = "cargo run --manifest-path ${MANIFEST_PATH} --package restful_server"
-
-[tasks.build-all]
-description = "Build all packages in the workspace"
-run = "cargo build --manifest-path ${MANIFEST_PATH} --all"
-
-[tasks.build-video-fetch]
-description = "Build the video fetch package"
-run = "cargo build --manifest-path ${MANIFEST_PATH} --package video_fetch"
-
-[tasks.build-server]
-description = "Build the server package"
-run = "cargo build --manifest-path ${MANIFEST_PATH} --package restful_server"
-
-[tasks.check]
-description = "Check all packages in the workspace"
-run = "cargo check --manifest-path ${MANIFEST_PATH} --all-targets --all-features"
-
-[tasks.fmt]
-description = "Format all packages in the workspace"
-run = "cargo fmt --manifest-path ${MANIFEST_PATH} --all --verbose"
-
-[tasks.clippy]
-description = "Run Clippy on all packages in the workspace"
-run = "cargo clippy --manifest-path ${MANIFEST_PATH} --all-targets --all-features -- -D warnings"
-
-[tasks.watch]
-description = "Fix all packages in the workspace"
-depends = ["fmt", "clippy", "test-all"]
-
-[tasks.test-install]
-run = ["cargo install cargo-nextest"]
-description = "Install cargo-nextest if not available"
-
-[tasks.test-all]
-description = "Run tests using cargo-nextest"
-depends = "test-install"
-run = [
-  "cargo nextest run --manifest-path ${MANIFEST_PATH} --workspace --nocapture --status-level all",
-]
-
-[tasks.run-unit-test]
-description = "Run unit tests in the workspace"
-depends = "test-install"
-run = "cargo nextest run --manifest-path ${MANIFEST_PATH} unit_tests --workspace --nocapture --status-level all"
-env = { RUST_BACKTRACE = "1", PROJECT_ENV = "test" }
-
-[tasks.unit-test]
-description = "Run unit tests in the workspace"
-run = [
-  "mise run compose-up-test",
-  "mise run test-install",
-  "mise run run-unit-test",
-  "mise run compose-remove",
-]
-env = { RUST_BACKTRACE = "1", PROJECT_ENV = "test" }
-
-[tasks.run-integral-test]
-description = "Run all tests in the workspace"
-run = "cargo nextest run --manifest-path service-backend/Cargo.toml integral_tests --workspace --nocapture --status-level all"
-env = { RUST_BACKTRACE = "1", PROJECT_ENV = "test" }
-
-[tasks.integral-test]
-description = "Run all tests in the workspace"
-run = ["mise run test-install", "mise run run-integral-test"]
-env = { RUST_BACKTRACE = "1", PROJECT_ENV = "test" }
 
 #docker images
 [tasks.build-server-image]
 description = "Build docker image for the restful server"
-run = "docker build -t eg_test -f docker/restful_server/Dockerfile ."
+run = "docker build -t tss-server:latest -f docker/restful_server/Dockerfile ."
 
+[tasks.build-deploy-image]
+run = "docker build -t us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/timestamp-search-restful-server:latest -f docker/restful_server/Dockerfile ."
+
+[tasks.push-deploy-image]
+run = "docker push us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/timestamp-search-restful-server:latest"
+
+[tasks.deploy-server]
+run = "bash ./.local/scripts/deploy.sh"
+
+
+[tasks.build-fetcher-image]
+description = "Build docker image for the restful server"
+run = "docker build -t tss-video-fetch:latest -f docker/video_fetch/Dockerfile ."
+
+[tasks.build-deploy-fetcher-image]
+run = "docker build -t us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/video-fetcher:latest -f docker/video_fetch/Dockerfile ."
+
+[tasks.push-deploy-fetcher-image]
+run = "docker push us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/video-fetcher:latest"
+
+[tasks.deploy-fetcher]
+run = "bash ./.local/scripts/deploy-fetcher.sh"
+#exec from images
 
 #docker-compose
 [tasks.compose-build]
@@ -112,25 +63,3 @@ run = "docker compose logs -f"
 [tasks.compose-up-test]
 description = "Start Docker containers for test for the workspace"
 run = "docker compose up -d meilisearch"
-
-# meilisearch python
-[tasks.setup-meili]
-description = "Setup Meilisearch indexes"
-run = [
-  "uv --directory scripts pip install -r requirements.txt ",
-  "uv --directory scripts run setup_meili_indexes.py",
-]
-
-[tasks.video-index-stats]
-description = "Show Meilisearch indexes stats"
-run = [
-  "uv --directory scripts pip install -r requirements.txt ",
-  "uv --directory scripts run index_stats.py videos",
-]
-
-[tasks.timestamp-index-stats]
-description = "Show Meilisearch indexes stats"
-run = [
-  "uv --directory scripts pip install -r requirements.txt ",
-  "uv --directory scripts run index_stats.py timestamps",
-]

@@ -1,0 +1,8 @@
+[tools]
+uv = "latest"
+
+[tasks.run-update-local]
+run = "uv run src/update-settings/main.py"
+
+[tasks.update-timestamp-indexes]
+run = "uv run src/update-settings/main.py settings/timestamp_index_settings.json"

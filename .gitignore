@@ -6,15 +6,11 @@
 .idea
 .local
 .vscode
-scripts/.venv
 .node_modules
 node_modules
 .env
 .env.dev
 AGENTS.md
-backend/Cargo.lock
-uv.lock
 pnpm-lock.yaml
-__pycache__
 .serena
 .mise

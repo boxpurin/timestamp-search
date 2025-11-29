@@ -1,0 +1,76 @@
+[env]
+_.file = '../.env.dev'
+RUST_BACKTRACE = 1
+RUST_LOG = "info"
+
+[tasks.run-fetch]
+description = "Run the video fetch application"
+env = { MEILI_CONNECTION_ADDR = "http://localhost:7700" }
+run = "cargo run --package video_fetch -- --in-external --out-internal"
+
+[tasks.run-server]
+description = "Run the server application"
+run = "cargo run --package restful_server"
+
+[tasks.build-all]
+description = "Build all packages in the workspace"
+run = "cargo build --all"
+
+[tasks.build-fetch-cli]
+description = "Build the video fetch package"
+run = "cargo build --package video_fetch"
+
+[tasks.build-server]
+description = "Build the server package"
+run = "cargo build  --package restful_server"
+
+[tasks.check]
+description = "Check all packages in the workspace"
+run = "cargo check --all-targets --all-features"
+
+[tasks.fmt]
+description = "Format all packages in the workspace"
+run = "cargo fmt --all --verbose"
+
+[tasks.clippy]
+description = "Run Clippy on all packages in the workspace"
+run = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[tasks.watch]
+description = "Fix all packages in the workspace"
+depends = ["fmt", "clippy", "test-all"]
+
+[tasks.test-install]
+run = ["cargo install cargo-nextest"]
+description = "Install cargo-nextest if not available"
+
+[tasks.test-all]
+description = "Run tests using cargo-nextest"
+depends = "test-install"
+run = [
+    "cargo nextest run --workspace --nocapture --status-level all",
+]
+
+[tasks.run-unit-test]
+description = "Run unit tests in the workspace"
+depends = "test-install"
+run = "cargo nextest run unit_tests --workspace --nocapture --status-level all"
+
+[tasks.unit-test]
+description = "Run unit tests in the workspace"
+env._.file = ".env.test"
+run = [
+    "mise run compose-up-test",
+    "mise run test-install",
+    "mise run run-unit-test",
+    "mise run compose-remove",
+]
+
+[tasks.run-integral-test]
+description = "Run all tests in the workspace"
+run = "cargo nextest run integral_tests --workspace --nocapture --status-level all"
+
+[tasks.integral-test]
+description = "Run all tests in the workspace"
+env._.file = ".env.test"
+run = ["mise run test-install", "mise run run-integral-test"]
