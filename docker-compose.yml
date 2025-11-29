@@ -1,5 +1,5 @@
 services:
-  restful_server:
+  restful-server:
     build:
       context: .
       dockerfile: ./docker/restful_server/Dockerfile
