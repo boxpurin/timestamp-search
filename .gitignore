@@ -17,3 +17,4 @@ uv.lock
 pnpm-lock.yaml
 __pycache__
 .serena
+.mise
