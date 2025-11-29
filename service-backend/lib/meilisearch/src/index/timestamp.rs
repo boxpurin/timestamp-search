@@ -1,6 +1,6 @@
 use crate::config::CONFIG;
 use crate::index::Index;
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use domains::entities::video::VideoEntity;
 use domains::entities::video_timestamp::VideoTimestampEntity;
 use domains::value_objects::elapsed_time::ElapsedTime;
@@ -83,8 +83,8 @@ impl From<TimeStampIndex> for VideoTimestampEntity {
                 video_title: d.video_title,
                 video_tags: d.video_tags,
                 thumbnail_url: d.thumbnail_url,
-                published_at: d.published_at,
-                actual_start_at: d.actual_start_at,
+                published_at: d.published_at.map(|t| DateTime::from_timestamp(t,0)).unwrap_or(None),
+                actual_start_at: d.actual_start_at.map(|t| DateTime::from_timestamp(t,0)).unwrap_or(None),
             }),
         )
     }
@@ -110,16 +110,16 @@ pub struct VideoTimeStampDetails {
     pub video_title: Option<VideoTitle>,
     pub video_tags: Option<Vec<VideoTag>>,
     pub thumbnail_url: Option<ThumbnailUrl>,
-    pub published_at: Option<DateTime<Utc>>,
-    pub actual_start_at: Option<DateTime<Utc>>,
+    pub published_at: Option<i64>,
+    pub actual_start_at: Option<i64>,
 }
 impl VideoTimeStampDetails {
     pub fn new(
         video_title: Option<VideoTitle>,
         video_tags: Option<Vec<VideoTag>>,
         thumbnail_url: Option<ThumbnailUrl>,
-        published_at: Option<DateTime<Utc>>,
-        actual_start_at: Option<DateTime<Utc>>,
+        published_at: Option<i64>,
+        actual_start_at: Option<i64>,
     ) -> Self {
         VideoTimeStampDetails {
             video_title,
@@ -135,8 +135,8 @@ impl VideoTimeStampDetails {
             Some(video.title),
             Some(video.tags),
             video.thumbnail.map(|t| t.url().clone()),
-            Some(video.published_at),
-            video.actual_start_at,
+            Some(video.published_at.timestamp()),
+            video.actual_start_at.map(|t| t.timestamp()),
         )
     }
 }
@@ -144,7 +144,7 @@ impl VideoTimeStampDetails {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    use crate::index::timestamp::{TimeStampIndex, VideoTimeStampDetails};
+    use crate::index::timestamp::TimeStampIndex;
     use domains::entities::channel::ChannelEntity;
     use domains::entities::video::VideoEntityBuilder;
     use domains::value_objects::timestamp::TimeStamp;
