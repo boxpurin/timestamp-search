@@ -1,0 +1,11 @@
+.venv
+__pycache__
+uv.lock
+
+.env**
+
+# mise
+.mise-tasks/
+
+# update-settings
+update-settings/
