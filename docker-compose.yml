@@ -2,7 +2,7 @@ services:
   restful-server:
     build:
       context: .
-      dockerfile: ./docker/restful_server/Dockerfile
+      dockerfile: ./service-backend/services/restful_server/Dockerfile
     ports:
       - "${TSS_APP_PORT}:${TSS_APP_PORT}"
     environment:
