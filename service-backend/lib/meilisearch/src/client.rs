@@ -188,6 +188,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
 
         // set query
         q.with_query(search_query.query.as_str());
+        q.with_attributes_to_search_on(&["description"]);
 
         // construct filter
         let filter_text = {
