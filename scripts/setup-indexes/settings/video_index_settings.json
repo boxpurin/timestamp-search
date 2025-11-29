@@ -4,27 +4,28 @@
   ],
   "searchableAttributes": [
     "videoId",
-    "description",
-    "videoDetails.actualStartTime"
+    "channelId",
+    "videoTitle",
+    "publishedAt",
+    "actualStartAt"
   ],
   "filterableAttributes": [
-    "videoId",
-    "videoDetails.videoTags",
-    "videoDetails.publishedAt",
-    "videoDetails.actualStartTime"
+    "channelId",
+    "videoTags",
+    "publishedAt",
+    "actualStartAt"
   ],
   "sortableAttributes": [
-    "videoId",
-    "videoDetails.publishedAt",
-    "videoDetails.actualStartTime"
+    "publishedAt",
+    "actualStartAt"
   ],
   "rankingRules":
   [
     "words",
+    "sort",
     "typo",
     "proximity",
     "attribute",
-    "sort",
     "exactness"
   ],
   "stopWords": [],
@@ -52,6 +53,6 @@
   "proximityPrecision": "byWord",
   "facetSearch": true,
   "prefixSearch": "indexingTime",
-  "searchCutoffMs": 15000,
+  "searchCutoffMs": 10000,
   "embedders": {}
 }
