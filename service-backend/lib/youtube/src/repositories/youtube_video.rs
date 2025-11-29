@@ -1,3 +1,4 @@
+use std::path::Path;
 use crate::adapter::video::VideoEntityConverter;
 use crate::config::YOUTUBE_CLIENT;
 use domains::entities::video::VideoEntity;
@@ -17,17 +18,30 @@ pub struct YoutubeVideoRepository {
 }
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
-    tracing::info!("read_application_secret");
+
+
+    tracing::info!("Read secret token.");
+    let src = Path::new(&YOUTUBE_CLIENT.persistent_token_path);
+    let dst = Path::new("/tmp/secret_token.json");
+    
+    if src.exists(){
+        std::fs::copy(src, dst).expect("Failed to copy secret token file.");
+        tracing::info!("Token copied to temporary directory.");
+    } else {
+        tracing::warn!("Missing token file.");
+    }
+
+    tracing::info!("Read application secret");
     let secret = yup_oauth2::read_application_secret(&YOUTUBE_CLIENT.google_client_secret_path)
         .await
         .expect("TSSEARCH_GOOGLE_CLIENT_SECRET_PATH FILE NOT FOUND");
 
-    tracing::info!("read_client_secret");
+    tracing::info!("Build authenticator.");
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
     )
-    .persist_tokens_to_disk(&YOUTUBE_CLIENT.persistent_token_path)
+    .persist_tokens_to_disk(dst)
     .build()
     .await
     .expect("InstalledFlowAuthenticator: builder");
