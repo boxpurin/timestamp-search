@@ -1,16 +1,27 @@
 /target
-/backend/infra/youtube/local
+
+# Rustrover
 .idea/**/workspace.xml
 .idea/**/statistics.xml
 .idea/**/tasks.xml
 .idea
+
+.env.*
+
+# local
 .local
+
+# VSCode
 .vscode
-.node_modules
+
+# pnpm
 node_modules
-.env
-.env.dev
-AGENTS.md
 pnpm-lock.yaml
-.serena
+
+
+# mise
 .mise
+
+# AI
+AGENTS.md
+.serena
