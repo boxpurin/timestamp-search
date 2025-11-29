@@ -13,8 +13,8 @@ class MeilisearchIndexSetup:
             host: Meilisearchサーバーのホスト
             api_key: APIキー（必要に応じて）
         """
-#        host: str = os.environ.get("MEILI_CONNECTION_ADDR", "http://localhost:7700")
-        host: str = "http://localhost:7700"
+        host: str = os.environ.get("MEILI_CONNECTION_ADDR", "http://localhost:7700")
+#        host: str = "http://localhost:7700"
         api_key: Optional[str] = os.environ.get("MEILI_MASTER_KEY", None)
         self.client = meilisearch.Client(host, api_key)
 
