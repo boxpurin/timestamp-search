@@ -5,11 +5,12 @@ RUST_LOG = "info"
 
 [tasks.run-fetch]
 description = "Run the video fetch application"
-env = { MEILI_CONNECTION_ADDR = "http://localhost:7700" }
+env = { MEILI_CONNECTION_ADDR = "http://localhost:7700", RUST_LOG = "debug" }
 run = "cargo run --package video_fetch -- --in-external --out-internal"
 
 [tasks.run-server]
 description = "Run the server application"
+env = { RUST_LOG = "debug" }
 run = "cargo run --package restful_server"
 
 [tasks.build-all]
