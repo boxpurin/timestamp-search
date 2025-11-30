@@ -274,8 +274,8 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
         q.with_hits_per_page(search_query.per_page.into());
         tracing::debug!("Search limit : {:?}", search_query.limit);
         q.with_limit(search_query.limit.into());
-        tracing::debug!("Search Sort : videoDetails.actualStartAt:dsc");
-        q.with_sort(&["videoDetails.actualStartAt:dsc"]);
+        tracing::debug!("Search Sort : videoDetails.actualStartAt:desc");
+        q.with_sort(&["videoDetails.actualStartAt:desc"]);
 
         tracing::debug!("Search query : {:?}", search_query.query);
         Ok(q.execute().await?)
