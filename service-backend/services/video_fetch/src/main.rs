@@ -7,6 +7,7 @@ use meilisearch::repositories::{
 };
 use std::fs::File;
 use std::sync::Arc;
+use tracing_subscriber::EnvFilter;
 use usecase::timestamp_indexing_service::TimeStampIndexingService;
 use usecase::timestamp_parser_service::TimeStampParserService;
 use usecase::video_fetch_service::VideoFetchService;
@@ -36,8 +37,9 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> AppResult<()> {
+    // Parsing an EnvFilter from the default environment variable (RUST_LOG):
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
 
     let args = Args::parse();

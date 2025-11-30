@@ -7,7 +7,7 @@ use axum::http::{Method, HeaderValue, header::{AUTHORIZATION}};
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
-use tracing::Level;
+use tracing_subscriber::EnvFilter;
 
 mod api;
 
@@ -24,7 +24,7 @@ fn use_cors() -> CorsLayer{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
-        .with_max_level(Level::DEBUG)
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
 
     let ts = Arc::new(
