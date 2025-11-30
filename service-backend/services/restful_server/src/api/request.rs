@@ -50,6 +50,11 @@ pub struct SearchTimeStampRequest {
     pub per_page: Option<usize>,
 }
 
+///
+/// 受け取ったリクエストを元にドメイン層の検索クエリに変換
+/// # Params
+/// - search_time_stamp : 検索リクエスト
+///
 impl TryFrom<SearchTimeStampRequest> for VideoTimestampSearchQuery {
     type Error = errors::AppError;
     fn try_from(
