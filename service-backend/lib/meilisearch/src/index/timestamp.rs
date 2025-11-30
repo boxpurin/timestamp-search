@@ -178,13 +178,13 @@ mod unit_tests {
         assert_eq!(index.description, timestamp.description);
         assert_eq!(index.elapsed_time, timestamp.elapsed_time);
 
-        index.video_details.as_ref().map(|d| {
+        if let Some(d) = index.video_details.as_ref() {
             assert_eq!(d.video_title, Some(title));
             assert_eq!(d.video_tags, Some(vec![]));
             assert_eq!(d.thumbnail_url, None);
             assert!(d.published_at.is_some()); // published_atは生成時に自動でなにか入っている
             assert_eq!(d.actual_start_at, None);
-        });
+        };
 
         let e = index.clone().into_entity();
         let e2 = VideoTimestampEntity::from(index.clone());
