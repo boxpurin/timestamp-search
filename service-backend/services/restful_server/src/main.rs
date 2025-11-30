@@ -33,15 +33,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     let service = TimeStampSearchService::new(ts);
 
+    tracing::trace!("Initialize RateLimiter.");
     let limiter = RateLimiter::builder()
         .interval(core::time::Duration::from_secs(100))
         .initial(500)
         .refill(50)
         .max(1000)
         .build();
+    tracing::trace!("RateLimiter initialized. : {:?}", limiter);
 
+    tracing::trace!("Initialize AppState.");
     let state = AppState::new(service, limiter);
+    tracing::trace!("AppState initialized.");
 
+    tracing::trace!("Initialize Router.");
     let app = router()
         .layer(use_cors())
         .layer(axum::middleware::from_fn_with_state(
@@ -50,6 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .layer(axum::middleware::from_fn(access_log_console))
         .with_state(state.clone());
+    tracing::trace!("Router initialized.");
     
     tracing::info!("server start listen addr : {}", SERVER_CONFIG.listen_addr());
     let listener = tokio::net::TcpListener::bind(SERVER_CONFIG.listen_addr()).await?;
@@ -60,5 +66,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err(e.into());
     }
 
+    tracing::info!("Server shutdown.");
     Ok(())
 }
