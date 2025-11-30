@@ -1,8 +1,6 @@
 services:
   restful-server:
-    build:
-      context: .
-      dockerfile: ./service-backend/services/restful_server/Dockerfile
+    image: boxpurin/timestamp-search/server:latest
     ports:
       - "${TSS_APP_PORT}:${TSS_APP_PORT}"
     environment:
