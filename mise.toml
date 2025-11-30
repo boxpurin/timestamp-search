@@ -9,35 +9,6 @@ uv = "latest"
 _.file = ['.env.dev', '.env.gcp']
 MANIFEST_PATH = "service-backend/Cargo.toml"
 
-#docker images
-[tasks.build-server-image]
-description = "Build docker image for the restful server"
-run = "docker build -t tss-server:latest -f docker/restful_server/Dockerfile ."
-
-[tasks.build-deploy-image]
-run = "docker build -t us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/timestamp-search-restful-server:latest -f docker/restful_server/Dockerfile ."
-
-[tasks.push-deploy-image]
-run = "docker push us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/timestamp-search-restful-server:latest"
-
-[tasks.deploy-server]
-run = "bash ./.local/scripts/deploy.sh"
-
-
-[tasks.build-fetcher-image]
-description = "Build docker image for the restful server"
-run = "docker build -t tss-video-fetch:latest -f docker/video_fetch/Dockerfile ."
-
-[tasks.build-deploy-fetcher-image]
-run = "docker build -t us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/video-fetcher:latest -f docker/video_fetch/Dockerfile ."
-
-[tasks.push-deploy-fetcher-image]
-run = "docker push us-central1-docker.pkg.dev/basic-cat-448106-g5/timestamp-search-restful-server/video-fetcher:latest"
-
-[tasks.deploy-fetcher]
-run = "bash ./.local/scripts/deploy-fetcher.sh"
-#exec from images
-
 #docker-compose
 [tasks.compose-build]
 description = "Build Docker images for the workspace"
@@ -58,8 +29,3 @@ run = "docker compose rm -f"
 [tasks.compose-logs]
 description = "Show logs from Docker containers"
 run = "docker compose logs -f"
-
-# docker-compose for test
-[tasks.compose-up-test]
-description = "Start Docker containers for test for the workspace"
-run = "docker compose up -d meilisearch"
