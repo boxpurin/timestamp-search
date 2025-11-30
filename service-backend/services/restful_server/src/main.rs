@@ -16,7 +16,6 @@ fn use_cors() -> CorsLayer{
     CorsLayer::new()
         .allow_methods(vec![Method::GET, Method::POST])
         .allow_origin(vec![
-            "http://localhost:3000".parse::<HeaderValue>().unwrap(),
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
         ])
         .allow_headers(vec![AUTHORIZATION])
