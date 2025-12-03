@@ -59,7 +59,7 @@ mod unit_tests {
                 let mut db = self
                     .db
                     .lock()
-                    .map_err(|_| AppError::Conflict("".to_string()))?;
+                    .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
                 db.insert(video_entity.id.clone(), video_entity.clone());
             }
             Ok(())
@@ -76,7 +76,7 @@ mod unit_tests {
             let mut db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|e| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             if let Some(v) = db.get_mut(&video_entity.id) {
                 *v = video_entity.clone();
             }
@@ -94,7 +94,7 @@ mod unit_tests {
             let db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             let b = db.get(video_id);
             Ok(b.is_some())
         }
@@ -106,7 +106,7 @@ mod unit_tests {
             let db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|e| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             Ok(db.get(video_id).cloned())
         }
 
@@ -114,7 +114,7 @@ mod unit_tests {
             let db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             let vs = db.values().cloned().collect();
             Ok(vs)
         }
@@ -123,7 +123,7 @@ mod unit_tests {
             let mut db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             db.remove(video_id);
             Ok(())
         }
@@ -132,7 +132,7 @@ mod unit_tests {
             let mut db = self
                 .db
                 .lock()
-                .map_err(|_| AppError::Conflict("".to_string()))?;
+                .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
             db.clear();
             Ok(())
         }
