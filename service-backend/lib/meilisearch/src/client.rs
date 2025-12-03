@@ -13,6 +13,10 @@ use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResul
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::HashSet;
+use chrono::{FixedOffset, NaiveTime, TimeZone};
+
+// 日本時間 (UTC+9) の定義
+static JST_OFFSET: FixedOffset = FixedOffset::east_opt(9 * 3600).unwrap();
 
 pub struct ApiClient {
     pub client: Client,
@@ -43,6 +47,9 @@ impl Default for ApiClient {
 impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> MeilisearchCrudApi<I>
     for ApiClient
 {
+    ///
+    /// 単一のEntity<T>をindex_nameのindexとして追加する
+    ///
     async fn add_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
 
@@ -60,6 +67,9 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
         Ok(())
     }
 
+    ///
+    /// いくつかのEntity<T>をindex_nameのindexとして追加する
+    ///
     async fn add_entities(&self, index_name: &str, entities: &[I]) -> Result<(), MeilisearchError> {
         let i = self.client.get_index(index_name).await?;
 
@@ -72,6 +82,10 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
         Ok(())
     }
 
+    ///
+    /// Entity<I>をindex_nameのindexとして更新する
+    /// 該当項目がない場合は追加する
+    ///
     async fn update_entity(&self, index_name: &str, entity: &I) -> Result<(), MeilisearchError> {
         tracing::debug!("update_entity. index_name : {}", index_name);
         let i = self.client.get_index(index_name).await?;
@@ -99,6 +113,10 @@ impl<I: Index + Serialize + DeserializeOwned + Sync + Send + 'static> Meilisearc
         Ok(())
     }
 
+    ///
+    /// idの一致するEntityが存在するかを確認する
+    /// (indexが欲しい場合get_entity_by_idを使う)
+    ///
     async fn find_entity_by_id(
         &self,
         index_name: &str,
@@ -204,19 +222,40 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
             #[allow(clippy::collapsible_if)]
             if let Some(tags) = search_query.video_tags {
                 if tags.is_empty() {
-                    v.push(format!("tagId IN [{}]", tags.join(" , ")));
+                    v.push(format!("videoDetails.videoTags IN [{}]", tags.join(" , ")));
                 }
             }
 
             if let Some(at) = search_query.actual_start_at {
-                v.push(format!("actualStartAt = {}", at.timestamp()));
+                // 日本時間 (UTC+9) の定義
+                let start = JST_OFFSET
+                    .from_local_datetime(&at.naive_local())
+                    .unwrap()
+                    .timestamp();
+                let end = start + 3600 * 24;
+                tracing::info!("start {} end {}", start, end);
+                v.push(format!(
+                    "videoDetails.actualStartAt >= {} AND videoDetails.actualStartAt < {}"
+                    , start
+                    , end
+                )
+                );
             } else {
                 if let Some(from) = search_query.actual_start_from {
-                    v.push(format!("actualStartAt <= {}", from.timestamp()));
+                    let ts = JST_OFFSET
+                        .from_local_datetime(&from.naive_local())
+                        .unwrap()
+                        .timestamp();
+                    v.push(format!("videoDetails.actualStartAt >= {}", ts));
                 };
 
                 if let Some(to) = search_query.actual_start_to {
-                    v.push(format!("actualStartAt >= {}", to.timestamp()));
+                    let ts = JST_OFFSET
+                        .from_local_datetime(&to.naive_local())
+                        .unwrap()
+                        .timestamp()
+                        + 3600 * 24;
+                    v.push(format!("videoDetails.actualStartAt < {}", ts ));
                 }
             }
             v.into_iter().join(" AND ")
@@ -240,7 +279,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
                 match part {
                     Part::VideoDetails => {
                         a.insert("videoDetails.videoTitle");
-                        a.insert("videoDetails.videoTags");
+//                        a.insert("videoDetails.videoTags");
                         a.insert("videoDetails.thumbnailUrl");
                         a.insert("videoDetails.actualStartAt");
                         a.insert("videoDetails.publishedAt");
