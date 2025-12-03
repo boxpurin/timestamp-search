@@ -5,6 +5,8 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
+use axum::http::header;
+use errors::{AppResult, AppError};
 
 pub async fn access_log_console(req: Request, next: Next) -> Result<impl IntoResponse, Response> {
     tracing::info!("Request method : {} , uri : {} ", req.method(), req.uri());
@@ -33,4 +35,19 @@ pub async fn use_backet(
 
     let res = next.run(req).await;
     Ok(res)
+}
+
+pub async fn check_auth(req: Request, next: Next) -> AppResult<Response> {
+    let headers = req.headers();
+    let provided = headers
+        .get(header::AUTHORIZATION)
+        .ok_or(AppError::Unauthorized)?;
+    let provided = provided.to_str().map_err(|_| AppError::Unauthorized)?;
+    
+    let expected = "";
+    if provided != expected {
+        Ok(next.run(req).await)
+    } else {
+        Err(AppError::Unauthorized)
+    }
 }
