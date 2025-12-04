@@ -5,6 +5,8 @@ package.license = "MIT"
 package.authors = ["boxpurin"]
 resolver = "3"
 
+profile.dev.incrimental = true
+
 members = [
     "services/restful_server",
     "services/video_fetch",
