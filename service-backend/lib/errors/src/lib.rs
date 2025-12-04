@@ -35,6 +35,10 @@ pub enum AppError {
     #[error("Forbidden access")]
     /// 403 認証は成功しているが、当該リソースへのアクセス権が無い。
     Forbidden,
+    
+    #[error("429 Too Many Request")]
+    /// 429 Too Many Requests
+    TooManyRequests,
 
     #[error("502 Bad Gateway")]
     /// 外部APIやバックエンドサービスとの通信失敗
@@ -114,6 +118,9 @@ impl IntoResponse for AppError {
                 tracing::error!("{}", e);
                 (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
             },
+            AppError::TooManyRequests => {
+                (StatusCode::TOO_MANY_REQUESTS, "429 Too Many Requests.")
+            }
             AppError::Unauthorized => {
                 (StatusCode::UNAUTHORIZED, "401 Unauthorized.")
             },
