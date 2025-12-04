@@ -2,6 +2,7 @@
 #[derive(serde::Deserialize)]
 pub struct ServerConfig {
     pub port: u16,
+    pub master_key: String,
 }
 
 pub static SERVER_CONFIG: once_cell::sync::Lazy<ServerConfig> =
