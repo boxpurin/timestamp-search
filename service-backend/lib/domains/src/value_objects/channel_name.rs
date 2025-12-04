@@ -1,4 +1,4 @@
-use errors::{AppResult, DomainError};
+use errors::{AppResult, AppError};
 types::impl_string_value!(ChannelName);
 
 impl ChannelName {
@@ -15,7 +15,7 @@ impl ChannelName {
     /// ```
     pub fn new(name: &str) -> AppResult<Self> {
         if name.is_empty() {
-            return Err(DomainError::ValidationFailure("Channel name cannot be empty").into());
+            return Err(AppError::DomainParseError(String::from("Channel name cannot be empty")));
         }
 
         Ok(ChannelName(name.to_string()))

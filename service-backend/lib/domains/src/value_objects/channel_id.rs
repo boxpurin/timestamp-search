@@ -1,4 +1,4 @@
-use errors::DomainError;
+use errors::{AppError};
 types::impl_string_value!(ChannelId);
 impl ChannelId {
     /// Creates a new `ChannelId` from a string slice.
@@ -12,23 +12,23 @@ impl ChannelId {
     /// let invalid_channel_id = ChannelId::new("invalid");
     /// assert!(invalid_channel_id.is_err());
     /// ```
-    pub fn new(id: &str) -> Result<Self, DomainError> {
+    pub fn new(id: &str) -> Result<Self, AppError> {
         if id.len() != 24 {
-            return Err(DomainError::ValidationFailure(
-                "Channel ID must be 24 characters long",
+            return Err(AppError::DomainParseError(
+                String::from("Channel ID must be 24 characters long"),
             ));
         }
         if !id.starts_with("UC") {
-            return Err(DomainError::ValidationFailure(
-                "Channel ID must start with 'UC'",
+            return Err(AppError::DomainParseError(
+                String::from("Channel ID must start with 'UC'"),
             ));
         }
         if !id
             .chars()
             .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
         {
-            return Err(DomainError::ValidationFailure(
-                "Channel ID must contain only alphanumeric characters, hyphens, or underscores",
+            return Err(AppError::DomainParseError(
+                String::from("Channel ID must contain only alphanumeric characters, hyphens, or underscores"),
             ));
         }
         Ok(ChannelId(id.to_string()))

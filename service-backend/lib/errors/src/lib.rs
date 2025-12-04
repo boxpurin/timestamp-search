@@ -8,99 +8,48 @@ use meilisearch_sdk::errors::{Error as MeiliSearchError, ErrorType as MeiliSearc
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Invalid input {0}")]
+    #[error("Invalid input : input {0}")]
+    /// BadRequest
     InvalidInput(String),
 
-    #[error("Invalid domain {0}")]
+    #[error("Invalid domain . Domain : {0}")]
+    /// InternalServerError
     DomainParseError(String),
 
-    #[error("Entity build failed")]
+    #[error("Entity build failed. object : {0}")]
+    /// 500 InternalServerError
     EntityBuildFailed(String),
 
-    #[error("Not found: {0}")]
+    #[error("Not found : {0}")]
+    /// 404
     NotFound(String),
 
     #[error("Internal server error: {0}")]
+    /// 500 サーバー内部エラー（予期しない例外等）
     InternalServerError(#[source] anyhow::Error),
 
     #[error("Unauthorized access")]
+    /// 401 認証情報が不足または無効である。
     Unauthorized,
 
-    #[error("Forbidden access: {0}")]
-    Forbidden(String),
+    #[error("Forbidden access")]
+    /// 403 認証は成功しているが、当該リソースへのアクセス権が無い。
+    Forbidden,
 
-    #[error("Service unavailable: {0}")]
-    ServiceUnavailable(String),
+    #[error("502 Bad Gateway")]
+    /// 外部APIやバックエンドサービスとの通信失敗
+    BadGateway(#[source] anyhow::Error),
+
+    #[error("Service unavailable.")]
+    /// 503 サービス過負荷・メンテナンス等で一時的に利用不可
+    ServiceUnavailable,
 }
 
-#[derive(Debug, thiserror::Error)]
-pub enum DomainError {
-    /// バリデーション失敗時のエラー
-    #[error("Validation failure. : {0}")]
-    ValidationFailure(&'static str),
-
-    /// 変換エラー
-    #[error("Domain parse failure.")]
-    ParseFailure,
-}
-
-impl From<DomainError> for AppError {
-    fn from(e: DomainError) -> Self {
-        match e {
-            DomainError::ValidationFailure(_) => {
-                tracing::error!("{}", e);
-                AppError::InvalidInput(format!("{}", e))
-            }
-            DomainError::ParseFailure => {
-                tracing::error!("Domain Parse failure: {}", e);
-                AppError::DomainParseError(format!("{}", e))
-            }
-        }
-    }
-}
 
 impl From<Youtube3Error> for AppError {
     fn from(e: Youtube3Error) -> Self {
         match e {
-            Youtube3Error::HttpError(e) => {
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
-            Youtube3Error::UploadSizeLimitExceeded(i, e) => {
-                AppError::InvalidInput(format!(
-                    "Upload size limit exceeded: {} bytes. Error: {}",
-                    i, e
-                ))
-            }
-            Youtube3Error::BadRequest(v) => {
-                AppError::InvalidInput(format!("Bad request to YouTube API: {:?}", v))
-            }
-            Youtube3Error::MissingAPIKey => {
-                tracing::error!("YouTube API key is missing");
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
-            Youtube3Error::MissingToken(e) => {
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
-            Youtube3Error::Cancelled => {
-                tracing::error!("YouTube API request was cancelled");
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
-            Youtube3Error::FieldClash(s) => {
-                AppError::InvalidInput(format!("Field clash in YouTube API response: {}", s))
-            }
-            Youtube3Error::JsonDecodeError(s, e) => {
-                AppError::InvalidInput(format!(
-                    "JSON decode error in YouTube API response: {}. Error: {}",
-                    s, e
-                ))
-            }
-            Youtube3Error::Failure(r) => {
-                AppError::ServiceUnavailable(format!("YouTube API failure: {:?}", r))
-            }
-            Youtube3Error::Io(e) => {
-                tracing::error!("IO error in YouTube API: {}", e);
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
+            _ => AppError::BadGateway(anyhow::anyhow!(e))
         }
     }
 }
@@ -110,70 +59,27 @@ impl From<MeiliSearchError> for AppError {
         match e {
             Meilisearch(e) => match e.error_type {
                 MeiliSearchErrorType::InvalidRequest => AppError::InvalidInput(e.error_message),
-                MeiliSearchErrorType::Auth => AppError::Unauthorized,
-                MeiliSearchErrorType::Internal => AppError::InternalServerError(anyhow::anyhow!(e)),
-                MeiliSearchErrorType::Unknown => AppError::InternalServerError(anyhow::anyhow!(e)),
-                _ => AppError::InternalServerError(anyhow::anyhow!(e)),
+                _ => AppError::BadGateway(anyhow::anyhow!(e)),
             },
-            MeilisearchCommunication(e) => match e.status_code {
-                400 => AppError::InvalidInput(
-                    e.message
-                        .unwrap_or("Invalid request to meilisearch".to_string()),
-                ),
-                401 => AppError::Unauthorized,
-                403 => AppError::Forbidden(
-                    e.message
-                        .unwrap_or("Forbidden access to meilisearch".to_string()),
-                ),
-                404 => AppError::NotFound(
-                    e.message
-                        .unwrap_or("Resource not found in meilisearch".to_string()),
-                ),
-                503 => AppError::ServiceUnavailable(
-                    e.message
-                        .unwrap_or("Service unavailable in meilisearch".to_string()),
-                ),
-                _ => AppError::InternalServerError(anyhow::anyhow!(e)),
+            MeilisearchCommunication(e) => {
+                tracing::error!("Communication error with Meilisearch. Status code : {}", e.status_code);
+                AppError::BadGateway(anyhow::anyhow!(e))
             },
-            MeiliSearchError::ParseError(e) => AppError::InvalidInput(e.to_string()),
+            MeiliSearchError::ParseError(e) => {
+                tracing::error!("Parse error in Meilisearch response: {}", e);
+                AppError::BadGateway(anyhow::anyhow!(e))
+            },
             MeiliSearchError::Timeout => {
-                tracing::error!("Meilisearch request timed out");
-                AppError::ServiceUnavailable("Meilisearch request timed out".to_string())
-            }
+                tracing::error!("Timeout while communicating with Meilisearch");
+                AppError::BadGateway(anyhow::anyhow!(e))
+            },
             MeiliSearchError::InvalidRequest => {
                 tracing::error!("Invalid request to Meilisearch");
                 AppError::InvalidInput("Invalid request to Meilisearch".to_string())
             }
-            MeiliSearchError::CantUseWithoutApiKey(s) => {
-                tracing::error!("Can't use Meilisearch without an API key: {}", s);
-                AppError::Unauthorized
-            }
-            MeiliSearchError::TenantTokensInvalidApiKey => {
-                AppError::Unauthorized
-            }
-            MeiliSearchError::TenantTokensExpiredSignature => {
-                AppError::Unauthorized
-            }
-            MeiliSearchError::InvalidTenantToken(e) => {
-                AppError::Unauthorized
-            }
-            MeiliSearchError::HttpError(e) => {
-                tracing::error!("HTTP error in Meilisearch: {}", e);
-                AppError::InternalServerError(anyhow::anyhow!(e))
-            }
-            MeiliSearchError::Yaup(e) => AppError::InvalidInput(
-                "The library formatting the query parameters encountered an error.".to_string()
-             ),
-            MeiliSearchError::Uuid(e) => AppError::InvalidInput(format!("Invalid UUID4: {}", e)),
-            MeiliSearchError::InvalidUuid4Version => {
-                AppError::InvalidInput("Invalid UUID4 version".to_string())
-            }
-            MeiliSearchError::Other(e) =>
-            // This is a catch-all for any other Meilisearch errors that don't fit the above categories
-            // It should be used carefully, as it may mask specific issues.
-            {
-                tracing::error!("An unknown error occurred in Meilisearch: {}", e);
-                AppError::InternalServerError(anyhow::anyhow!(e))
+            MeiliSearchError::CantUseWithoutApiKey(_) => {
+                tracing::error!("Can't use Meilisearch without an API key", );
+                AppError::BadGateway(anyhow::anyhow!(e))
             }
             _ => {
                 tracing::error!("An unknown error occurred in Meilisearch: {}", e);
@@ -190,29 +96,42 @@ struct ResponseBody {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let status = match self {
-            AppError::InvalidInput(from) => {
-                tracing::error!("{}", from);
-                StatusCode::BAD_REQUEST
+        tracing::error!("{}", self);
+        let (status, message) = match self {
+            AppError::InvalidInput(_) => {
+                (StatusCode::BAD_REQUEST, "500 Bad Request. Invalid input.")
             },
-            AppError::DomainParseError(domain) => {
-                tracing::error!("{}", domain);
-                StatusCode::BAD_REQUEST
+            AppError::DomainParseError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
             },
-            AppError::EntityBuildFailed(msg) => {
-                tracing::error!("{}", msg);
-                StatusCode::BAD_REQUEST
+            AppError::EntityBuildFailed(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
             },
-            AppError::NotFound(_) => StatusCode::NOT_FOUND,
-            AppError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::Unauthorized => StatusCode::UNAUTHORIZED,
-            AppError::Forbidden(_) => StatusCode::FORBIDDEN,
-            AppError::ServiceUnavailable(_) => StatusCode::SERVICE_UNAVAILABLE,
+            AppError::NotFound(_) => {
+                (StatusCode::NOT_FOUND, "404 Not Found.")
+            },
+            AppError::InternalServerError(e) => {
+                tracing::error!("{}", e);
+                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
+            },
+            AppError::Unauthorized => {
+                (StatusCode::UNAUTHORIZED, "401 Unauthorized.")
+            },
+            AppError::Forbidden => {
+                (StatusCode::FORBIDDEN, "403 Forbidden.")
+            },
+            AppError::BadGateway(e) => {
+                tracing::error!("{}", e);
+                (StatusCode::BAD_GATEWAY, "502 Bad Gateway.")
+            },
+            AppError::ServiceUnavailable => {
+                (StatusCode::SERVICE_UNAVAILABLE, "503 Service Unavailable.")
+            },
         };
 
 
         (status, axum::Json(ResponseBody{
-            message : status.to_string()
+            message: String::from(message)
         })).into_response()
     }
 }
