@@ -5,8 +5,6 @@ package.license = "MIT"
 package.authors = ["boxpurin"]
 resolver = "3"
 
-profile.dev.incrimental = true
-
 members = [
     "services/restful_server",
     "services/video_fetch",
@@ -58,3 +56,6 @@ fancy-regex = "0.16.1"
 itertools = "0.14.0"
 leaky-bucket = { version = "1.1.2" }
 rand = {version = "0.9.2"}
+
+[profile.dev]
+incremental = true
