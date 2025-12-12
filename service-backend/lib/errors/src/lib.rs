@@ -35,7 +35,7 @@ pub enum AppError {
     #[error("403 Forbidden access")]
     /// 403 認証は成功しているが、当該リソースへのアクセス権が無い。
     Forbidden,
-    
+
     #[error("429 Too Many Request")]
     /// 429 Too Many Requests
     TooManyRequests,
@@ -49,11 +49,10 @@ pub enum AppError {
     ServiceUnavailable,
 }
 
-
 impl From<Youtube3Error> for AppError {
     fn from(e: Youtube3Error) -> Self {
         match e {
-            _ => AppError::BadGateway(anyhow::anyhow!(e))
+            _ => AppError::BadGateway(anyhow::anyhow!(e)),
         }
     }
 }
@@ -66,23 +65,26 @@ impl From<MeiliSearchError> for AppError {
                 _ => AppError::BadGateway(anyhow::anyhow!(e)),
             },
             MeilisearchCommunication(e) => {
-                tracing::error!("Communication error with Meilisearch. Status code : {}", e.status_code);
+                tracing::error!(
+                    "Communication error with Meilisearch. Status code : {}",
+                    e.status_code
+                );
                 AppError::BadGateway(anyhow::anyhow!(e))
-            },
+            }
             MeiliSearchError::ParseError(e) => {
                 tracing::error!("Parse error in Meilisearch response: {}", e);
                 AppError::BadGateway(anyhow::anyhow!(e))
-            },
+            }
             MeiliSearchError::Timeout => {
                 tracing::error!("Timeout while communicating with Meilisearch");
                 AppError::BadGateway(anyhow::anyhow!(e))
-            },
+            }
             MeiliSearchError::InvalidRequest => {
                 tracing::error!("Invalid request to Meilisearch");
                 AppError::InvalidInput("Invalid request to Meilisearch".to_string())
             }
             MeiliSearchError::CantUseWithoutApiKey(_) => {
-                tracing::error!("Can't use Meilisearch without an API key", );
+                tracing::error!("Can't use Meilisearch without an API key",);
                 AppError::BadGateway(anyhow::anyhow!(e))
             }
             _ => {
@@ -95,7 +97,7 @@ impl From<MeiliSearchError> for AppError {
 
 #[derive(Debug, serde::Serialize)]
 struct ResponseBody {
-    message : String
+    message: String,
 }
 
 impl IntoResponse for AppError {
@@ -104,42 +106,42 @@ impl IntoResponse for AppError {
         let (status, message) = match self {
             AppError::InvalidInput(_) => {
                 (StatusCode::BAD_REQUEST, "500 Bad Request. Invalid input.")
-            },
-            AppError::DomainParseError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
-            },
-            AppError::EntityBuildFailed(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
-            },
-            AppError::NotFound(_) => {
-                (StatusCode::NOT_FOUND, "404 Not Found.")
-            },
+            }
+            AppError::DomainParseError(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "500 Internal Server Error.",
+            ),
+            AppError::EntityBuildFailed(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "500 Internal Server Error.",
+            ),
+            AppError::NotFound(_) => (StatusCode::NOT_FOUND, "404 Not Found."),
             AppError::InternalServerError(e) => {
                 tracing::error!("{}", e);
-                (StatusCode::INTERNAL_SERVER_ERROR, "500 Internal Server Error.")
-            },
-            AppError::TooManyRequests => {
-                (StatusCode::TOO_MANY_REQUESTS, "429 Too Many Requests.")
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "500 Internal Server Error.",
+                )
             }
-            AppError::Unauthorized => {
-                (StatusCode::UNAUTHORIZED, "401 Unauthorized.")
-            },
-            AppError::Forbidden => {
-                (StatusCode::FORBIDDEN, "403 Forbidden.")
-            },
+            AppError::TooManyRequests => (StatusCode::TOO_MANY_REQUESTS, "429 Too Many Requests."),
+            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "401 Unauthorized."),
+            AppError::Forbidden => (StatusCode::FORBIDDEN, "403 Forbidden."),
             AppError::BadGateway(e) => {
                 tracing::error!("{}", e);
                 (StatusCode::BAD_GATEWAY, "502 Bad Gateway.")
-            },
+            }
             AppError::ServiceUnavailable => {
                 (StatusCode::SERVICE_UNAVAILABLE, "503 Service Unavailable.")
-            },
+            }
         };
 
-
-        (status, axum::Json(ResponseBody{
-            message: String::from(message)
-        })).into_response()
+        (
+            status,
+            axum::Json(ResponseBody {
+                message: String::from(message),
+            }),
+        )
+            .into_response()
     }
 }
 

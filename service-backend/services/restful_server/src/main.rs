@@ -3,7 +3,7 @@ use api::app_state::AppState;
 use api::middleware::{access_log_console, use_backet};
 use api::route::router;
 use api::service::TimeStampSearchService;
-use axum::http::{Method, HeaderValue, header::{AUTHORIZATION}};
+use axum::http::{HeaderValue, Method, header::AUTHORIZATION};
 use leaky_bucket::RateLimiter;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
@@ -11,8 +11,7 @@ use tracing_subscriber::EnvFilter;
 
 mod api;
 
-
-fn use_cors() -> CorsLayer{
+fn use_cors() -> CorsLayer {
     CorsLayer::new()
         .allow_methods(vec![Method::GET, Method::POST])
         .allow_origin(vec![
@@ -56,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(axum::middleware::from_fn(access_log_console))
         .with_state(state.clone());
     tracing::trace!("Router initialized.");
-    
+
     tracing::info!("server start listen addr : {}", SERVER_CONFIG.listen_addr());
     let listener = tokio::net::TcpListener::bind(SERVER_CONFIG.listen_addr()).await?;
     let ret = axum::serve(listener, app).await;

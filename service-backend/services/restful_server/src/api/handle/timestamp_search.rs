@@ -27,7 +27,7 @@ pub async fn search_timestamp(
         Ok(r) => {
             tracing::debug!("search timestamp succeed.");
             Ok(Json(r.into()))
-        },
+        }
         Err(e) => {
             tracing::error!("Search timestamp failed");
             Err(e.into_response())

@@ -1,4 +1,3 @@
-use std::path::Path;
 use crate::adapter::video::VideoEntityConverter;
 use crate::config::YOUTUBE_CLIENT;
 use domains::entities::video::VideoEntity;
@@ -12,19 +11,18 @@ use google_youtube3::{
 };
 use hyper_rustls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
+use std::path::Path;
 
 pub struct YoutubeVideoRepository {
     api_client: YouTubeApi,
 }
 
 pub async fn create_youtube_video_repository() -> YoutubeVideoRepository {
-
-
     tracing::info!("Read secret token.");
     let src = Path::new(&YOUTUBE_CLIENT.persistent_token_path);
     let dst = Path::new("/tmp/secret_token.json");
-    
-    if src.exists(){
+
+    if src.exists() {
         std::fs::copy(src, dst).expect("Failed to copy secret token file.");
         tracing::info!("Token copied to temporary directory.");
     } else {
