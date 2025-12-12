@@ -8,15 +8,15 @@ use meilisearch_sdk::errors::{Error as MeiliSearchError, ErrorType as MeiliSearc
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Invalid input : input {0}")]
+    #[error("500 Invalid input : input {0}")]
     /// BadRequest
     InvalidInput(String),
 
-    #[error("Invalid domain . Domain : {0}")]
+    #[error("500 Invalid domain . Domain : {0}")]
     /// InternalServerError
     DomainParseError(String),
 
-    #[error("Entity build failed. object : {0}")]
+    #[error("500 Entity build failed. object : {0}")]
     /// 500 InternalServerError
     EntityBuildFailed(String),
 
@@ -24,15 +24,15 @@ pub enum AppError {
     /// 404
     NotFound(String),
 
-    #[error("Internal server error: {0}")]
+    #[error("500 Internal server error: {0}")]
     /// 500 サーバー内部エラー（予期しない例外等）
     InternalServerError(#[source] anyhow::Error),
 
-    #[error("Unauthorized access")]
+    #[error("401 Unauthorized access")]
     /// 401 認証情報が不足または無効である。
     Unauthorized,
 
-    #[error("Forbidden access")]
+    #[error("403 Forbidden access")]
     /// 403 認証は成功しているが、当該リソースへのアクセス権が無い。
     Forbidden,
     
@@ -44,7 +44,7 @@ pub enum AppError {
     /// 外部APIやバックエンドサービスとの通信失敗
     BadGateway(#[source] anyhow::Error),
 
-    #[error("Service unavailable.")]
+    #[error("503 Service unavailable.")]
     /// 503 サービス過負荷・メンテナンス等で一時的に利用不可
     ServiceUnavailable,
 }
