@@ -4,7 +4,7 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use errors::{AppResult, AppError};
+use errors::{AppError, AppResult};
 
 pub async fn access_log_console(req: Request, next: Next) -> Result<impl IntoResponse, Response> {
     tracing::info!("Request method : {} , uri : {} ", req.method(), req.uri());

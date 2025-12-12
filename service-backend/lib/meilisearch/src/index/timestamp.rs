@@ -83,8 +83,14 @@ impl From<TimeStampIndex> for VideoTimestampEntity {
                 video_title: d.video_title,
                 video_tags: d.video_tags,
                 thumbnail_url: d.thumbnail_url,
-                published_at: d.published_at.map(|t| DateTime::from_timestamp(t,0)).unwrap_or(None),
-                actual_start_at: d.actual_start_at.map(|t| DateTime::from_timestamp(t,0)).unwrap_or(None),
+                published_at: d
+                    .published_at
+                    .map(|t| DateTime::from_timestamp(t, 0))
+                    .unwrap_or(None),
+                actual_start_at: d
+                    .actual_start_at
+                    .map(|t| DateTime::from_timestamp(t, 0))
+                    .unwrap_or(None),
             }),
         )
     }
@@ -147,8 +153,8 @@ mod unit_tests {
     use crate::index::timestamp::TimeStampIndex;
     use domains::entities::channel::ChannelEntity;
     use domains::entities::video::VideoEntityBuilder;
-    use domains::value_objects::timestamp::TimeStamp;
     use domains::value_objects::channel_name::ChannelName;
+    use domains::value_objects::timestamp::TimeStamp;
     use domains::value_objects::video_description::VideoDescription;
     use domains::value_objects::video_id::VideoId;
     use rstest::rstest;

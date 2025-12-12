@@ -2,6 +2,7 @@ use crate::config::CONFIG;
 use crate::index::Index;
 use crate::index::timestamp::TimeStampIndex;
 use crate::repositories::{MeilisearchCrudApi, MeilisearchSearchApi};
+use chrono::{FixedOffset, NaiveTime, TimeZone};
 use domains::repositories::internal_timestamp_search_repository::{
     Part, VideoTimestampSearchQuery,
 };
@@ -13,7 +14,6 @@ use meilisearch_sdk::search::{SearchQuery as MeilisearchSearchQuery, SearchResul
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::HashSet;
-use chrono::{FixedOffset, NaiveTime, TimeZone};
 
 // 日本時間 (UTC+9) の定義
 static JST_OFFSET: FixedOffset = FixedOffset::east_opt(9 * 3600).unwrap();
@@ -235,11 +235,9 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
                 let end = start + 3600 * 24;
                 tracing::info!("start {} end {}", start, end);
                 v.push(format!(
-                    "videoDetails.actualStartAt >= {} AND videoDetails.actualStartAt < {}"
-                    , start
-                    , end
-                )
-                );
+                    "videoDetails.actualStartAt >= {} AND videoDetails.actualStartAt < {}",
+                    start, end
+                ));
             } else {
                 if let Some(from) = search_query.actual_start_from {
                     let ts = JST_OFFSET
@@ -255,7 +253,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
                         .unwrap()
                         .timestamp()
                         + 3600 * 24;
-                    v.push(format!("videoDetails.actualStartAt < {}", ts ));
+                    v.push(format!("videoDetails.actualStartAt < {}", ts));
                 }
             }
             v.into_iter().join(" AND ")
@@ -279,7 +277,7 @@ impl MeilisearchSearchApi<TimeStampIndex> for ApiClient {
                 match part {
                     Part::VideoDetails => {
                         a.insert("videoDetails.videoTitle");
-//                        a.insert("videoDetails.videoTags");
+                        //                        a.insert("videoDetails.videoTags");
                         a.insert("videoDetails.thumbnailUrl");
                         a.insert("videoDetails.actualStartAt");
                         a.insert("videoDetails.publishedAt");

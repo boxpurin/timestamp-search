@@ -56,10 +56,9 @@ mod unit_tests {
     impl InternalVideoRepository for InMemoryVideoRepository {
         async fn add_video_entity(&self, video_entity: &VideoEntity) -> AppResult<()> {
             if !self.find_video_entity_by_id(&video_entity.id).await? {
-                let mut db = self
-                    .db
-                    .lock()
-                    .map_err(|_| AppError::InternalServerError(anyhow::anyhow!("Position Error.")))?;
+                let mut db = self.db.lock().map_err(|_| {
+                    AppError::InternalServerError(anyhow::anyhow!("Position Error."))
+                })?;
                 db.insert(video_entity.id.clone(), video_entity.clone());
             }
             Ok(())
