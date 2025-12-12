@@ -16,15 +16,19 @@ run = "docker compose build"
 
 [tasks.compose-up]
 description = "Start Docker containers for the workspace"
-run = "docker compose up -d"
+run = "docker compose up -d --build"
+
+[tasks.compose-watch]
+description = "Start Docker containers for the workspace"
+run = "docker compose up --watch"
 
 [tasks.compose-down]
 description = "Stop Docker containers for the workspace"
-run = "docker compose down -v"
+run = "docker compose down"
 
 [tasks.compose-remove]
 description = "Remove Docker containers for the workspace"
-run = "docker compose rm -f"
+run = "docker compose rm"
 
 [tasks.compose-logs]
 description = "Show logs from Docker containers"

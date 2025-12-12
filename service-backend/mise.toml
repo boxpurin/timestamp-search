@@ -3,10 +3,22 @@ _.file = '../.env.dev'
 RUST_BACKTRACE = 1
 RUST_LOG = "info"
 
+
+[tasks.fetch]
+description = "Run the video fetch application"
+env = { MEILI_CONNECTION_ADDR = "http://localhost:7700", RUST_LOG = "debug" }
+run = "cargo run --package video_fetch -- "
+
 [tasks.run-fetch]
 description = "Run the video fetch application"
 env = { MEILI_CONNECTION_ADDR = "http://localhost:7700", RUST_LOG = "debug" }
 run = "cargo run --package video_fetch -- --in-external --out-internal"
+
+[tasks.run-fetch-all]
+description = "Run the video fetch application"
+env = { MEILI_CONNECTION_ADDR = "http://localhost:7700", RUST_LOG = "debug" }
+run = "cargo run --package video_fetch -- --all --in-external --out"
+
 
 [tasks.run-server]
 description = "Run the server application"
