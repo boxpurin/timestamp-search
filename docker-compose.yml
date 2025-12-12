@@ -1,6 +1,22 @@
 services:
   restful-server:
+    build:
+      context: .
+      dockerfile: ./service-backend/services/restful_server/Dockerfile
     image: boxpurin/timestamp-search/server:latest
+    develop:
+      watch:
+        - action: rebuild
+          path: "./service-backend"
+          target: services
+          ignore:
+            - Dockerfile
+            - video_fetch
+        - action: rebuild
+          path: "./service-backend"
+          target: lib
+          ignore:
+            - Dockerfile
     ports:
       - "${TSS_APP_PORT}:${TSS_APP_PORT}"
     environment:
